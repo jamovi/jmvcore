@@ -29,7 +29,9 @@ Analysis <- R6::R6Class("Analysis",
                 private$.checkpointCB(NULL)
         },
         .sourcifyOption=function(option) {
-            if ( ! ((is.numeric(value) && isTRUE(all.equal(value, option$default))) || base::identical(value, option$default))) {
+            value <- option$value
+            def <- option$default
+            if ( ! ((is.numeric(value) && isTRUE(all.equal(value, def))) || base::identical(value, def))) {
                 return(paste0(option$name, '=', sourcify(value, '    ')))
             }
             ''
