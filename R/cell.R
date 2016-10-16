@@ -35,7 +35,7 @@ Cell <- R6::R6Class(
         },
         fromProtoBuf=function(cellPB) {
             if ( ! base::inherits(cellPB, "Message"))
-                reject("Cell$fromProtoBuf(): expects a jmvcoms.ResultsCell")
+                reject("Cell$fromProtoBuf(): expects a jamovi.coms.ResultsCell")
             
             if (cellPB$has('i')) {
                 self$value <- cellPB$i
@@ -44,7 +44,7 @@ Cell <- R6::R6Class(
             } else if (cellPB$has('s')) {
                 self$value <- cellPB$s
             } else if (cellPB$has('o')) {
-                if (cellPB$o == jmvcoms.ResultsCell.Other$MISSING)
+                if (cellPB$o == jamovi.coms.ResultsCell.Other$MISSING)
                     self$value <- NA
                 else
                     self$value <- NaN
@@ -55,13 +55,13 @@ Cell <- R6::R6Class(
         },
         asProtoBuf=function() {
             initProtoBuf()
-            cell <- RProtoBuf::new(jmvcoms.ResultsCell)
+            cell <- RProtoBuf::new(jamovi.coms.ResultsCell)
             
             vc <- class(self$value)
             
             if (vc == "integer") {
                 if (is.na(self$value))
-                    cell$o <- jmvcoms.ResultsCell.Other$MISSING
+                    cell$o <- jamovi.coms.ResultsCell.Other$MISSING
                 else
                     cell$i <- self$value
             } else if (vc == "numeric")
@@ -69,9 +69,9 @@ Cell <- R6::R6Class(
             else if (vc == "character")
                 cell$s <- self$value
             else if (vc == "logical" && is.nan(vc))
-                cell$o <- jmvcoms.ResultsCell.Other$NOT_A_NUMBER
+                cell$o <- jamovi.coms.ResultsCell.Other$NOT_A_NUMBER
             else
-                cell$o <- jmvcoms.ResultsCell.Other$MISSING
+                cell$o <- jamovi.coms.ResultsCell.Other$MISSING
             
             cell$footnotes <- self$footnotes
             cell$symbols   <- self$symbols

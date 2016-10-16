@@ -151,7 +151,7 @@ Column <- R6Class("Column",
         asProtoBuf=function() {
             initProtoBuf()
             
-            column <- RProtoBuf::new(jmvcoms.ResultsColumn,
+            column <- RProtoBuf::new(jamovi.coms.ResultsColumn,
                 name=private$.name,
                 title=private$.title,
                 type=private$.type,
@@ -169,7 +169,7 @@ Column <- R6Class("Column",
         },
         fromProtoBuf=function(columnPB) {
             if ( ! base::inherits(columnPB, "Message"))
-                reject("Cell$fromProtoBuf(): expects a jmvcoms.ResultsColumn")
+                reject("Cell$fromProtoBuf(): expects a jamovi.coms.ResultsColumn")
             
             cellsPB <- columnPB$cells
             

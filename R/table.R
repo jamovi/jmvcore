@@ -523,7 +523,7 @@ Table <- R6::R6Class("Table",
         },
         fromProtoBuf=function(element, oChanges=NULL, vChanges=NULL) {
             if ( ! base::inherits(element, "Message"))
-                reject("Table$fromProtoBuf() expects a jmvcoms.ResultsElement")
+                reject("Table$fromProtoBuf() expects a jamovi.coms.ResultsElement")
 
             if (base::any(oChanges %in% private$.clearWith))
                 return()
@@ -577,7 +577,7 @@ Table <- R6::R6Class("Table",
         asProtoBuf=function(incAsText=FALSE) {
             initProtoBuf()
             
-            table <- RProtoBuf::new(jmvcoms.ResultsTable)
+            table <- RProtoBuf::new(jamovi.coms.ResultsTable)
             
             for (column in private$.columns) {
                 if (column$visible)
@@ -590,7 +590,7 @@ Table <- R6::R6Class("Table",
             for (i in seq_along(private$.notes)) {
                 noteName <- names(private$.notes)[[i]]
                 noteSays <- private$.notes[[i]]
-                note <- RProtoBuf::new(jmvcoms.ResultsTableNote, name=noteName, note=noteSays)
+                note <- RProtoBuf::new(jamovi.coms.ResultsTableNote, name=noteName, note=noteSays)
                 table$add('notes', note)
             }
             

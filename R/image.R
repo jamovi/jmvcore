@@ -42,19 +42,19 @@ Image <- R6::R6Class("Image",
         asProtoBuf=function(incAsText=FALSE) {
             initProtoBuf()
             
-            image <- RProtoBuf::new(jmvcoms.ResultsImage,
+            image <- RProtoBuf::new(jamovi.coms.ResultsImage,
                 width=private$.width,
                 height=private$.height,
                 path=private$.path)
             
-            RProtoBuf::new(jmvcoms.ResultsElement,
+            RProtoBuf::new(jamovi.coms.ResultsElement,
                 name=self$name,
                 title=self$title,
                 image=image)
         },
         fromProtoBuf=function(element, oChanges=NULL, vChanges=NULL) {
             if ( ! base::inherits(element, "Message"))
-                reject("Image$fromProtoBuf() expects a jmvcoms.ResultsElement")
+                reject("Image$fromProtoBuf() expects a jamovi.coms.ResultsElement")
             
             if (base::any(oChanges %in% private$.clearWith))
                 return()

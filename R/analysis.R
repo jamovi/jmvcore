@@ -169,7 +169,7 @@ Analysis <- R6::R6Class("Analysis",
             path <- private$.statePathSource()
 
             if (base::file.exists(path)) {
-                pb <- RProtoBuf::read(jmvcoms.AnalysisResponse, path)
+                pb <- RProtoBuf::read(jamovi.coms.AnalysisResponse, path)
 
                 options <- rjson::fromJSON(pb$options)
                 oChanges <- list()
@@ -270,7 +270,7 @@ Analysis <- R6::R6Class("Analysis",
                     statePath <- private$.statePathSource()
                     if (base::file.exists(statePath)) {
                         conn <- file(statePath, open="rb", raw=TRUE)
-                        pb <- RProtoBuf::read(jmvcoms.ResultsElement, conn)
+                        pb <- RProtoBuf::read(jamovi.coms.ResultsElement, conn)
                         base::close(conn)
 
                         self$results$fromProtoBuf(pb)
@@ -304,13 +304,14 @@ Analysis <- R6::R6Class("Analysis",
             self$init()
             initProtoBuf()
 
-            response <- RProtoBuf::new(jmvcoms.AnalysisResponse)
+            response <- RProtoBuf::new(jamovi.coms.AnalysisResponse)
             response$datasetId  <- private$.datasetId
             response$analysisId <- self$analysisId
+            response$hasResults <- TRUE
 
             if (incAsText) {
                 response$incAsText <- TRUE
-                syntax <- RProtoBuf::new(jmvcoms.ResultsElement, name='syntax', syntax=self$asSource())
+                syntax <- RProtoBuf::new(jamovi.coms.ResultsElement, name='syntax', syntax=self$asSource())
                 response$results <- self$results$asProtoBuf(incAsText=incAsText, prepend=syntax);
             } else {
                 response$results <- self$results$asProtoBuf(incAsText=incAsText);
@@ -320,16 +321,16 @@ Analysis <- R6::R6Class("Analysis",
                 response$options <- private$.options$asJSON()
 
             if (private$.status == "inited") {
-                response$status <- jmvcoms.AnalysisStatus$ANALYSIS_INITED;
+                response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_INITED;
             } else if (private$.status == "running") {
-                response$status <- jmvcoms.AnalysisStatus$ANALYSIS_RUNNING;
+                response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_RUNNING;
             } else if (private$.status == "complete") {
-                response$status <- jmvcoms.AnalysisStatus$ANALYSIS_COMPLETE;
+                response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE;
             } else {
-                error <- RProtoBuf::new(jmvcoms.Error)
+                error <- RProtoBuf::new(jamovi.coms.Error)
                 error$message <- private$.error
                 response$error <- error
-                response$status <- jmvcoms.AnalysisStatus$ANALYSIS_ERROR;
+                response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_ERROR;
             }
 
             response

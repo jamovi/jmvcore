@@ -1,11 +1,11 @@
 
 initProtoBuf <- function() {
-    if ( ! base::exists('jmvcoms.Status')) {
-        resultsProtoPath <- system.file("enginecoms.proto", package="jmvcore")
+    if ( ! base::exists('jamovi.coms.Status')) {
+        resultsProtoPath <- system.file("jamovi.proto", package="jmvcore")
         if (resultsProtoPath == "")
-            resultsProtoPath <- system.file("inst", "enginecoms.proto", package="jmvcore")
+            resultsProtoPath <- system.file("inst", "jamovi.proto", package="jmvcore")
         if (resultsProtoPath == "")
-            stop("jmvcore enginecoms.proto not found!", call.=FALSE)
+            stop("jmvcore jamovi.proto not found!", call.=FALSE)
 
         RProtoBuf::readProtoFiles(resultsProtoPath)
     }

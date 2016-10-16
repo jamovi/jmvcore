@@ -130,18 +130,18 @@ ResultsElement <- R6::R6Class("ResultsElement",
 
             initProtoBuf()
 
-            element <- RProtoBuf::new(jmvcoms.ResultsElement,
+            element <- RProtoBuf::new(jamovi.coms.ResultsElement,
                 name=private$.name,
                 title=self$title)
 
             if (private$.status == 'running')
-                element$status <- jmvcoms.AnalysisStatus$ANALYSIS_RUNNING
+                element$status <- jamovi.coms.AnalysisStatus$ANALYSIS_RUNNING
             else if (private$.status == 'inited')
-                element$status <- jmvcoms.AnalysisStatus$ANALYSIS_INITED
+                element$status <- jamovi.coms.AnalysisStatus$ANALYSIS_INITED
             else if (private$.status == 'complete')
-                element$status <- jmvcoms.AnalysisStatus$ANALYSIS_COMPLETE
+                element$status <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE
             else
-                element$status <- jmvcoms.AnalysisStatus$ANALYSIS_NONE
+                element$status <- jamovi.coms.AnalysisStatus$ANALYSIS_NONE
 
             element
         },

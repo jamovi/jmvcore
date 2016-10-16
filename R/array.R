@@ -151,7 +151,7 @@ Array <- R6::R6Class("Array",
         },
         fromProtoBuf=function(element, oChanges=NULL, vChanges=NULL) {
             if ( ! base::inherits(element, "Message"))
-                reject("Array$fromProtoBuf() expects a jmvcoms.ResultsElement")
+                reject("Array$fromProtoBuf() expects a jamovi.coms.ResultsElement")
             
             if (base::any(oChanges %in% private$.clearWith))
                 return()
@@ -189,14 +189,14 @@ Array <- R6::R6Class("Array",
         asProtoBuf=function(incAsText=FALSE) {
             initProtoBuf()
             
-            array <- RProtoBuf::new(jmvcoms.ResultsArray)
+            array <- RProtoBuf::new(jamovi.coms.ResultsArray)
             
             for (item in private$.items) {
                 if (item$visible)
                     array$add("elements", item$asProtoBuf(incAsText))
             }
             
-            RProtoBuf::new(jmvcoms.ResultsElement,
+            RProtoBuf::new(jamovi.coms.ResultsElement,
                 name=self$name,
                 title=self$title,
                 array=array)
