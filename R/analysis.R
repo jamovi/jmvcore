@@ -171,12 +171,12 @@ Analysis <- R6::R6Class("Analysis",
             if (base::file.exists(path)) {
                 pb <- RProtoBuf::read(jamovi.coms.AnalysisResponse, path)
 
-                options <- rjson::fromJSON(pb$options)
                 oChanges <- list()
 
-                for (name in names(options)) {
-                    old <- options[[name]]
-                    now <- private$.options$get(name)
+                for (i in seq_along(pb$options$names)) {
+                    name <- pb$options$names[[i]]
+                    old  <- parseOptionPB(pb$options$options[[i]])
+                    now  <- private$.options$get(name)
                     if ( ! base::identical(old, now))
                         oChanges[[length(oChanges)+1]] <- name
                 }
@@ -307,7 +307,8 @@ Analysis <- R6::R6Class("Analysis",
             response <- RProtoBuf::new(jamovi.coms.AnalysisResponse)
             response$datasetId  <- private$.datasetId
             response$analysisId <- self$analysisId
-            response$hasResults <- TRUE
+            response$name <- private$.name
+            response$ns   <- private$.package
 
             if (incAsText) {
                 response$incAsText <- TRUE
@@ -318,7 +319,7 @@ Analysis <- R6::R6Class("Analysis",
             }
 
             if (incOptions)
-                response$options <- private$.options$asJSON()
+                response$options <- private$.options$asProtoBuf()
 
             if (private$.status == "inited") {
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_INITED;

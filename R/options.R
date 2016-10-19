@@ -135,18 +135,30 @@ OptionVariables <- R6Class(
                         reject("Argument '{a}' specifies column '{b}' which contains (and must not) missing values (NAs)", code="b_contains_missing_values", a=self$name, b=columnName)
                 }
             }
-        }
-    ))
+        })
+    )
 
 OptionVariable <- R6Class(
     "OptionVariable",
-    inherit=OptionVariables,
+    inherit=OptionString,
     active=list(
         vars=function() private$.value))
 
 OptionTerms <- R6Class(
     "OptionTerms",
-    inherit=Option)
+    inherit=OptionArray,
+    active=list(
+        value=function(value) {
+            if (missing(value))
+                return(super$value)
+            super$value <- value
+        }
+    ),
+    public=list(
+        initialize=function(name, value, ...) {
+            super$initialize(name, value, OptionVariables$new('term', NULL), ...)
+        }
+    ))
 
 OptionInt <- R6Class(
     "OptionInt",
@@ -154,6 +166,10 @@ OptionInt <- R6Class(
 
 OptionNumber <- R6Class(
     "OptionNumber",
+    inherit=Option)
+
+OptionString <- R6Class(
+    "OptionString",
     inherit=Option)
 
 OptionGroup <- R6Class(
@@ -249,13 +265,41 @@ OptionArray <- R6Class(
         }
     ))
 
+parseOptionPB <- function(pb) {
+    if (pb$has('i'))
+        value <- pb$i
+    else if (pb$has('d'))
+        value <- pb$d
+    else if (pb$has('s'))
+        value <- pb$s
+    else if (pb$has('o')) {
+        if (pb$o == jamovi.coms.AnalysisOption.Other$`TRUE`)
+            value <- TRUE
+        else if (pb$o == jamovi.coms.AnalysisOption.Other$`FALSE`)
+            value <- FALSE
+        else
+            value <- NULL
+    }
+    else if (pb$has('c')) {
+        value <- list()
+        for (i in seq_along(pb$c$options))
+            value[[i]] <- parseOptionPB(pb$c$options[[i]])
+        if (pb$c$hasNames)
+            names(value) <- pb$c$names
+    }
+    else
+        value <- NULL
+    
+    value
+}
+
 Options <- R6::R6Class(
     "Options",
     private=list(
         .analysis=NA,
         .options=NA,
         .listeners=NA,
-        .json=NA,
+        .pb=NA,
         .env=NA),
     active=list(
         analysis=function(analysis) {
@@ -282,6 +326,7 @@ Options <- R6::R6Class(
             private$.options <- list()
             private$.listeners <- list()
             private$.env <- new.env()
+            private$.pb <- NULL
 
             private$.env[["levels"]] <- self$levels
         },
@@ -378,8 +423,26 @@ Options <- R6::R6Class(
         addChangeListener=function(listener) {
             private$.listeners[[length(private$.listeners)+1]] <- listener
         },
-        asJSON=function() {
-            private$.json
+        read=function(raw) {
+            initProtoBuf()
+            self$fromProtoBuf(jamovi.coms.AnalysisOptions$read(raw))
+        },
+        asProtoBuf=function() {
+            private$.pb
+        },
+        fromProtoBuf=function(pb) {
+            if ( ! "Message" %in% class(pb))
+                reject("Group::fromProtoBuf(): expected a jamovi.coms.ResultsElement")
+            
+            private$.pb <- pb
+            
+            for (i in seq_along(pb$names)) {
+                name <- pb$names[[i]]
+                optionPB <- pb$options[[i]]
+                value <- parseOptionPB(optionPB)
+                private$.options[[name]]$value <- value
+                private$.env[[name]] <- value
+            }
         },
         fromJSON=function(json) {
             private$.json <- json
