@@ -283,7 +283,7 @@ parseOptionPB <- function(pb) {
     else if (pb$has('c')) {
         value <- list()
         for (i in seq_along(pb$c$options))
-            value[[i]] <- parseOptionPB(pb$c$options[[i]])
+            value[i] <- list(parseOptionPB(pb$c$options[[i]]))
         if (pb$c$hasNames)
             names(value) <- pb$c$names
     }
