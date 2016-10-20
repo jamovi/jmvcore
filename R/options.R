@@ -441,7 +441,7 @@ Options <- R6::R6Class(
                 optionPB <- pb$options[[i]]
                 value <- parseOptionPB(optionPB)
                 private$.options[[name]]$value <- value
-                private$.env[[name]] <- value
+                private$.env[[name]] <- private$.options[[name]]$value
             }
         },
         fromJSON=function(json) {
