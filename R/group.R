@@ -22,8 +22,10 @@ Group <- R6::R6Class("Group",
             private$.items[[name]]
         },
         .render=function(...) {
-            for (item in private$.items)
-                item$.render(...)
+            if (self$visible) {
+                for (item in private$.items)
+                    item$.render(...)
+            }
         },
         .setItemsDef=function(itemsDef) {
             

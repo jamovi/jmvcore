@@ -41,8 +41,10 @@ Array <- R6::R6Class("Array",
             self$.createItem(key, index)
         },
         .render=function(...) {
-            for (item in private$.items)
-                item$.render(...)
+            if (self$visible) {
+                for (item in private$.items)
+                    item$.render(...)
+            }
         },
         .setDef=function(name, value) {
             if (name == "items")
