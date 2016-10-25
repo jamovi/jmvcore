@@ -265,6 +265,29 @@ OptionArray <- R6Class(
         }
     ))
 
+
+OptionPairs <- R6Class(
+    "OptionPairs",
+    inherit=OptionArray,
+    public=list(
+        initialize=function(name, value, permitted=NULL, suggested=NULL, ...) {
+            super$initialize(name, value, template=OptionGroup$new(
+                "pairs",
+                NULL,
+                elements=list(
+                    OptionVariable$new(
+                        "i1",
+                        NULL,
+                        suggested=suggested,
+                        permitted=permitted),
+                    OptionVariable$new(
+                        "i2",
+                        NULL,
+                        suggested=suggested,
+                        permitted=permitted))),
+                ...)
+        }))
+
 parseOptionPB <- function(pb) {
     if (pb$has('i'))
         value <- pb$i
