@@ -19,6 +19,7 @@ Analysis <- R6::R6Class("Analysis",
         .data=NA,
         .header=NA,
         .info=NA,
+        .version=NA,
         .changed=character(),
         .checkpoint=function(flush=TRUE) {
             if (is.null(private$.checkpointCB))
@@ -62,10 +63,11 @@ Analysis <- R6::R6Class("Analysis",
         results=function() private$.results,
         status=function() private$.status),
     public=list(
-        initialize=function(package, name, options, data=NULL, datasetId="", analysisId="") {
+        initialize=function(package, name, version, options, data=NULL, datasetId="", analysisId="") {
 
             private$.package <- package
             private$.name    <- name
+            private$.version <- version
             private$.options <- options
             private$.data <- data
 
@@ -309,6 +311,9 @@ Analysis <- R6::R6Class("Analysis",
             response$analysisId <- self$analysisId
             response$name <- private$.name
             response$ns   <- private$.package
+            response$version$major <- private$.version[1]
+            response$version$minor <- private$.version[2]
+            response$version$revision <- private$.version[3]
 
             if (incAsText) {
                 response$incAsText <- TRUE
