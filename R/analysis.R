@@ -32,6 +32,7 @@ Analysis <- R6::R6Class("Analysis",
         .sourcifyOption=function(option) {
             value <- option$value
             def <- option$default
+            
             if ( ! ((is.numeric(value) && isTRUE(all.equal(value, def))) || base::identical(value, def))) {
                 return(paste0(option$name, '=', sourcify(value, '    ')))
             }
@@ -172,17 +173,7 @@ Analysis <- R6::R6Class("Analysis",
 
             if (base::file.exists(path)) {
                 pb <- RProtoBuf::read(jamovi.coms.AnalysisResponse, path)
-
-                oChanges <- list()
-
-                for (i in seq_along(pb$options$names)) {
-                    name <- pb$options$names[[i]]
-                    old  <- parseOptionPB(pb$options$options[[i]])
-                    now  <- private$.options$get(name)
-                    if ( ! base::identical(old, now))
-                        oChanges[[length(oChanges)+1]] <- name
-                }
-
+                oChanges <- private$.options$compProtoBuf(pb$options)
                 private$.results$fromProtoBuf(pb$results, oChanges, vChanges)
             }
         },

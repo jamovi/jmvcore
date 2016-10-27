@@ -77,7 +77,13 @@ OptionVariables <- R6Class(
     "OptionVariables",
     inherit=Option,
     active=list(
-        vars=function() private$.value),
+        vars=function() private$.value,
+        value=function(value) {
+            if (base::missing(value))
+                return(private$.value)
+            private$.value <- unlist(value)
+            base::invisible(self)
+        }),
     private=list(
         .rejectInf=TRUE,
         .rejectMissing=FALSE,
@@ -147,13 +153,6 @@ OptionVariable <- R6Class(
 OptionTerms <- R6Class(
     "OptionTerms",
     inherit=OptionArray,
-    active=list(
-        value=function(value) {
-            if (missing(value))
-                return(super$value)
-            super$value <- value
-        }
-    ),
     public=list(
         initialize=function(name, value, ...) {
             super$initialize(name, value, OptionVariables$new('term', NULL), ...)
@@ -233,21 +232,32 @@ OptionArray <- R6Class(
             template$.setParent(self)
             private$.template <- template
             private$.elements <- list()
-            super$initialize(name, value)
+            super$initialize(name, value, ...)
         }),
     active=list(
         value=function(values) {
             if (base::missing(values)) {
+                if (private$.isNull)
+                    return(NULL)
                 values <- list()
                 for (o in private$.elements)
                     values[length(values)+1] <- list(o$value)
+                if ('OptionString' %in% class(private$.template) ||
+                    'OptionInt' %in% class(private$.template) ||
+                    'OptionNumber' %in% class(private$.template))
+                    values <- unlist(values)
                 return(values)
             }
             private$.elements <- list()
-            for (value in values) {
-                clone <- private$.template$clone(deep=TRUE)
-                clone$value <- value
-                private$.elements[[length(private$.elements)+1]] <- clone
+            if (is.null(values)) {
+                private$.isNull <- TRUE
+            } else {
+                private$.isNull <- FALSE
+                for (value in values) {
+                    clone <- private$.template$clone(deep=TRUE)
+                    clone$value <- value
+                    private$.elements[[length(private$.elements)+1]] <- clone
+                }
             }
             base::invisible(self)
         },
@@ -260,8 +270,23 @@ OptionArray <- R6Class(
     private=list(
         .template=NA,
         .elements=NA,
+        .isNull=TRUE,
         .check=function(data) {
-
+        },
+        deep_clone=function(name, value) {
+            
+            if (name == '.elements') {
+                elements <- list()
+                for (i in seq_along(value)) {
+                    v <- value[[i]]
+                    element <- v$clone(deep=TRUE)
+                    element$.setParent(self)
+                    elements[[i]] <- element
+                }
+                return(elements)
+            }
+            
+            value
         }
     ))
 
@@ -306,7 +331,7 @@ parseOptionPB <- function(pb) {
     else if (pb$has('c')) {
         value <- list()
         for (i in seq_along(pb$c$options))
-            value[i] <- list(parseOptionPB(pb$c$options[[i]]))
+            value[i] <- list(parseOptionPB(pb$c$options[[i]])) # funny syntax can handle NULL
         if (pb$c$hasNames)
             names(value) <- pb$c$names
     }
@@ -466,6 +491,25 @@ Options <- R6::R6Class(
                 private$.options[[name]]$value <- value
                 private$.env[[name]] <- private$.options[[name]]$value
             }
+        },
+        compProtoBuf=function(pb) {
+            changes <- character()
+            for (i in seq_along(pb$names)) {
+                name <- pb$names[[i]]
+                if ( ! name %in% names(private$.options))
+                    next()
+                
+                optionPB <- pb$options[[i]]
+                currentValue <- private$.options[[name]]$value
+                
+                value <- parseOptionPB(optionPB)
+                clone <- private$.options[[name]]$clone(deep=TRUE)
+                clone$value <- value
+                oldValue <- clone$value
+                if ( ! base::identical(currentValue, oldValue))
+                    changes <- c(changes, name)
+            }
+            changes
         },
         fromJSON=function(json) {
             private$.json <- json
