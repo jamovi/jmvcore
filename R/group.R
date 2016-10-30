@@ -94,7 +94,7 @@ Group <- R6::R6Class("Group",
                     target$fromProtoBuf(itemPB, oChanges, vChanges)
             }
         },
-        asProtoBuf=function(incAsText=FALSE, prepend=NULL) {
+        asProtoBuf=function(incAsText=FALSE, status=NULL, prepend=NULL) {
             initProtoBuf()
             
             group <- RProtoBuf::new(jamovi.coms.ResultsGroup)
@@ -104,13 +104,11 @@ Group <- R6::R6Class("Group",
             
             for (item in private$.items) {
                 if (item$visible)
-                    group$add("elements", item$asProtoBuf(incAsText))
+                    group$add("elements", item$asProtoBuf(incAsText=incAsText, status=status))
             }
             
-            result <- RProtoBuf::new(jamovi.coms.ResultsElement,
-                name=self$name,
-                title=self$title,
-                group=group)
+            result <- super$asProtoBuf(incAsText=incAsText, status=status)
+            result$group <- group
             
             if (private$.status == 'error') {
                 error <- RProtoBuf::new(jamovi.coms.Error,

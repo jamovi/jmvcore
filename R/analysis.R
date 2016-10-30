@@ -21,6 +21,7 @@ Analysis <- R6::R6Class("Analysis",
         .info=NA,
         .version=NA,
         .changed=character(),
+        .revision=0,
         .checkpoint=function(flush=TRUE) {
             if (is.null(private$.checkpointCB))
                 return()
@@ -64,7 +65,7 @@ Analysis <- R6::R6Class("Analysis",
         results=function() private$.results,
         status=function() private$.status),
     public=list(
-        initialize=function(package, name, version, options, data=NULL, datasetId="", analysisId="") {
+        initialize=function(package, name, version, options, data=NULL, datasetId="", analysisId="", revision=0) {
 
             private$.package <- package
             private$.name    <- name
@@ -73,7 +74,8 @@ Analysis <- R6::R6Class("Analysis",
             private$.data <- data
 
             private$.analysisId <- analysisId
-            private$.datasetId  <- datasetId
+            private$.datasetId <- datasetId
+            private$.revision <- revision
 
             private$.results <- jmvcore::Group$new(options=options)
             private$.results$.parent <- self
@@ -158,7 +160,7 @@ Analysis <- R6::R6Class("Analysis",
             cat(self$results$asString())
         },
         render=function(...) {
-            private$.results$.render(...)
+            private$.results$.render(ppi=self$options$ppi, ...)
         },
         .save=function() {
             path <- private$.statePathSource()
@@ -305,30 +307,38 @@ Analysis <- R6::R6Class("Analysis",
             response$version$major <- private$.version[1]
             response$version$minor <- private$.version[2]
             response$version$revision <- private$.version[3]
-
-            if (incAsText) {
-                response$incAsText <- TRUE
-                syntax <- RProtoBuf::new(jamovi.coms.ResultsElement, name='syntax', syntax=self$asSource())
-                response$results <- self$results$asProtoBuf(incAsText=incAsText, prepend=syntax);
-            } else {
-                response$results <- self$results$asProtoBuf(incAsText=incAsText);
-            }
-
-            if (incOptions)
-                response$options <- private$.options$asProtoBuf()
-
+            response$revision <- private$.revision
+            
+            overrideChildStatus <- NULL
+            
             if (private$.status == "inited") {
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_INITED;
             } else if (private$.status == "running") {
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_RUNNING;
             } else if (private$.status == "complete") {
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE;
+                
+                overrideChildStatus <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE;
+                
             } else {
                 error <- RProtoBuf::new(jamovi.coms.Error)
                 error$message <- private$.error
                 response$error <- error
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_ERROR;
+                
+                overrideChildStatus <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE;
             }
+
+            if (incAsText) {
+                response$incAsText <- TRUE
+                syntax <- RProtoBuf::new(jamovi.coms.ResultsElement, name='syntax', syntax=self$asSource())
+                response$results <- self$results$asProtoBuf(incAsText=incAsText, status=overrideChildStatus, prepend=syntax);
+            } else {
+                response$results <- self$results$asProtoBuf(incAsText=incAsText, status=overrideChildStatus);
+            }
+
+            if (incOptions)
+                response$options <- private$.options$asProtoBuf()
 
             response
         },

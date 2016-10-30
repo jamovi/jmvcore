@@ -47,8 +47,9 @@ message AnalysisRequest {
 
     Perform perform = 5;
     AnalysisOptions options = 6;
-    int32 ppi = 7;
+    // int32 ppi = 7;
     repeated string changed = 8;
+    int32 revision = 9;
 }
 
 enum AnalysisStatus {
@@ -72,6 +73,7 @@ message AnalysisResponse {
     AnalysisStatus status = 8;
     Error error = 9;
     bool incAsText = 10;
+    int32 revision = 11;
 }
 
 message AnalysisOption {
@@ -225,6 +227,7 @@ message DataSetEntry {
     string name = 1;
     string path = 2;
     string location = 3;
+    string description = 4;
 }
 
 message SettingsRequest {
@@ -232,8 +235,7 @@ message SettingsRequest {
 
 message SettingsResponse {
     repeated DataSetEntry recents = 1;
-    repeated DataSetEntry localFSRecents = 2;
-    repeated DataSetEntry examples = 3;
+    repeated DataSetEntry examples = 2;
 }
 
 message VariableLevel {

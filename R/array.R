@@ -188,20 +188,18 @@ Array <- R6::R6Class("Array",
                 }
             }
         },
-        asProtoBuf=function(incAsText=FALSE) {
+        asProtoBuf=function(incAsText=FALSE, status=NULL) {
             initProtoBuf()
             
             array <- RProtoBuf::new(jamovi.coms.ResultsArray)
             
             for (item in private$.items) {
                 if (item$visible)
-                    array$add("elements", item$asProtoBuf(incAsText))
+                    array$add("elements", item$asProtoBuf(incAsText=incAsText, status=status))
             }
             
-            RProtoBuf::new(jamovi.coms.ResultsElement,
-                name=self$name,
-                title=self$title,
-                array=array)
-            
+            result <- super$asProtoBuf(incAsText=incAsText, status=status)
+            result$array <- array
+            result
         })
 )

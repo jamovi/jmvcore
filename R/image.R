@@ -39,18 +39,21 @@ Image <- R6::R6Class("Image",
             
             return(paste0(pieces, collapse=""))
         },
-        asProtoBuf=function(incAsText=FALSE) {
+        asProtoBuf=function(incAsText=FALSE, status=NULL) {
             initProtoBuf()
+            
+            path <- private$.path
+            if (is.null(path))
+                path=''
             
             image <- RProtoBuf::new(jamovi.coms.ResultsImage,
                 width=private$.width,
                 height=private$.height,
-                path=private$.path)
+                path=path)
             
-            RProtoBuf::new(jamovi.coms.ResultsElement,
-                name=self$name,
-                title=self$title,
-                image=image)
+            result <- super$asProtoBuf(incAsText=incAsText, status=status)
+            result$image <- image
+            result
         },
         fromProtoBuf=function(element, oChanges=NULL, vChanges=NULL) {
             if ( ! base::inherits(element, "Message"))
@@ -68,6 +71,9 @@ Image <- R6::R6Class("Image",
             
             private$.width <- image$width
             private$.height <- image$height
-            private$.path <- image$path
+            if (image$path == '')
+                private$.path <- NULL
+            else
+                private$.path <- image$path
         })
 )

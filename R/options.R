@@ -348,7 +348,8 @@ Options <- R6::R6Class(
         .options=NA,
         .listeners=NA,
         .pb=NA,
-        .env=NA),
+        .env=NA,
+        .ppi=72),
     active=list(
         analysis=function(analysis) {
             if (base::missing(analysis))
@@ -363,9 +364,8 @@ Options <- R6::R6Class(
             vars <- base::unique(vars)
             vars
         },
-        names=function() {
-            names(private$.options)
-        },
+        names=function() names(private$.options),
+        ppi=function() private$.ppi,
         options=function() private$.options),
     public=list(
         initialize=function(...) {
@@ -375,6 +375,10 @@ Options <- R6::R6Class(
             private$.listeners <- list()
             private$.env <- new.env()
             private$.pb <- NULL
+            
+            args <- list(...)
+            if ('.ppi' %in% names(args))
+                private$.ppi <- args$.ppi
 
             private$.env[["levels"]] <- self$levels
         },
@@ -488,8 +492,13 @@ Options <- R6::R6Class(
                 name <- pb$names[[i]]
                 optionPB <- pb$options[[i]]
                 value <- parseOptionPB(optionPB)
-                private$.options[[name]]$value <- value
-                private$.env[[name]] <- private$.options[[name]]$value
+                
+                if (name == '.ppi') {
+                    private$.ppi <- value
+                } else {
+                    private$.options[[name]]$value <- value
+                    private$.env[[name]] <- private$.options[[name]]$value
+                }
             }
         },
         compProtoBuf=function(pb) {

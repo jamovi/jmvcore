@@ -126,7 +126,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
             self$.update()
             ""
         },
-        asProtoBuf=function(incAsText=FALSE) {
+        asProtoBuf=function(incAsText=FALSE, status=NULL) {
 
             initProtoBuf()
 
@@ -134,7 +134,9 @@ ResultsElement <- R6::R6Class("ResultsElement",
                 name=private$.name,
                 title=self$title)
 
-            if (private$.status == 'running')
+            if ( ! is.null(status))
+                element$status <- status
+            else if (private$.status == 'running')
                 element$status <- jamovi.coms.AnalysisStatus$ANALYSIS_RUNNING
             else if (private$.status == 'inited')
                 element$status <- jamovi.coms.AnalysisStatus$ANALYSIS_INITED
