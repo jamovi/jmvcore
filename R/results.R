@@ -5,7 +5,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
         .key=NA,
         .titleValue="",
         .titleExpr="",
-        .index=0,
+        .index=NA,
         .visibleExpr="TRUE",
         .visibleValue=TRUE,
         .options=NA,
@@ -13,7 +13,10 @@ ResultsElement <- R6::R6Class("ResultsElement",
         .status='none',
         .error=NA,
         .clearWith=NA,
-        .state=NA),
+        .state=NA,
+        deep_clone=function(name, value) {
+            value
+        }),
     active=list(
         name=function() private$.name,
         key=function() private$.key,
@@ -44,25 +47,28 @@ ResultsElement <- R6::R6Class("ResultsElement",
             private$.status
         }),
     public=list(
-        initialize=function(key="", index=0, options=Options$new()) {
+        initialize=function(
+            options,
+            name,
+            title,
+            visible,
+            clearWith) {
 
-            private$.key <- key
-            private$.name <- rjson::toJSON(key)
-            private$.titleExpr <- private$.name
-
-            private$.index <- as.integer(index)
             private$.options <- options
-            private$.visibleExpr <- paste0(TRUE)
+            private$.name <- name
+            private$.titleExpr <- title
+            private$.visibleExpr <- paste0(visible)
+            private$.clearWith <- clearWith
+            
             private$.updated <- FALSE
-            private$.clearWith <- NULL
             private$.state <- NULL
 
             private$.options$addChangeListener(self$.optionsChanged)
         },
-        setTitle=function(title) {
-            private$.titleExpr <- title
-            private$.updated <- FALSE
-            self$.update()
+        .setKey = function(key, index) {
+            private$.key <- key
+            private$.name <- rjson::toJSON(key)
+            private$.index <- index
         },
         setStatus=function(status) {
             private$.status <- status
@@ -93,25 +99,6 @@ ResultsElement <- R6::R6Class("ResultsElement",
         },
         .has=function(name) {
             paste0(".", name) %in% names(private)
-        },
-        .setDef=function(name, value) {
-            if (name == "visible") {
-                private$.visibleExpr <- value
-                private$.updated <- FALSE
-            } else if (name == "title") {
-                private$.titleExpr <- value
-                private$.updated <- FALSE
-            } else if (self$.has(name)) {
-                private[[paste0(".", name)]] <- value
-                private$.updated <- FALSE
-            }
-        },
-        .setup=function(def) {
-
-            for (name in names(def)) {
-                value <- def[[name]]
-                self$.setDef(name, value)
-            }
         },
         setError = function(message) {
             private$.error <- message

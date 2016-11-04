@@ -69,59 +69,6 @@ unquote <- function(string) {
     string
 }
 
-.analysisInfoCache <- new.env()
-.resultsInfoCache <- new.env()
-
-loadAnalysisInfo <- function(packageName, analysisName) {
-
-    name <- paste0(packageName, "::", analysisName)
-
-    if (name %in% names(.analysisInfoCache)) {
-        
-        info <- .analysisInfoCache[[name]]
-        
-    } else {
-
-        location <- system.file("jamovi", paste0(tolower(analysisName), ".a.yaml"), package=packageName)
-        if (location == "")
-            location <- system.file("inst", "jamovi", paste0(tolower(analysisName), ".a.yaml"), package=packageName)
-        
-        if (location == "")
-            return(list())
-        
-        info <- yaml::yaml.load_file(location, handlers=list(seq=function(x)x))
-
-        .analysisInfoCache[[name]] <- info
-    }
-
-    info
-}
-
-loadResultsInfo <- function(packageName, analysisName) {
-    
-    name <- paste0(packageName, "::", analysisName)
-    
-    if (name %in% names(.resultsInfoCache)) {
-        
-        info <- .resultsInfoCache[[name]]
-        
-    } else {
-        
-        location <- system.file("jamovi", paste0(tolower(analysisName), ".r.yaml"), package=packageName)
-        if (location == "")
-            location <- system.file("inst", "jamovi", paste0(tolower(analysisName), ".r.yaml"), package=packageName)
-        
-        if (location == "")
-            return(list(title=paste0(tolower(analysisName), ".r.yaml could not be found")))
-        
-        info <- yaml::yaml.load_file(location, handlers=list(seq=function(x)x))
-        
-        .resultsInfoCache[[name]] <- info
-    }
-    
-    info
-}
-
 columnType <- function(column) {
 
     if (inherits(column, "ordered")) {

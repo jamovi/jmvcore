@@ -3,17 +3,20 @@ Column <- R6Class("Column",
     private=list(
         .name="",
         .title="",
-        .cells=list(),
         .type="",
         .format="",
-        .width = 0,
-        .measures=list(),
-        .measured=FALSE,
         .contentExpr=NA,
         .visibleExpr="TRUE",
         .superTitle=NA,
         .combineBelow=FALSE,
-        .options=NULL),
+        .cells=list(),
+        .width = 0,
+        .measures=list(),
+        .measured=FALSE,
+        .options=NULL,
+        deep_clone=function(name, value) {
+            value
+        }),
     active=list(
         name=function() private$.name,
         title=function() private$.title,
@@ -37,14 +40,31 @@ Column <- R6Class("Column",
             base::invisible(self)
         }),
     public=list(
-        initialize=function(name, options=Options()) {
-            private$.name <- name
-            private$.title <- name
+        initialize=function(
+            options,
+            name,
+            title,
+            superTitle,
+            visible,
+            content,
+            type,
+            format,
+            combineBelow) {
+            
             private$.options <- options
+            
+            private$.name <- name
+            private$.title <- title
+            private$.superTitle <- superTitle
+            private$.visibleExpr <- paste(visible)
+            private$.contentExpr <- content
+            private$.type <- type
+            private$.format <- format
+            private$.combineBelow <- combineBelow
             
             private$.measured <- FALSE
             private$.cells <- list()
-            private$.superTitle <- NULL
+            
         },
         setTitle=function(title) {
             private$.title <- title
@@ -89,25 +109,6 @@ Column <- R6Class("Column",
         },
         clear=function() {
             private$.cells <- list()
-            private$.measured <- FALSE
-        },
-        .setup=function(def) {
-            for (name in names(def)) {
-                value <- def[[name]]
-                self$.setDef(name, value)
-            }
-        },
-        .setDef=function(name, value) {
-            pName <- paste0('.', name)
-            if (name == "visible")
-                private$.visibleExpr <- value
-            else if (name == "content")
-                private$.contentExpr <- value
-            else if (pName %in% names(private))
-                private[[pName]] <- value
-            else
-                return()
-            
             private$.measured <- FALSE
         },
         .measure=function() {

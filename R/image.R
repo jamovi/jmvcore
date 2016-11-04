@@ -2,7 +2,6 @@
 Image <- R6::R6Class("Image",
     inherit=ResultsElement,
     private=list(
-        .state=NA,
         .path=NA,
         .width=400,
         .height=300,
@@ -15,10 +14,32 @@ Image <- R6::R6Class("Image",
         path=function() private$.path,
         requiresData=function() private$.requiresData),
     public=list(
-        initialize=function(key="", index=0, options=Options$new()) {
-            super$initialize(key, index, options)
+        initialize=function(
+            options,
+            width=400,
+            height=300,
+            renderFun=NULL,
+            renderInitFun=NULL,
+            requiresData=FALSE,
+            name=NULL,
+            title='no title',
+            visible=TRUE,
+            clearWith=NULL) {
+            
+            super$initialize(
+                options=options,
+                name=name,
+                title=title,
+                visible=visible,
+                clearWith=clearWith)
+            
+            private$.width <- width
+            private$.height <- height
+            private$.renderFun <- renderFun
+            private$.renderInitFun <- renderInitFun
+            private$.requiresData <- requiresData
+            
             private$.path <- NULL
-            private$.state <- NULL
         },
         .render=function(path, ...) {
             if ( ! is.character(private$.renderFun))

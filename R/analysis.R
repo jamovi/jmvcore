@@ -65,25 +65,21 @@ Analysis <- R6::R6Class("Analysis",
         results=function() private$.results,
         status=function() private$.status),
     public=list(
-        initialize=function(package, name, version, options, data=NULL, datasetId="", analysisId="", revision=0) {
+        initialize=function(package, name, version, options, results, data=NULL, datasetId="", analysisId="", revision=0) {
 
             private$.package <- package
             private$.name    <- name
             private$.version <- version
             private$.options <- options
+            private$.results <- results
             private$.data <- data
 
             private$.analysisId <- analysisId
             private$.datasetId <- datasetId
             private$.revision <- revision
 
-            private$.results <- jmvcore::Group$new(options=options)
             private$.results$.parent <- self
             private$.options$analysis <- self
-
-            resultsDef <- loadResultsInfo(package, name)
-            if ( ! is.null(resultsDef))
-                private$.results$.setup(resultsDef)
 
             private$.options$addChangeListener(private$.optionsChangedHandler)
 

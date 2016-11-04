@@ -14,7 +14,16 @@ Table <- R6::R6Class("Table",
         .swapRowsColumns=FALSE,
         .footnotes=NA,
         .footnotesUpdated=FALSE,
-        .notes=NA),
+        .notes=NA,
+        deep_clone=function(name, value) {
+            if (name == '.columns') {
+                columns <- list()
+                for (name in names(value))
+                    columns[[name]] <- value[[name]]$clone(deep=TRUE)
+                return(columns)
+            }
+            value
+        }),
     active=list(
         rowKeys=function() private$.rowKeys,
         width=function() {
@@ -43,38 +52,40 @@ Table <- R6::R6Class("Table",
         rowCount=function() private$.rowCount
     ),
     public=list(
-        initialize=function(key="", index=0, options=Options$new(), swapRowsColumns=FALSE) {
+        initialize=function(
+            options,
+            name=NULL,
+            title='no title',
+            visible=TRUE,
+            clearWith=NULL,
+            columns=list(),
+            rows=0,
+            notes=list(),
+            swapRowsColumns=FALSE) {
             
-            super$initialize(key=key, options=options)
+            super$initialize(
+                options=options,
+                name=name,
+                title=title,
+                visible=visible,
+                clearWith=clearWith)
             
-            private$.index <- as.integer(index)
+            private$.notes <- notes
             private$.swapRowsColumns <- swapRowsColumns
-            private$.columns <- list()
+            
             private$.rowCount <- 0
-            private$.rowsExpr <- "0"
+            private$.rowsExpr <- paste(rows)
             private$.rowKeys <- list()
+            
+            private$.columns <- list()
+            
             private$.margin <- 1
             private$.marstr <- spaces(private$.margin)
             private$.padding <- 2
             private$.padstr <- spaces(private$.padding)
-            private$.notes <- list()
-        },
-        .setDef=function(name, value) {
-
-            if (name == "columns")
-                self$.setColumnsDef(value)
-            else if (name == "rows")
-                self$.setRowsDef(value)
-            else
-                super$.setDef(name, value)
-        },
-        .setRowsDef=function(value) {
-            private$.rowsExpr <- paste0(value)
-            private$.updated <- FALSE
-        },
-        .setColumnsDef=function(columnDefs) {
-            for (columnDef in columnDefs)
-                self$addColumn(columnDef$name, def=columnDef)
+            
+            for (column in columns)
+                do.call(self$addColumn, column)
         },
         .update=function() {
             
@@ -136,30 +147,27 @@ Table <- R6::R6Class("Table",
                 column$clear()
             private$.rowCount <- 0
         },
-        addColumn=function(name,
-                           title=name,
-                           superTitle=NULL,
-                           type='number',
-                           format='',
-                           content="",
-                           combineBelow=FALSE,
-                           visible=TRUE,
-                           index=NA,
-                           def=NULL) {
+        addColumn=function(
+            name,
+            index=NA,
+            title=name,
+            superTitle=NULL,
+            visible=TRUE,
+            content=NULL,
+            type='number',
+            format='',
+            combineBelow=FALSE) {
             
-            column <- Column$new(name=name, options=private$.options)
-            
-            if ( ! is.null(def)) {
-                column$.setup(def)
-            } else {
-                column$.setDef("title", title)
-                column$.setDef("superTitle", superTitle)
-                column$.setDef("content", content)
-                column$.setDef("visible", paste(visible))
-                column$.setDef("type", type)
-                column$.setDef("format", format)
-                column$.setDef("combineBelow", combineBelow)
-            }
+            column <- Column$new(
+                options=private$.options,
+                name=name,
+                title=title,
+                superTitle=superTitle,
+                visible=visible,
+                content=content,
+                type=type,
+                format=format,
+                combineBelow=combineBelow)
             
             for (i in seq_len(private$.rowCount)) {
                 rowKey <- private$.rowKeys[[i]]

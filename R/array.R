@@ -12,11 +12,28 @@ Array <- R6::R6Class("Array",
         items=function() private$.items,
         itemNames=function() private$.itemNames),
     public=list(
-        initialize=function(key="", index=0, options=Options()) {
-            super$initialize(key, index, options)
+        initialize=function(
+            options,
+            template,
+            name=NULL,
+            title='no title',
+            visible=TRUE,
+            clearWith=NULL,
+            items=0) {
+            
+            super$initialize(
+                options=options,
+                name=name,
+                title=title,
+                visible=visible,
+                clearWith=clearWith)
+            
+            private$.template <- template
+            private$.itemsExpr <- paste(items)
+            
             private$.items <- list()
             private$.itemKeys <- list()
-            private$.itemNames <- list()
+            private$.itemNames <- character()
         },
         get=function(key=NULL, name=NULL, index=NULL) {
             
@@ -45,22 +62,6 @@ Array <- R6::R6Class("Array",
                 for (item in private$.items)
                     item$.render(...)
             }
-        },
-        .setDef=function(name, value) {
-            if (name == "items")
-                self$.setItemsDef(value)
-            else if (name == "template")
-                self$.setTemplateDef(value)
-            else
-                super$.setDef(name, value)
-        },
-        .setTemplateDef=function(templateDef) {
-            private$.template <- templateDef
-            private$.updated <- FALSE
-        },
-        .setItemsDef=function(itemsExpr) {
-            private$.itemsExpr <- paste0(itemsExpr)
-            private$.updated <- FALSE
         },
         .update=function() {
             
@@ -117,20 +118,19 @@ Array <- R6::R6Class("Array",
                 rethrow(error)
         },
         .createItem=function(key, index) {
-            if (private$.template$type == "Image")
-                item <- Image$new(key, index, private$.options)
-            else
-                item <- Table$new(key, index, private$.options)
             
-            item$.setup(private$.template)
-            item$.update()
+            item <- private$.template$clone(deep=TRUE)
             item$.parent <- self
+            item$.setKey(key, index)
+            item$.update()
+            
             private$.items[[index]] <- item
             
             invisible(item)
         },
         clear=function() {
-            private$.itemKeys <- character()
+            private$.itemKeys <- list()
+            private$.itemNames <- character()
             private$.items <- list()
         },
         asString=function() {

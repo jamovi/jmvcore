@@ -14,8 +14,20 @@ Group <- R6::R6Class("Group",
             return(FALSE)
         }),
     public=list(
-        initialize=function(key="", index=0, options=Options()) {
-            super$initialize(key, index, options)
+        initialize=function(
+            options,
+            name=NULL,
+            title='no title',
+            visible=TRUE,
+            clearWith=NULL) {
+        
+            super$initialize(
+                options=options,
+                name=name,
+                title=title,
+                visible=visible,
+                clearWith=clearWith)
+            
             private$.items <- list()
         },
         get=function(name) {
@@ -27,33 +39,9 @@ Group <- R6::R6Class("Group",
                     item$.render(...)
             }
         },
-        .setItemsDef=function(itemsDef) {
-            
-            private$.items <- list()
-            
-            for (itemDef in itemsDef) {
-                
-                if (itemDef$type == 'Table')
-                    item <- Table$new(itemDef$name, 0, private$.options)
-                else if (itemDef$type == 'Array')
-                    item <- Array$new(itemDef$name, 0, private$.options)
-                else if (itemDef$type == 'Image')
-                    item <- Image$new(itemDef$name, 0, private$.options)
-                else if (itemDef$type == 'Group')
-                    item <- Group$new(itemDef$name, 0, private$.options)
-                else
-                    stop("Unknown item type")
-                
-                item$.setup(itemDef)
-                item$.parent = self
-                private$.items[[itemDef$name]] <- item
-            }
-        },
-        .setDef=function(name, value) {
-            if (name == "items")
-                self$.setItemsDef(value)
-            else
-                super$.setDef(name, value)
+        add=function(item) {
+            item$.parent = self
+            private$.items[[item$name]] <- item            
         },
         .update=function() {
             if (private$.updated)

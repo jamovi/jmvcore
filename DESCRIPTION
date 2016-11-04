@@ -10,5 +10,5 @@ Description: jamovi is a framework for creating rich interactive statistical
  written in R depend upon.
 License: GPL2+
 Depends: R (>= 3.2), RProtoBuf
-Imports: R6 (>= 1.0.1), yaml, rjson, base64enc
+Imports: R6 (>= 1.0.1), rjson, base64enc
 Suggests: testthat (>= 1.0.2)
