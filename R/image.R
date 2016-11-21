@@ -22,7 +22,7 @@ Image <- R6::R6Class("Image",
             renderInitFun=NULL,
             requiresData=FALSE,
             name=NULL,
-            title='no title',
+            title='',
             visible=TRUE,
             clearWith=NULL) {
             
