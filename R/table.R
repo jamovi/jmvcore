@@ -27,22 +27,22 @@ Table <- R6::R6Class("Table",
     active=list(
         rowKeys=function() private$.rowKeys,
         width=function() {
-            
+
             if ( ! private$.swapRowsColumns) {
-                
+
                 w <- 0
                 for (column in private$.columns) {
                     if (column$visible)
                         w <- w + private$.padding + column$width + private$.padding
                 }
-                
+
             } else {
-                
+
                 w <- private$.padding + self$.widthWidestHeader() + private$.padding
                 for (i in seq_len(private$.rowCount))
                     w <- w + private$.padding + self$.widthWidestCellInRow(i)$width + private$.padding
             }
-            
+
             max(w, nchar(self$title))
         },
         footnotes=function() {
@@ -57,47 +57,47 @@ Table <- R6::R6Class("Table",
             name=NULL,
             title='no title',
             visible=TRUE,
-            clearWith=NULL,
+            clearWith='*',
             columns=list(),
             rows=0,
             notes=list(),
             swapRowsColumns=FALSE) {
-            
+
             super$initialize(
                 options=options,
                 name=name,
                 title=title,
                 visible=visible,
                 clearWith=clearWith)
-            
+
             private$.notes <- notes
             private$.swapRowsColumns <- swapRowsColumns
-            
+
             private$.rowCount <- 0
             private$.rowsExpr <- paste(rows)
             private$.rowKeys <- list()
-            
+
             private$.columns <- list()
-            
+
             private$.margin <- 1
             private$.marstr <- spaces(private$.margin)
             private$.padding <- 2
             private$.padstr <- spaces(private$.padding)
-            
+
             for (column in columns)
                 do.call(self$addColumn, column)
         },
         .update=function() {
-            
+
             if (private$.updated)
                 return()
-            
+
             super$.update()
-            
+
             error <- NULL
-            
+
             newKeys <- try(private$.options$eval(private$.rowsExpr, .key=private$.key, .name=private$.name, .index=private$.index), silent=TRUE)
-            
+
             if (base::inherits(newKeys, "try-error")) {
                 error <- newKeys
                 newKeys <- character()
@@ -110,34 +110,34 @@ Table <- R6::R6Class("Table",
             } else {
                 newKeys <- list()
             }
-            
+
             if (base::identical(newKeys, private$.rowKeys))
                 return()
-            
+
             oldKeys <- private$.rowKeys
             oldRows <- self$getRows()
-            
+
             self$clearRows()
-            
+
             for (i in seq_along(newKeys)) {
-                
+
                 newKey <- newKeys[[i]]
                 index <- indexOf(newKey, oldKeys)
-                
+
                 if ( ! is.na(index)) {
-                    
+
                     newRow <- oldRows[[ index[1] ]]
                     self$addRow(newKey, newRow)
-                    
+
                 } else {
-                    
+
                     self$addRow(newKey)
                 }
             }
-            
+
             private$.rowKeys <- newKeys
             private$.rowNames <- sapply(newKeys, rjson::toJSON, USE.NAMES=FALSE)
-            
+
             if ( ! is.null(error))
                 rethrow(error)
         },
@@ -157,7 +157,7 @@ Table <- R6::R6Class("Table",
             type='number',
             format='',
             combineBelow=FALSE) {
-            
+
             column <- Column$new(
                 options=private$.options,
                 name=name,
@@ -168,39 +168,39 @@ Table <- R6::R6Class("Table",
                 type=type,
                 format=format,
                 combineBelow=combineBelow)
-            
+
             for (i in seq_len(private$.rowCount)) {
                 rowKey <- private$.rowKeys[[i]]
                 column$addCell(.key=rowKey, .index=i)
             }
-            
+
             if (is.na(index)) {
-                
+
                 private$.columns[[name]] <- column
-                
+
             } else {
-                
+
                 newColumns <- list()
                 oldNames <- names(private$.columns)
-                
+
                 for (i in seq_along(private$.columns)) {
                     nm <- oldNames[[i]]
                     if (i == index)
                         newColumns[[name]] <- column
                     newColumns[[nm]] <- private$.columns[[nm]]
                 }
-                
+
                 private$.columns <- newColumns
             }
         },
         addRow=function(rowKey=NULL, values=NULL) {
-            
+
             private$.rowKeys[length(private$.rowKeys)+1] <- list(rowKey)  # allow NULL
             private$.rowCount <- private$.rowCount + 1
             private$.rowNames <- sapply(private$.rowKeys, rjson::toJSON, USE.NAMES=FALSE)
-            
+
             valueNames <- names(values)
-            
+
             for (column in private$.columns) {
                 if (column$name %in% valueNames)
                     column$addCell(values[[column$name]], .key=rowKey, .index=private$.rowCount)
@@ -212,30 +212,30 @@ Table <- R6::R6Class("Table",
             self$getCell(col=col, rowNo=rowNo, rowKey=rowKey)$addFormat(format)
         },
         setRow=function(values, rowNo=NA, rowKey=NULL) {
-            
+
             if ( ! is.na(rowNo) && rowNo == private$.rowCount + 1)
                 self$addRow(rowKey=rowNo, values)
-            
+
             if (is.na(rowNo)) {
-                
+
                 found <- FALSE
-                
+
                 for (rowNo in seq_along(private$.rowKeys)) {
                     if (base::identical(rowKey, private$.rowKeys[[rowNo]])) {
                         found <- TRUE
                         break()
                     }
                 }
-                
+
                 if ( ! found)
                     reject("Table$setRow(): rowKey '{key}' not found", key=rowKey)
-                
+
             } else if (rowNo > private$.rowCount) {
                 reject("Table$setCell(): rowNo {rowNo} > No. rows ({rowCount})", rowNo=rowNo, rowCount=private$.rowCount)
             }
-            
+
             valueNames <- names(values)
-            
+
             for (column in private$.columns) {
                 if (column$name %in% valueNames)
                     self$setCell(rowNo=rowNo, col=column$name, values[[column$name]])
@@ -245,7 +245,7 @@ Table <- R6::R6Class("Table",
             column <- private$.columns[[col]]
             if (is.null(column))
                 reject("Table$getColumn(): col '{col}' not found", col=col)
-            
+
             column
         },
         setCell=function(col, value, rowNo=NA, rowKey=NULL) {
@@ -253,16 +253,16 @@ Table <- R6::R6Class("Table",
                 rowNo <- indexOf(rowKey, private$.rowKeys)
                 if(is.na(rowNo))
                     reject("Table$setCell(): rowKey '{key}' not found", key=rowKey)
-                
+
             } else if (rowNo > private$.rowCount) {
                 reject("Table$setCell(): rowNo exceeds rowCount ({rowNo} > {rowCount})", rowNo=rowNo, rowCount=private$.rowCount)
             }
-            
+
             column <- private$.columns[[col]]
-            
+
             if (is.null(column))
                 reject("Table$setCell(): col '{col}' not found", col=col)
-            
+
             column$setCell(rowNo, value)
         },
         getCell=function(col, rowNo=NA, rowKey=NULL) {
@@ -270,25 +270,25 @@ Table <- R6::R6Class("Table",
                 rowNo <- indexOf(rowKey, private$.rowKeys)
                 if(is.na(rowNo))
                     reject("Table$getCell(): rowKey '{key}' not found", key=rowKey)
-                
+
             } else if (rowNo > private$.rowCount) {
                 reject("Table$getCell(): rowNo exceeds rowCount ({rowNo} > {rowCount})", rowNo=rowNo, rowCount=private$.rowCount)
             }
-            
+
             column <- private$.columns[[col]]
-            
+
             if (is.null(column))
                 reject("Table$getCell(): col '{col}' not found", col=col)
-            
+
             column$getCell(rowNo)
         },
         getRows=function() {
-            
+
             rows <- list()
-            
+
             for (i in seq_len(private$.rowCount))
                 rows[[i]] <- self$getRow(i)
-            
+
             rows
         },
         getRow=function(rowNo=NA, rowKey=NULL) {
@@ -296,11 +296,11 @@ Table <- R6::R6Class("Table",
                 rowNo <- indexOf(rowKey, private$.rowKeys)
                 if(is.na(rowNo))
                     reject("Table$getRow(): rowKey '{key}' not found", key=rowKey)
-                
+
             } else if (rowNo > private$.rowCount) {
                 reject("Table$getRow(): rowNo exceeds rowCount ({rowNo} > {rowCount})", rowNo=rowNo, rowCount=private$.rowCount)
             }
-            
+
             values <- list()
             for (column in private$.columns)
                 values[[column$name]] <- column$getCell(rowNo)
@@ -319,9 +319,9 @@ Table <- R6::R6Class("Table",
         .updateFootnotes=function() {
             if (private$.footnotesUpdated)
                 return()
-            
+
             private$.footnotes <- character()
-            
+
             for (rowNo in seq_len(private$.rowCount)) {
                 for (column in private$.columns) {
                     if ( ! column$visible)
@@ -339,14 +339,14 @@ Table <- R6::R6Class("Table",
                     cell$sups <- indices
                 }
             }
-            
+
             private$.footnotesUpdated <- TRUE
         },
         .widthWidestCellInRow=function(row) {
-            
+
             maxWidthWOSup <- 0
             maxSupInRow <- 0  # widest superscripts
-            
+
             for (column in private$.columns) {
                 if (column$visible) {
                     cell <- column$getCell(row)
@@ -356,36 +356,36 @@ Table <- R6::R6Class("Table",
                     maxSupInRow <- max(maxSupInRow, measurements$supwidth)
                 }
             }
-            
+
             list(width=maxWidthWOSup + maxSupInRow, supwidth=maxSupInRow)
         },
         .widthWidestHeader=function() {
             width <- 0
-            
+
             for (column in private$.columns) {
                 if (column$visible)
                     width <- max(width, nchar(column$title))
             }
-            
+
             width
         },
         asString=function() {
-            
+
             self$.updateFootnotes()
-            
+
             pieces <- character()
-            
+
             pieces <- c(pieces, self$.titleForPrint())
             pieces <- c(pieces, self$.headerForPrint())
             i <- 1
-            
+
             if ( ! private$.swapRowsColumns) {
-                
+
                 for (i in seq_len(private$.rowCount))
                     pieces <- c(pieces, self$.rowForPrint(i))
-                
+
             } else {
-                
+
                 for (i in seq_along(private$.columns)) {
                     if (i == 1)
                         next()  # the first is already printed in the header
@@ -393,184 +393,188 @@ Table <- R6::R6Class("Table",
                         pieces <- c(pieces, self$.rowForPrint(i))
                 }
             }
-            
+
             pieces <- c(pieces, self$.footerForPrint())
             pieces <- c(pieces, '\n')
-            
+
             paste0(pieces, collapse="")
         },
         .titleForPrint=function() {
-            
+
             pieces <- character()
-            
+
             w <- nchar(self$title)
             wid <- self$width
             padright <- repstr(' ', wid - w)
-            
+
             pieces <- c(pieces, '\n')
             pieces <- c(pieces, private$.marstr, self$title, padright, private$.marstr, '\n')
             pieces <- c(pieces, private$.marstr, repstr('\u2500', wid), private$.marstr, '\n')
-            
+
             paste0(pieces, collapse="")
         },
         .headerForPrint=function() {
-            
+
             pieces <- character()
-            
+
             wid <- self$width
             pieces <- c(pieces, private$.marstr)
-            
+
             if ( ! private$.swapRowsColumns) {
-            
+
                 for (column in private$.columns) {
                     if (column$visible)
                         pieces <- c(pieces, private$.padstr, column$.titleForPrint(), private$.padstr)
                 }
-                
+
             } else {
-                
+
                 column <- private$.columns[[1]]
-                
+
                 pieces <- c(pieces, private$.padstr, spaces(self$.widthWidestHeader()), private$.padstr)
-                
+
                 for (i in seq_len(private$.rowCount)) {
                     text <- paste(column$getCell(i)$value)
                     rowWidth <- self$.widthWidestCellInRow(i)$width
                     w <- nchar(text)
                     pad <- spaces(max(0, rowWidth - w))
-                    
+
                     pieces <- c(pieces, private$.padstr, text, pad, private$.padstr)
                 }
             }
-            
+
             pieces <- c(pieces, private$.marstr, '\n')
-            
+
             pieces <- c(pieces, private$.marstr, repstr('\u2500', wid), private$.marstr, '\n')
-            
+
             paste0(pieces, collapse="")
         },
         .footerForPrint=function() {
-            
+
             pieces <- character()
-            
+
             wid <- self$width
-            
+
             pieces <- c(private$.marstr, repstr('\u2500', wid), private$.marstr, '\n')
-            
+
             for (i in seq_along(private$.notes)) {
-                
+
                 note <- paste0('Note. ', private$.notes[[i]])
-                
+
                 lines <- strwrap(note,
                     width=(wid-private$.padding),
                     indent=private$.margin + private$.padding,
                     exdent=private$.margin + private$.padding)
-                
+
                 paragraph <- paste(lines, collapse='\n')
                 pieces <- c(pieces, paragraph, '\n')
             }
-            
+
             self$.updateFootnotes()
-            
+
             for (i in seq_along(private$.footnotes)) {
-                
+
                 note <- paste0(.SUPCHARS[i], ' ', private$.footnotes[i])
-                
+
                 lines <- strwrap(note,
                     width=(wid-private$.padding),
                     indent=private$.margin + private$.padding,
                     exdent=private$.margin + private$.padding)
-                
+
                 paragraph <- paste(lines, collapse='\n')
                 pieces <- c(pieces, paragraph, '\n')
             }
-            
+
             paste0(pieces, collapse="")
         },
         .rowForPrint=function(i) {
-            
+
             pieces <- character()
-            
+
             pieces <- c(pieces, private$.marstr)
-            
+
             if ( ! private$.swapRowsColumns) {
-            
+
                 for (column in private$.columns) {
                     if (column$visible) {
                         width <- column$width
                         pieces <- c(pieces, private$.padstr, column$.cellForPrint(i, width=width), private$.padstr)
                     }
                 }
-                
+
             } else {
-                
+
                 column <- private$.columns[[i]]
-                
+
                 width <- self$.widthWidestHeader()
-                
+
                 pieces <- c(pieces, private$.padstr, column$.titleForPrint(width), private$.padstr)
-                
+
                 for (j in seq_along(column$cells)) {
                     widest <- self$.widthWidestCellInRow(j)
                     width <- widest$width
                     supwidth <- widest$supwidth
-                    
+
                     cell <- column$cells[[j]]
                     measurements <- silkyMeasureElements(list(cell))
                     measurements$width <- max(measurements$width, width)
                     measurements$supwidth  <- supwidth
-                    
+
                     pieces <- c(pieces, private$.padstr, column$.cellForPrint(j, measurements), private$.padstr)
                 }
-                
+
             }
-            
+
             pieces <- c(pieces, private$.marstr, '\n')
-            
+
             paste0(pieces, collapse="")
         },
         fromProtoBuf=function(element, oChanges=NULL, vChanges=NULL) {
             if ( ! base::inherits(element, "Message"))
                 reject("Table$fromProtoBuf() expects a jamovi.coms.ResultsElement")
 
+            someChanges <- length(oChanges) > 0 || length(vChanges) > 0
+            if (someChanges && base::identical('*', private$.clearWith))
+                return()
+
             if (base::any(oChanges %in% private$.clearWith))
                 return()
-            
+
             for (clearName in private$.clearWith) {
                 if (base::any(vChanges %in% private$.options$option(clearName)$vars))
                     return()
             }
-            
+
             bound <- self$getBoundVars(private$.rowsExpr)
             changes <- vChanges[vChanges %in% bound]
 
             tablePB <- element$table
-            
+
             columnPBIndicesByName <- list()
-            
+
             for (i in seq_along(tablePB$columns)) {
                 columnPB <- tablePB$columns[[i]]
                 columnPBIndicesByName[[columnPB$name]] <- i
             }
-            
+
             for (i in seq_along(private$.rowNames)) {
                 rowName <- private$.rowNames[[i]]
                 rowKey <- private$.rowKeys[[i]]
-                
+
                 if ( ! is.na(indexOf(rowKey, changes)))
                     next()
-                
+
                 fromRowIndex <- indexOf(rowName, tablePB$rowNames)
-                
+
                 if ( ! is.na(fromRowIndex)) {
-                    
+
                     for (j in seq_along(private$.columns)) {
-                        
+
                         toCol <- private$.columns[[j]]
                         toCell <- toCol$getCell(i)
                         colName <- toCol$name
                         fromColIndex <- columnPBIndicesByName[[colName]]
-                        
+
                         if ( ! is.null(fromColIndex)) {
                             fromCell <- tablePB$columns[[fromColIndex]]$cells[[fromRowIndex]]
                             toCell$fromProtoBuf(fromCell)
@@ -578,33 +582,33 @@ Table <- R6::R6Class("Table",
                     }
                 }
             }
-            
+
             for (note in tablePB$notes)
                 self$setNote(note$name, note$note)
         },
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
             initProtoBuf()
-            
+
             table <- RProtoBuf::new(jamovi.coms.ResultsTable)
-            
+
             for (column in private$.columns) {
                 if (column$visible)
                     table$add("columns", column$asProtoBuf())
             }
-            
+
             table$rowNames <- private$.rowNames
             table$swapRowsColumns <- private$.swapRowsColumns
-            
+
             for (i in seq_along(private$.notes)) {
                 noteName <- names(private$.notes)[[i]]
                 noteSays <- private$.notes[[i]]
                 note <- RProtoBuf::new(jamovi.coms.ResultsTableNote, name=noteName, note=noteSays)
                 table$add('notes', note)
             }
-            
+
             if (incAsText)
                 table$asText <- self$asString()
-            
+
             element <- super$asProtoBuf(incAsText=incAsText, status=status)
             element$table <- table
             element

@@ -468,7 +468,7 @@ Options <- R6::R6Class(
         },
         levels=function(x) {
             str <- substitute(x)
-            expr <- parse(text=paste0("base::levels(data[[", str, "]])"))
+            expr <- parse(text=paste0("if (is.null(", str, ")) NULL else base::levels(data[[", str, "]])"))
             v = eval.parent(expr)
             v
         },

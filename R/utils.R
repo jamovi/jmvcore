@@ -165,7 +165,7 @@ nDigits <- function(x, negSign=TRUE) {
     n
 }
 
-silkyMeasureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7) {
+silkyMeasureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7, p=FALSE, zto=FALSE) {
     
     # non-scientific
     dp <- 0
@@ -181,6 +181,13 @@ silkyMeasureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7) {
     maxstr <- 0
     
     maxsupwidth <- 0  # max superscripts width
+    
+    if (zto) {
+        dp <- sf
+        maxdp <- sf
+        scl <- 0
+        sch <- Inf
+    }
     
     for (elem in elems) {
         
@@ -211,19 +218,23 @@ silkyMeasureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7) {
             
             base::Encoding(elem) <- 'UTF-8'
             maxstr <- max(maxstr, nchar(elem))
-        }
-        else if ( ! is.numeric(elem)) {
+            
+        } else if ( ! is.numeric(elem)) {
             
             maxstr <- 2 + nchar(class(elem)[1])
-        }
-        else if (elem == 0) {
+
+        } else if (p && elem < .001 && elem >= 0.0) {
+            
+            maxstr <- max(maxstr, 6)
+            
+        } else if (elem == 0) {
             
             if (is.integer(elem))
                 dp <- max(dp, 0)
             else
                 dp <- max(dp, sf-1)
-        }
-        else if (abs(elem) > scl && abs(elem) < sch) {
+            
+        } else if (abs(elem) > scl && abs(elem) < sch) {
             
             # non-scientific values
             
@@ -280,7 +291,7 @@ silkyMeasureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7) {
     list(sf=sf, dp=dp, width=width, expwidth=expwidth, supwidth=maxsupwidth)
 }
 
-silkyFormatElement <- function(elem, w=NULL, expw=NULL, supw=0, dp=2, sf=3, scl=1e-3, sch=1e7) {
+silkyFormatElement <- function(elem, w=NULL, expw=NULL, supw=0, dp=2, sf=3, scl=1e-3, sch=1e7, p=FALSE, zto=FALSE) {
     
     sups <- integer()
     supspad <- ''
@@ -335,8 +346,12 @@ silkyFormatElement <- function(elem, w=NULL, expw=NULL, supw=0, dp=2, sf=3, scl=
     } else if ( ! is.numeric(elem)) {
         
         str <- paste0("[", class(elem)[1], "]")
+    
+    } else if (p && elem < .001 && elem >= 0.0) {
         
-    } else if (elem == 0 || (abs(elem) > scl && abs(elem) < sch)) {
+        str <- "< .001"
+        
+    } else if (elem == 0 || zto || (abs(elem) > scl && abs(elem) < sch)) {
         
         # non-scientific values
         str <- sprintf(paste0("%", w, ".", dp, "f"), elem)

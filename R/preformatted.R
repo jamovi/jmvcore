@@ -17,7 +17,7 @@ Preformatted <- R6::R6Class("Preformatted",
             name='',
             title='',
             visible=TRUE,
-            clearWith=NULL) {
+            clearWith='*') {
 
             super$initialize(
                 options=options,
@@ -32,6 +32,10 @@ Preformatted <- R6::R6Class("Preformatted",
         fromProtoBuf=function(element, oChanges=NULL, vChanges=NULL) {
             if ( ! base::inherits(element, "Message"))
                 reject("Table$fromProtoBuf() expects a jamovi.coms.ResultsElement")
+
+            someChanges <- length(oChanges) > 0 || length(vChanges) > 0
+            if (someChanges && base::identical('*', private$.clearWith))
+                return()
 
             if (base::any(oChanges %in% private$.clearWith))
                 return()

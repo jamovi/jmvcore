@@ -59,7 +59,7 @@ Column <- R6Class("Column",
             private$.visibleExpr <- paste(visible)
             private$.contentExpr <- content
             private$.type <- type
-            private$.format <- format
+            private$.format <- strsplit(format, ',', fixed=TRUE)[[1]]
             private$.combineBelow <- combineBelow
             
             private$.measured <- FALSE
@@ -115,10 +115,13 @@ Column <- R6Class("Column",
             base::Encoding(private$.title) <- 'UTF-8'
             titleWidth <- nchar(private$.title)
             
+            p <- ('pvalue' %in% private$.format)
+            zto <- ('zto' %in% private$.format)
+            
             if (private$.type == "integer")
-                private$.measures <- silkyMeasureElements(private$.cells, maxdp=0)
+                private$.measures <- silkyMeasureElements(private$.cells, maxdp=0, p=p, zto=zto)
             else
-                private$.measures <- silkyMeasureElements(private$.cells)
+                private$.measures <- silkyMeasureElements(private$.cells, p=p, zto=zto)
             
             private$.width <- max(private$.measures$width, titleWidth)
             private$.measured <- TRUE
@@ -142,12 +145,17 @@ Column <- R6Class("Column",
             if ( ! is.na(width))
                 measures$width <- width
             
+            p <- ('pvalue' %in% private$.format)
+            zto <- ('zto' %in% private$.format)
+            
             silkyFormatElement(private$.cells[[i]],
                 w=measures$width,
                 dp=measures$dp,
                 sf=measures$sf,
                 expw=measures$expwidth,
-                supw=measures$supwidth)
+                supw=measures$supwidth,
+                p=p,
+                zto=zto)
         },
         asProtoBuf=function() {
             initProtoBuf()
@@ -156,7 +164,7 @@ Column <- R6Class("Column",
                 name=private$.name,
                 title=private$.title,
                 type=private$.type,
-                format=private$.format)
+                format=paste0(private$.format, collapse=','))
             
             if (self$hasSuperTitle)
                 column$superTitle <- self$superTitle

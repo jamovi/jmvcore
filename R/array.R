@@ -20,35 +20,35 @@ Array <- R6::R6Class("Array",
             visible=TRUE,
             clearWith=NULL,
             items=0) {
-            
+
             super$initialize(
                 options=options,
                 name=name,
                 title=title,
                 visible=visible,
                 clearWith=clearWith)
-            
+
             private$.template <- template
             private$.itemsExpr <- paste(items)
-            
+
             private$.items <- list()
             private$.itemKeys <- list()
             private$.itemNames <- character()
         },
         get=function(key=NULL, name=NULL, index=NULL) {
-            
+
             if ( ! is.null(index))
                 index <- index
             else if ( ! is.null(name))
                 index <- indexOf(name, private$.itemNames)
             else
                 index <- indexOf(key, private$.itemKeys)
-            
+
             if ( ! is.na(index))
                 item <- private$.items[[ index ]]
             else
                 reject('No such key or name')
-            
+
             item
         },
         addItem=function(key) {
@@ -64,19 +64,19 @@ Array <- R6::R6Class("Array",
             }
         },
         .update=function() {
-            
+
             if (private$.updated)
                 return()
-            
+
             super$.update()
 
             if (length(private$.template) == 0)
                 return()
-            
+
             error <- NULL
-            
+
             newKeys <- try(private$.options$eval(private$.itemsExpr, .key=private$.key, .name=private$.name, .index=private$.index), silent=TRUE)
-            
+
             if (base::inherits(newKeys, "try-error")) {
                 error <- newKeys
                 newKeys <- list()
@@ -89,43 +89,43 @@ Array <- R6::R6Class("Array",
             } else {
                 newKeys <- list()
             }
-            
+
             oldKeys  <- private$.itemKeys
             oldItems <- private$.items
-            
+
             private$.itemKeys <- newKeys
             private$.itemNames <- sapply(newKeys, rjson::toJSON, USE.NAMES=FALSE)
             private$.items <- list()
-            
+
             for (i in seq_along(newKeys)) {
-                
+
                 newKey <- newKeys[[i]]
                 index <- indexOf(newKey, oldKeys)
-                
+
                 if ( ! is.na(index)) {
-                    
+
                     item <- oldItems[[ index[1] ]]
                     item$.update()
                     private$.items[[i]] <- item
-                    
+
                 } else {
-                    
+
                     self$.createItem(newKey, i)
                 }
             }
-            
+
             if ( ! is.null(error))
                 rethrow(error)
         },
         .createItem=function(key, index) {
-            
+
             item <- private$.template$clone(deep=TRUE)
             item$.parent <- self
             item$.setKey(key, index)
             item$.update()
-            
+
             private$.items[[index]] <- item
-            
+
             invisible(item)
         },
         clear=function() {
@@ -134,18 +134,18 @@ Array <- R6::R6Class("Array",
             private$.items <- list()
         },
         asString=function() {
-            
+
             noneVisible <- TRUE
-            
+
             pieces <- c('\n ', self$title, '\n')
-            
+
             for (item in private$.items) {
                 if (item$visible) {
                     pieces <- c(pieces, item$asString())
                     noneVisible <- FALSE
                 }
             }
-            
+
             if (noneVisible)
                 return('')
             else
@@ -154,34 +154,38 @@ Array <- R6::R6Class("Array",
         fromProtoBuf=function(element, oChanges=NULL, vChanges=NULL) {
             if ( ! base::inherits(element, "Message"))
                 reject("Array$fromProtoBuf() expects a jamovi.coms.ResultsElement")
-            
+
+            someChanges <- length(oChanges) > 0 || length(vChanges) > 0
+            if (someChanges && base::identical('*', private$.clearWith))
+                return()
+
             if (base::any(oChanges %in% private$.clearWith))
                 return()
-            
+
             for (clearName in private$.clearWith) {
                 if (base::any(vChanges %in% private$.options$option(clearName)$vars))
                     return()
             }
-            
+
             bound <- self$getBoundVars(private$.itemsExpr)
             changes <- vChanges[vChanges %in% bound]
-            
+
             arrayPB <- element$array
-            
+
             arrayPBIndicesByName <- list()
-            
+
             for (i in seq_along(arrayPB$elements)) {
                 elementPB <- arrayPB$elements[[i]]
                 arrayPBIndicesByName[[elementPB$name]] <- i
             }
-            
+
             for (i in seq_along(private$.itemNames)) {
                 itemName <- private$.itemNames[[i]]
                 itemKey  <- private$.itemKeys[[i]]
-                
+
                 if ( ! is.na(indexOf(itemKey, changes)))
                     next()
-                
+
                 fromItemIndex <- arrayPBIndicesByName[[itemName]]
                 if ( ! is.null(fromItemIndex)) {
                     private$.items[[i]]$fromProtoBuf(arrayPB$elements[[fromItemIndex]], oChanges, vChanges)
@@ -190,14 +194,14 @@ Array <- R6::R6Class("Array",
         },
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
             initProtoBuf()
-            
+
             array <- RProtoBuf::new(jamovi.coms.ResultsArray)
-            
+
             for (item in private$.items) {
                 if (item$visible)
                     array$add("elements", item$asProtoBuf(incAsText=incAsText, status=status))
             }
-            
+
             result <- super$asProtoBuf(incAsText=incAsText, status=status)
             result$array <- array
             result
