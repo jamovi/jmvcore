@@ -14,6 +14,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
         .error=NA,
         .clearWith=NA,
         .state=NA,
+        .stale=FALSE,
         deep_clone=function(name, value) {
             value
         }),
@@ -59,7 +60,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
             private$.titleExpr <- title
             private$.visibleExpr <- paste0(visible)
             private$.clearWith <- clearWith
-            
+
             private$.updated <- FALSE
             private$.state <- NULL
 
@@ -119,7 +120,8 @@ ResultsElement <- R6::R6Class("ResultsElement",
 
             element <- RProtoBuf::new(jamovi.coms.ResultsElement,
                 name=private$.name,
-                title=self$title)
+                title=self$title,
+                stale=private$.stale)
 
             if ( ! is.null(status))
                 element$status <- status

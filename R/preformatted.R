@@ -8,6 +8,7 @@ Preformatted <- R6::R6Class("Preformatted",
             if (base::missing(value))
                 return(private$.content)
             private$.content <- value
+            private$.stale <- FALSE
             base::invisible(self)
         }
     ),
@@ -33,16 +34,20 @@ Preformatted <- R6::R6Class("Preformatted",
             if ( ! base::inherits(element, "Message"))
                 reject("Table$fromProtoBuf() expects a jamovi.coms.ResultsElement")
 
+            private$.stale <- element$stale
+
             someChanges <- length(oChanges) > 0 || length(vChanges) > 0
-            if (someChanges && base::identical('*', private$.clearWith))
-                return()
-
-            if (base::any(oChanges %in% private$.clearWith))
-                return()
-
-            for (clearName in private$.clearWith) {
-                if (base::any(vChanges %in% private$.options$option(clearName)$vars))
-                    return()
+            if (someChanges && base::identical('*', private$.clearWith)) {
+                private$.stale <- TRUE
+            } else if (base::any(oChanges %in% private$.clearWith)) {
+                private$.stale <- TRUE
+            } else {
+                for (clearName in private$.clearWith) {
+                    if (base::any(vChanges %in% private$.options$option(clearName)$vars)) {
+                        private$.stale <- TRUE
+                        break()
+                    }
+                }
             }
 
             private$.content <- element$preformatted
