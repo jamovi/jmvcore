@@ -350,7 +350,7 @@ Table <- R6::R6Class("Table",
             for (column in private$.columns) {
                 if (column$visible) {
                     cell <- column$getCell(row)
-                    measurements <- silkyMeasureElements(list(cell))
+                    measurements <- measureElements(list(cell))
                     widthWOSup <- measurements$width - measurements$supwidth
                     maxWidthWOSup <- max(maxWidthWOSup, widthWOSup)
                     maxSupInRow <- max(maxSupInRow, measurements$supwidth)
@@ -516,7 +516,7 @@ Table <- R6::R6Class("Table",
                     supwidth <- widest$supwidth
 
                     cell <- column$cells[[j]]
-                    measurements <- silkyMeasureElements(list(cell))
+                    measurements <- measureElements(list(cell))
                     measurements$width <- max(measurements$width, width)
                     measurements$supwidth  <- supwidth
 
@@ -615,4 +615,3 @@ Table <- R6::R6Class("Table",
         }
     )
 )
-

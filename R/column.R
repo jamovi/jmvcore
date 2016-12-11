@@ -50,9 +50,9 @@ Column <- R6Class("Column",
             type,
             format,
             combineBelow) {
-            
+
             private$.options <- options
-            
+
             private$.name <- name
             private$.title <- title
             private$.superTitle <- superTitle
@@ -61,10 +61,10 @@ Column <- R6Class("Column",
             private$.type <- type
             private$.format <- strsplit(format, ',', fixed=TRUE)[[1]]
             private$.combineBelow <- combineBelow
-            
+
             private$.measured <- FALSE
             private$.cells <- list()
-            
+
         },
         setTitle=function(title) {
             private$.title <- title
@@ -73,19 +73,19 @@ Column <- R6Class("Column",
             private$.superTitle <- title
         },
         addCell=function(value, ...) {
-            
+
             if (base::missing(value)) {
                 if (is.character(private$.contentExpr))
                     value <- private$.options$eval(private$.contentExpr, ...)
                 else
                     value <- NULL
             }
-            
+
             if (inherits(value, "Cell"))
                 cell <- value
             else
                 cell <- Cell$new(value)
-            
+
             private$.cells[[length(private$.cells)+1]] <- cell
             private$.measured <- FALSE
         },
@@ -101,7 +101,7 @@ Column <- R6Class("Column",
         getCell=function(row) {
             if (row > length(private$.cells))
                 stop(format("Row '{}' does not exist in the table", row), call.=FALSE)
-            
+
             cell <- private$.cells[[row]]
             if (is.null(cell))
                 stop("no such cell")
@@ -114,15 +114,15 @@ Column <- R6Class("Column",
         .measure=function() {
             base::Encoding(private$.title) <- 'UTF-8'
             titleWidth <- nchar(private$.title)
-            
+
             p <- ('pvalue' %in% private$.format)
             zto <- ('zto' %in% private$.format)
-            
+
             if (private$.type == "integer")
-                private$.measures <- silkyMeasureElements(private$.cells, maxdp=0, p=p, zto=zto)
+                private$.measures <- measureElements(private$.cells, maxdp=0, type=private$.type, p=p, zto=zto)
             else
-                private$.measures <- silkyMeasureElements(private$.cells, p=p, zto=zto)
-            
+                private$.measures <- measureElements(private$.cells, type=private$.type, p=p, zto=zto)
+
             private$.width <- max(private$.measures$width, titleWidth)
             private$.measured <- TRUE
         },
@@ -132,56 +132,57 @@ Column <- R6Class("Column",
                 width <- self$width
             w <- nchar(private$.title)
             pad <- spaces(max(0, width - w))
-            
+
             paste0(private$.title, pad)
         },
         .cellForPrint=function(i, measures=NULL, width=NA) {
             if ( ! private$.measured)
                 self$.measure()
-            
+
             if (is.null(measures))
                 measures <- private$.measures
-            
+
             if ( ! is.na(width))
                 measures$width <- width
-            
+
             p <- ('pvalue' %in% private$.format)
             zto <- ('zto' %in% private$.format)
-            
-            silkyFormatElement(private$.cells[[i]],
+
+            formatElement(private$.cells[[i]],
                 w=measures$width,
                 dp=measures$dp,
                 sf=measures$sf,
                 expw=measures$expwidth,
                 supw=measures$supwidth,
+                type=private$.type,
                 p=p,
                 zto=zto)
         },
         asProtoBuf=function() {
             initProtoBuf()
-            
+
             column <- RProtoBuf::new(jamovi.coms.ResultsColumn,
                 name=private$.name,
                 title=private$.title,
                 type=private$.type,
                 format=paste0(private$.format, collapse=','))
-            
+
             if (self$hasSuperTitle)
                 column$superTitle <- self$superTitle
-            
+
             column$combineBelow <- private$.combineBelow
-            
+
             for (cell in private$.cells)
                 column$add("cells", cell$asProtoBuf())
-            
+
             column
         },
         fromProtoBuf=function(columnPB) {
             if ( ! base::inherits(columnPB, "Message"))
                 reject("Cell$fromProtoBuf(): expects a jamovi.coms.ResultsColumn")
-            
+
             cellsPB <- columnPB$cells
-            
+
             for (i in seq_along(cellsPB)) {
                 cellPB <- cellsPB[i]
                 cell <- getCell(i)
