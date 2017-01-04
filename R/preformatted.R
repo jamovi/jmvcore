@@ -1,4 +1,6 @@
 
+#' @rdname Analysis
+#' @export
 Preformatted <- R6::R6Class("Preformatted",
     inherit=ResultsElement,
     private=list(

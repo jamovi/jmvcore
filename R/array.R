@@ -1,4 +1,6 @@
 
+#' @rdname Analysis
+#' @export
 Array <- R6::R6Class("Array",
     inherit=ResultsElement,
     private=list(

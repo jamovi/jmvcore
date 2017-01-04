@@ -1,4 +1,6 @@
 
+#' @rdname Analysis
+#' @export
 Group <- R6::R6Class("Group",
     inherit=ResultsElement,
     private=list(

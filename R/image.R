@@ -1,4 +1,6 @@
 
+#' @rdname Analysis
+#' @export
 Image <- R6::R6Class("Image",
     inherit=ResultsElement,
     private=list(

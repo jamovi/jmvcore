@@ -1,4 +1,6 @@
 
+#' @rdname Analysis
+#' @export
 Table <- R6::R6Class("Table",
     inherit=ResultsElement,
     private=list(

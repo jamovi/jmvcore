@@ -1,5 +1,7 @@
 
-Column <- R6Class("Column",
+#' @rdname Analysis
+#' @export
+Column <- R6::R6Class("Column",
     private=list(
         .name="",
         .title="",

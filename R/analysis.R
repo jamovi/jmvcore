@@ -1,4 +1,6 @@
 
+#' the jmvcore Object classes
+#' @export
 Analysis <- R6::R6Class("Analysis",
     private=list(
         .datasetId="",

@@ -1,7 +1,33 @@
 
+#' Constants to specify formatting of Table cells
+#' 
+#' Cell.BEGIN_GROUP adds spacing above a cell
+#' 
+#' Cell.END_GROUP add spacing below a cell
+#' 
+#' Cell.BEGIN_END_GROUP add spacing above and below a cell
+#' 
+#' Cell.NEGATIVE specifies that the cells contents is negative
+#' 
+#' @examples
+#' \dontrun{
+#' 
+#' table$addFormat(rowNo=1, col=1, Cell.BEGIN_END_GROUP)
+#' }
+#' 
+#' @export
 Cell.BEGIN_GROUP <- 1
+
+#' @rdname Cell.BEGIN_GROUP
+#' @export
 Cell.END_GROUP   <- 2
+
+#' @rdname Cell.BEGIN_GROUP
+#' @export
 Cell.BEGIN_END_GROUP <- 3
+
+#' @rdname Cell.BEGIN_GROUP
+#' @export
 Cell.NEGATIVE <- 4
 
 Cell <- R6::R6Class(
