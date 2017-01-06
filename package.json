@@ -1,8 +1,0 @@
-{
-  "name": "jmvcore",
-  "version": "0.1.0",
-  "scripts": {
-    "prepublish": "R CMD INSTALL --library=. ."
-  }
-}
-
