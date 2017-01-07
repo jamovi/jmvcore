@@ -66,17 +66,20 @@ reject <- function(formats, code=NULL, ...) {
 composeTerm <- function(components) {
     components <- sapply(components, function(component) {
         if (make.names(component) != component) {
+            component <- gsub('\\', '\\\\', component, fixed=TRUE)
             component <- gsub('`', '\\`', component, fixed=TRUE)
             component <- paste0('`', component, '`')
         }
         component
-    })
+    }, USE.NAMES=FALSE)
+    term <- paste0(components, collapse=':')
+    term
 }
 
 #' @rdname decomposeTerm
 #' @export
 composeTerms <- function(listOfComponents) {
-    sapply(listOfComponents, composeTerm)
+    sapply(listOfComponents, composeTerm, USE.NAMES=FALSE)
 }
 
 #' Compose and decompose interaction terms to and from their components
@@ -102,38 +105,37 @@ composeTerms <- function(listOfComponents) {
 #' @export 
 decomposeTerm <- function(term) {
     
-    split <- strsplit(term, ':')[[1]]
+    chars <- strsplit(term, '')[[1]]
     components <- character()
-    component <- ''
+    componentChars <- character()
+    inQuote <- FALSE
     
-    for (piece in split) {
-        if (component != '') {
-            component <- paste0(component, ':', piece)
-            if (endsWith(component, '\\`')) {
-                next()
-            }
-            else if (endsWith(component, '`')) {
-                component <- substring(component, 2, nchar(component)-1)
-                component <- gsub('\\`', '`', component, fixed=TRUE)
-                components <- c(components, component)
-                component <- ''
-            }
+    i <- 1
+    n <- length(chars)
+    
+    while (i <= n) {
+        char <- chars[i]
+        if (char == '`') {
+            inQuote <- ! inQuote
         }
-        else if ( ! startsWith(piece, '`')) {
-            components <- c(components, piece)
+        else if (char == '\\') {
+            i <- i + 1
+            char <- chars[i]
+            componentChars <- c(componentChars, char)
         }
-        else if (endsWith(piece, '\\`')) {
-            component <- piece
-        }
-        else if (endsWith(piece, '`')) {
-            piece <- substring(piece, 2, nchar(piece)-1)
-            piece <- gsub('\\`', '`', piece, fixed=TRUE)
-            components <- c(components, piece)
+        else if (char == ':' && inQuote == FALSE) {
+            component <- paste0(componentChars, collapse='')
+            components <- c(components, component)
+            componentChars <- character()
         }
         else {
-            component <- piece
+            componentChars <- c(componentChars, char)
         }
+        i <- i + 1
     }
+
+    component <- paste0(componentChars, collapse='')
+    components <- c(components, component)
     
     components
 }
