@@ -77,6 +77,14 @@ ResultsElement <- R6::R6Class("ResultsElement",
         setState=function(state) {
             private$.state <- state
         },
+        setVisible=function(visible=TRUE) {
+            private$.visibleExpr <- paste0(visible)
+            private$.visibleValue <- visible
+        },
+        setTitle=function(title) {
+            private$.titleExpr <- title
+            private$.titleValue <- title
+        },
         .update=function() {
             if (private$.updated)
                 return()
