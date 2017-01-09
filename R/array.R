@@ -12,7 +12,8 @@ Array <- R6::R6Class("Array",
         .itemsValue=0),
     active=list(
         items=function() private$.items,
-        itemNames=function() private$.itemNames),
+        itemNames=function() private$.itemNames,
+        itemKeys=function() private$.itemKeys),
     public=list(
         initialize=function(
             options,
