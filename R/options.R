@@ -9,13 +9,17 @@ Options <- R6::R6Class(
         .listeners=NA,
         .pb=NA,
         .env=NA,
-        .ppi=72),
+        .ppi=72,
+        .requiresData=TRUE),
     active=list(
         analysis=function(analysis) {
             if (base::missing(analysis))
                 return(private$.analysis)
             private$.analysis <- analysis
             base::invisible(self)
+        },
+        requiresData=function() {
+            private$.requiresData
         },
         varsRequired=function() {
             vars <- list()
@@ -28,7 +32,9 @@ Options <- R6::R6Class(
         ppi=function() private$.ppi,
         options=function() private$.options),
     public=list(
-        initialize=function(...) {
+        initialize=function(requiresData=TRUE, ...) {
+            
+            private$.requiresData <- requiresData
             
             private$.analysis <- NULL
             private$.options <- list()

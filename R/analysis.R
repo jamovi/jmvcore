@@ -44,12 +44,13 @@ Analysis <- R6::R6Class("Analysis",
         .asArgs=function() {
             source <- ''
             sep <- '\n    '
+            
+            if (self$options$requiresData) {
+                source <- paste0(sep, 'data=data')
+                sep <- paste0(',\n    ')
+            }
 
             for (option in private$.options$options) {
-
-                if (option$name == 'data')
-                    next()
-
                 as <- private$.sourcifyOption(option)
                 if ( ! base::identical(as, '')) {
                     source <- paste0(source, sep, as)
@@ -341,6 +342,6 @@ Analysis <- R6::R6Class("Analysis",
             response
         },
         asSource=function() {
-            paste0(private$.package, '::', private$.name, '(\n    data=data, ', private$.asArgs(), ')')
+            paste0(private$.package, '::', private$.name, '(', private$.asArgs(), ')')
         })
 )
