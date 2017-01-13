@@ -9,6 +9,9 @@ Preformatted <- R6::R6Class("Preformatted",
         content=function(value) {
             if (base::missing(value))
                 return(private$.content)
+            if ( ! is.character(value))
+                value <- capture.output(value)
+            value <- paste0(value, collapse='\n')
             private$.content <- value
             private$.stale <- FALSE
             base::invisible(self)
