@@ -1,5 +1,6 @@
 
 #' the jmvcore Object classes
+#' @importFrom base64enc base64encode
 #' @export
 Analysis <- R6::R6Class("Analysis",
     private=list(
@@ -35,7 +36,7 @@ Analysis <- R6::R6Class("Analysis",
         .sourcifyOption=function(option) {
             value <- option$value
             def <- option$default
-            
+
             if ( ! ((is.numeric(value) && isTRUE(all.equal(value, def))) || base::identical(value, def))) {
                 return(paste0(option$name, '=', sourcify(value, '    ')))
             }
@@ -44,7 +45,7 @@ Analysis <- R6::R6Class("Analysis",
         .asArgs=function() {
             source <- ''
             sep <- '\n    '
-            
+
             if (self$options$requiresData) {
                 source <- paste0(sep, 'data=data')
                 sep <- paste0(',\n    ')
@@ -63,6 +64,7 @@ Analysis <- R6::R6Class("Analysis",
     active=list(
         analysisId=function() private$.analysisId,
         name=function() private$.name,
+        package=function() private$.package,
         data=function() private$.data,
         options=function() private$.options,
         results=function() private$.results,
@@ -307,24 +309,24 @@ Analysis <- R6::R6Class("Analysis",
             response$version$minor <- private$.version[2]
             response$version$revision <- private$.version[3]
             response$revision <- private$.revision
-            
+
             overrideChildStatus <- NULL
-            
+
             if (private$.status == "inited") {
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_INITED;
             } else if (private$.status == "running") {
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_RUNNING;
             } else if (private$.status == "complete") {
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE;
-                
+
                 overrideChildStatus <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE;
-                
+
             } else {
                 error <- RProtoBuf::new(jamovi.coms.Error)
                 error$message <- private$.error
                 response$error <- error
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_ERROR;
-                
+
                 overrideChildStatus <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE;
             }
 

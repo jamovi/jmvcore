@@ -1,5 +1,6 @@
 
 #' The jmv Options classes
+#' @importFrom rjson fromJSON
 #' @export
 Options <- R6::R6Class(
     "Options",
@@ -33,19 +34,19 @@ Options <- R6::R6Class(
         options=function() private$.options),
     public=list(
         initialize=function(requiresData=TRUE, ...) {
-            
+
             private$.requiresData <- requiresData
-            
+
             private$.analysis <- NULL
             private$.options <- list()
             private$.listeners <- list()
             private$.env <- new.env()
             private$.pb <- NULL
-            
+
             args <- list(...)
             if ('.ppi' %in% names(args))
                 private$.ppi <- args$.ppi
-            
+
             private$.env[["levels"]] <- self$levels
         },
         .addOption=function(option) {
@@ -66,19 +67,19 @@ Options <- R6::R6Class(
             private$.env
         },
         eval=function(value, ...) {
-            
+
             if (class(value) == "character") {
-                
+
                 if (value == "TRUE")
                     return(TRUE)
                 if (value == "FALSE")
                     return(FALSE)
-                
+
                 vars <- list(...)
                 for (name in names(vars))
                     private$.env[[name]] <- vars[[name]]
                 private$.env[['data']] <- self$.getData()
-                
+
                 nch <- nchar(value)
                 if ( ! is.na(suppressWarnings(as.numeric(value))))
                     value <- as.numeric(value)
@@ -86,40 +87,40 @@ Options <- R6::R6Class(
                     value <- self$.eval(text=value)
                 else
                     value <- jmvcore::format(value, ...)
-                
+
                 if (is.character(value))
                     base::Encoding(value) <- 'UTF-8'
-                
+
                 if (length(names(vars)) > 0)
                     rm(list=names(vars), envir=private$.env)
             }
-            
+
             value
         },
         .eval=function(text) {
-            
+
             transformed <- gsub('\\$', '.', text)
             value <- try(base::eval(parse(text=transformed), envir=private$.env), silent=TRUE)
-            
+
             if (inherits(value, "try-error")) {
                 reason <- extractErrorMessage(value)
                 stop(format("Could not evaluate '{text}'\n    {reason}", text=text, reason=reason), call.=FALSE)
             }
-            
+
             value
         },
         set=function(...) {
-            
+
             values <- list(...)
             for (name in names(values))
                 private$.options[[name]]$value <- values[[name]]
-            
+
             for (listener in private$.listeners)
                 listener(names(values))
         },
         setValue=function(name, value) {
             private$.options[[name]]$value <- value
-            
+
             for (listener in private$.listeners)
                 listener(name)
         },
@@ -151,14 +152,14 @@ Options <- R6::R6Class(
         fromProtoBuf=function(pb) {
             if ( ! "Message" %in% class(pb))
                 reject("Group::fromProtoBuf(): expected a jamovi.coms.ResultsElement")
-            
+
             private$.pb <- pb
-            
+
             for (i in seq_along(pb$names)) {
                 name <- pb$names[[i]]
                 optionPB <- pb$options[[i]]
                 value <- parseOptionPB(optionPB)
-                
+
                 if (name == '.ppi') {
                     private$.ppi <- value
                 } else {
@@ -173,10 +174,10 @@ Options <- R6::R6Class(
                 name <- pb$names[[i]]
                 if ( ! name %in% names(private$.options))
                     next()
-                
+
                 optionPB <- pb$options[[i]]
                 currentValue <- private$.options[[name]]$value
-                
+
                 value <- parseOptionPB(optionPB)
                 clone <- private$.options[[name]]$clone(deep=TRUE)
                 clone$value <- value
@@ -493,7 +494,7 @@ OptionArray <- R6::R6Class(
         .check=function(data) {
         },
         deep_clone=function(name, value) {
-            
+
             if (name == '.elements') {
                 elements <- list()
                 for (i in seq_along(value)) {
@@ -504,7 +505,7 @@ OptionArray <- R6::R6Class(
                 }
                 return(elements)
             }
-            
+
             value
         }
     ))
@@ -534,7 +535,7 @@ OptionPairs <- R6::R6Class(
         }))
 
 parseOptionPB <- function(pb) {
-    
+
     if (pb$has('i'))
         value <- pb$i
     else if (pb$has('d'))
@@ -542,10 +543,10 @@ parseOptionPB <- function(pb) {
     else if (pb$has('s'))
         value <- pb$s
     else if (pb$has('o')) {
-        
+
         # this isn't necessary, but without it the R linter complains :/
         jamovi.coms.AnalysisOption.Other <- eval(parse(text='jamovi.coms.AnalysisOption.Other'))
-        
+
         if (pb$o == jamovi.coms.AnalysisOption.Other$`TRUE`)
             value <- TRUE
         else if (pb$o == jamovi.coms.AnalysisOption.Other$`FALSE`)
@@ -562,6 +563,6 @@ parseOptionPB <- function(pb) {
     }
     else
         value <- NULL
-    
+
     value
 }

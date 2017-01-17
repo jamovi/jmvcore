@@ -1,5 +1,6 @@
 
 #' @rdname Analysis
+#' @importFrom rjson fromJSON
 #' @export
 Table <- R6::R6Class("Table",
     inherit=ResultsElement,
