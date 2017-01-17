@@ -639,13 +639,13 @@ constructFormula <- function(dep=NULL, terms) {
 #' @param suffix a string to test the presence of
 #' @export
 startsWith <- function(x, prefix) {
-    return (substring(x, 1, 1) == prefix)
+    return (substring(x, 1, nchar(prefix)) == prefix)
 }
 
 #' @rdname startsWith
 #' @export
 endsWith <- function(x, suffix) {
-    return (substring(x, nchar(x)) == suffix)
+    return (substring(x, nchar(x) - nchar(suffix) + 1) == suffix)
 }
 
 isSame <- function(i1, i2) {
