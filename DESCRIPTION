@@ -21,5 +21,5 @@ Imports:
     knitr
 Suggests:
     testthat (>= 1.0.2),
-    RProtoBuf (>= 0.4.6)
+    RProtoBuf
 RoxygenNote: 5.0.1

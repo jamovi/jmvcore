@@ -1,0 +1,12 @@
+
+language: r
+sudo: required
+warnings_are_errors: false
+
+r_binary_packages:
+    - R6
+    - rjson
+    - base64enc
+    - knitr
+    - testthat
+    - RProtoBuf
