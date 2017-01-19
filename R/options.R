@@ -203,6 +203,7 @@ Option <- R6::R6Class(
     "Option",
     private=list(
         .name=NA,
+        .title=NA,
         .parent=NA,
         .value=NA,
         .default=NA,
@@ -215,6 +216,7 @@ Option <- R6::R6Class(
 
             private$.parent <- NULL
             private$.name <- name
+            private$.title <- name
             self$value <- value
 
             args <- list(...)
@@ -225,7 +227,10 @@ Option <- R6::R6Class(
             }
         },
         check=function() {
-            data <- private$.parent$.getData()
+            if ( ! is.null(private$.parent))
+                data <- private$.parent$.getData()
+            else
+                data <- NULL
             private$.check(data)
         },
         .setParent=function(parent) {
@@ -379,7 +384,18 @@ OptionInteger <- R6::R6Class(
 #' @export
 OptionNumber <- R6::R6Class(
     "OptionNumber",
-    inherit=Option)
+    inherit=Option,
+    private=list(
+        .min=-Inf,
+        .max=Inf
+    ),
+    public=list(
+        check=function() {
+            value <- self$value
+            if (value > private$.max || value < private$.min)
+                reject('{title} must be between {min} and {max} (is {value})', title=private$.title, min=private$.min, max=private$.max, value=value)
+        }
+    ))
 
 #' @rdname Options
 #' @export

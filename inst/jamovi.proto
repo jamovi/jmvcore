@@ -148,8 +148,9 @@ message ResultsColumn {
 }
 
 message ResultsTableNote {
-    string name = 1;
+    string key  = 1;
     string note = 2;
+    bool   init = 3;
 }
 
 message ResultsTable {

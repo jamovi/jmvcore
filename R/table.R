@@ -1,11 +1,24 @@
 
+Note <- R6::R6Class('Note',
+    public=list(
+        key=NA,
+        note=NA,
+        init=NA,
+        initialize=function(key, note, init) {
+            self$key  <- key
+            self$note <- note
+            self$init <- init
+        }
+    )
+)
+
 #' @rdname Analysis
 #' @importFrom rjson fromJSON
 #' @export
 Table <- R6::R6Class("Table",
     inherit=ResultsElement,
     private=list(
-        .columns=list(),
+        .columns=NA,
         .rowCount=0,
         .rowKeys=character(),
         .rowNames=character(),
@@ -73,7 +86,12 @@ Table <- R6::R6Class("Table",
                 visible=visible,
                 clearWith=clearWith)
 
-            private$.notes <- notes
+            private$.notes <- list()
+            for (name in names(notes)) {
+                note <- notes[[name]]
+                self$setNote(name, note, init=TRUE)
+            }
+
             private$.swapRowsColumns <- swapRowsColumns
 
             private$.rowCount <- 0
@@ -316,8 +334,15 @@ Table <- R6::R6Class("Table",
         addSymbol=function(col, symbol, rowNo=NA, rowKey=NULL) {
             self$getCell(col=col, rowNo=rowNo, rowKey=rowKey)$addSymbol(symbol)
         },
-        setNote=function(name, note) {
-            private$.notes[[name]] <- note
+        setNote=function(key, note, init=TRUE) {
+
+            if (is.null(note)) {
+                private$.notes[[key]] <- NULL
+            } else if (is.character(note)) {
+                private$.notes[[key]] <- Note$new(key, note[1], init)
+            } else {
+                stop('Table$setNote(): note must be a character vector', call.=FALSE)
+            }
         },
         .updateFootnotes=function() {
             if (private$.footnotesUpdated)
@@ -460,11 +485,11 @@ Table <- R6::R6Class("Table",
 
             pieces <- c(private$.marstr, repstr('\u2500', wid), private$.marstr, '\n')
 
-            for (i in seq_along(private$.notes)) {
+            for (note in private$.notes) {
 
-                note <- paste0('Note. ', private$.notes[[i]])
+                text <- paste0('Note. ', note$note)
 
-                lines <- strwrap(note,
+                lines <- strwrap(text,
                     width=(wid-private$.padding),
                     indent=private$.margin + private$.padding,
                     exdent=private$.margin + private$.padding)
@@ -597,8 +622,10 @@ Table <- R6::R6Class("Table",
                 }
             }
 
-            for (note in tablePB$notes)
-                self$setNote(note$name, note$note)
+            for (note in tablePB$notes) {
+                if ( ! note$init)
+                    self$setNote(note$key, note$note, note$init)
+            }
         },
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
             initProtoBuf()
@@ -611,11 +638,13 @@ Table <- R6::R6Class("Table",
             table$rowNames <- private$.rowNames
             table$swapRowsColumns <- private$.swapRowsColumns
 
-            for (i in seq_along(private$.notes)) {
-                noteName <- names(private$.notes)[[i]]
-                noteSays <- private$.notes[[i]]
-                note <- RProtoBuf::new(jamovi.coms.ResultsTableNote, name=noteName, note=noteSays)
-                table$add('notes', note)
+            for (note in private$.notes) {
+                notePB <- RProtoBuf::new(
+                    jamovi.coms.ResultsTableNote,
+                    key=note$key,
+                    note=note$note,
+                    init=note$init)
+                table$add('notes', notePB)
             }
 
             if (incAsText)
