@@ -102,6 +102,13 @@ message AnalysisOptions {
     repeated string names = 3;
 }
 
+enum Visible {
+    DEFAULT_YES = 0;
+    DEFAULT_NO = 1;
+    YES = 2;
+    NO = 3;
+}
+
 message ResultsCell {
 
     enum Other {
@@ -136,6 +143,8 @@ message ResultsColumn {
     bool   combineBelow = 6;
 
     repeated ResultsCell cells = 7;
+
+    Visible visible = 15;
 }
 
 message ResultsTableNote {
@@ -187,6 +196,8 @@ message ResultsElement {
         string syntax = 11;
         ResultsHtml html = 12;
     }
+
+    Visible visible = 15;
 }
 
 

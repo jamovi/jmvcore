@@ -552,12 +552,23 @@ Table <- R6::R6Class("Table",
             changes <- vChanges[vChanges %in% bound]
 
             tablePB <- element$table
+            columnsPB <- tablePB$columns
+
+            # we populate the protobuf cells into a list, because it leads to a
+            # significant performance improvement
+
+            cells <- list()
 
             columnPBIndicesByName <- list()
 
-            for (i in seq_along(tablePB$columns)) {
-                columnPB <- tablePB$columns[[i]]
+            for (i in seq_along(columnsPB)) {
+                columnPB <- columnsPB[[i]]
                 columnPBIndicesByName[[columnPB$name]] <- i
+                cellsPB <- columnPB$cells
+                colCells <- list()
+                for (j in seq_along(cellsPB))
+                    colCells[[j]] <- cellsPB[[j]]
+                cells[[i]] <- colCells
             }
 
             for (i in seq_along(private$.rowNames)) {
@@ -579,7 +590,7 @@ Table <- R6::R6Class("Table",
                         fromColIndex <- columnPBIndicesByName[[colName]]
 
                         if ( ! is.null(fromColIndex)) {
-                            fromCell <- tablePB$columns[[fromColIndex]]$cells[[fromRowIndex]]
+                            fromCell <- cells[[fromColIndex]][[fromRowIndex]]
                             toCell$fromProtoBuf(fromCell)
                         }
                     }
@@ -594,10 +605,8 @@ Table <- R6::R6Class("Table",
 
             table <- RProtoBuf::new(jamovi.coms.ResultsTable)
 
-            for (column in private$.columns) {
-                if (column$visible)
-                    table$add("columns", column$asProtoBuf())
-            }
+            for (column in private$.columns)
+                table$add("columns", column$asProtoBuf())
 
             table$rowNames <- private$.rowNames
             table$swapRowsColumns <- private$.swapRowsColumns

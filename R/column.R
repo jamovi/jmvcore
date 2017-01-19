@@ -8,7 +8,7 @@ Column <- R6::R6Class("Column",
         .type="",
         .format="",
         .contentExpr=NA,
-        .visibleExpr="TRUE",
+        .visibleExpr=NA,
         .superTitle=NA,
         .combineBelow=FALSE,
         .cells=list(),
@@ -32,6 +32,11 @@ Column <- R6::R6Class("Column",
         },
         visible=function(value) {
             if (base::missing(value)) {
+                if (is.null(private$.visibleExpr) || identical(private$.visibleExpr, 'TRUE'))
+                    return(TRUE)
+                else if (identical(private$.visibleExpr, 'FALSE'))
+                    return(FALSE)
+
                 v <- private$.options$eval(private$.visibleExpr)
                 if (is.logical(v))
                     return(v)
@@ -58,7 +63,10 @@ Column <- R6::R6Class("Column",
             private$.name <- name
             private$.title <- title
             private$.superTitle <- superTitle
-            private$.visibleExpr <- paste(visible)
+            if (identical(visible, TRUE))
+                private$.visibleExpr <- NULL
+            else
+                private$.visibleExpr <- paste(visible)
             private$.contentExpr <- content
             private$.type <- type
             private$.format <- strsplit(format, ',', fixed=TRUE)[[1]]
@@ -163,16 +171,29 @@ Column <- R6::R6Class("Column",
         asProtoBuf=function() {
             initProtoBuf()
 
+            if (is.null(private$.visibleExpr))
+                v <- jamovi.coms.Visible$DEFAULT_YES
+            else if (identical(private$.visibleExpr, 'TRUE'))
+                v <- jamovi.coms.Visible$YES
+            else if (identical(private$.visibleExpr, 'FALSE'))
+                v <- jamovi.coms.Visible$NO
+            else if (self$visible)
+                v <- jamovi.coms.Visible$DEFAULT_YES
+            else
+                v <- jamovi.coms.Visible$DEFAULT_NO
+
+            superTitle <- ''
+            if (self$hasSuperTitle)
+                superTitle <- self$superTitle
+
             column <- RProtoBuf::new(jamovi.coms.ResultsColumn,
                 name=private$.name,
                 title=private$.title,
                 type=private$.type,
-                format=paste0(private$.format, collapse=','))
-
-            if (self$hasSuperTitle)
-                column$superTitle <- self$superTitle
-
-            column$combineBelow <- private$.combineBelow
+                superTitle=superTitle,
+                format=paste0(private$.format, collapse=','),
+                combineBelow=private$.combineBelow,
+                visible=v)
 
             for (cell in private$.cells)
                 column$add("cells", cell$asProtoBuf())

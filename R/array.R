@@ -200,10 +200,8 @@ Array <- R6::R6Class("Array",
 
             array <- RProtoBuf::new(jamovi.coms.ResultsArray)
 
-            for (item in private$.items) {
-                if (item$visible)
-                    array$add("elements", item$asProtoBuf(incAsText=incAsText, status=status))
-            }
+            for (item in private$.items)
+                array$add("elements", item$asProtoBuf(incAsText=incAsText, status=status))
 
             result <- super$asProtoBuf(incAsText=incAsText, status=status)
             result$array <- array
