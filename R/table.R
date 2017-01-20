@@ -138,7 +138,7 @@ Table <- R6::R6Class("Table",
             oldKeys <- private$.rowKeys
             oldRows <- self$getRows()
 
-            self$clearRows()
+            self$deleteRows()
 
             for (i in seq_along(newKeys)) {
 
@@ -152,7 +152,7 @@ Table <- R6::R6Class("Table",
 
                 } else {
 
-                    self$addRow(newKey)
+                    self$addRow(newKey, list())
                 }
             }
 
@@ -162,7 +162,7 @@ Table <- R6::R6Class("Table",
             if ( ! is.null(error))
                 rethrow(error)
         },
-        clearRows=function() {
+        deleteRows=function() {
             private$.rowKeys <- list()
             for (column in private$.columns)
                 column$clear()
@@ -214,7 +214,7 @@ Table <- R6::R6Class("Table",
                 private$.columns <- newColumns
             }
         },
-        addRow=function(rowKey=NULL, values=NULL) {
+        addRow=function(rowKey, values) {
 
             private$.rowKeys[length(private$.rowKeys)+1] <- list(rowKey)  # allow NULL
             private$.rowCount <- private$.rowCount + 1
