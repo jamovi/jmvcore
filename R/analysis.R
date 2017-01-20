@@ -28,10 +28,17 @@ Analysis <- R6::R6Class("Analysis",
         .checkpoint=function(flush=TRUE) {
             if (is.null(private$.checkpointCB))
                 return()
+
+            results <- NULL
             if (flush)
-                private$.checkpointCB(RProtoBuf::serialize(self$asProtoBuf(), NULL))
-            else
-                private$.checkpointCB(NULL)
+                results <- RProtoBuf::serialize(self$asProtoBuf(), NULL)
+
+            cmd <- private$.checkpointCB(results)
+
+            if (is.character(cmd) && cmd == 'restart') {
+                self$setStatus('restarting')
+                stop(jmvcore::createError('restarting', 'restart'))
+            }
         },
         .sourcifyOption=function(option) {
             value <- option$value
@@ -124,7 +131,7 @@ Analysis <- R6::R6Class("Analysis",
                 private$.status <- 'inited'
             }
         },
-        run=function(silent=FALSE) {
+        run=function(noThrow=FALSE) {
 
             if (private$.status != "inited")
                 self$init()
@@ -138,10 +145,8 @@ Analysis <- R6::R6Class("Analysis",
 
             private$.status <- "running"
 
-            if (silent) {
-                result <- try({
-                    private$.run()
-                })
+            if (noThrow) {
+                result <- try(private$.run(), silent=TRUE)
             } else {
                 result <- private$.run()
             }
@@ -149,13 +154,17 @@ Analysis <- R6::R6Class("Analysis",
             if (wasNull)
                 private$.data <- NULL
 
-            if (base::inherits(result, 'try-error')) {
+            if (private$.status == 'restarting') {
+                return(FALSE)  # FALSE means don't bother sending results
+            } else if (base::inherits(result, 'try-error')) {
                 errorMessage <- extractErrorMessage(result)
                 private$.results$setError(errorMessage)
                 private$.status <- 'error'
             } else {
                 private$.status <- 'complete'
             }
+
+            return(TRUE)
         },
         print=function() {
             cat(self$results$asString())
