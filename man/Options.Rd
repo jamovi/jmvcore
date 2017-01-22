@@ -7,6 +7,7 @@
 \alias{OptionGroup}
 \alias{OptionInteger}
 \alias{OptionList}
+\alias{OptionNMXList}
 \alias{OptionNumber}
 \alias{OptionPairs}
 \alias{OptionString}
@@ -22,6 +23,8 @@ Options
 OptionBool
 
 OptionList
+
+OptionNMXList
 
 OptionVariables
 
