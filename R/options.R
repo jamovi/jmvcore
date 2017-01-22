@@ -284,6 +284,13 @@ OptionList <- R6::R6Class(
 
 #' @rdname Options
 #' @export
+OptionNMXList <- R6::R6Class(
+    "OptionNMXList",
+    inherit=Option
+)
+
+#' @rdname Options
+#' @export
 OptionVariables <- R6::R6Class(
     "OptionVariables",
     inherit=Option,
