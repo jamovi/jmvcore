@@ -70,26 +70,74 @@ Options <- R6::R6Class(
 
             if (class(value) == "character") {
 
+                if (is.null(value))
+                    return(NULL)
                 if (value == "TRUE")
                     return(TRUE)
                 if (value == "FALSE")
                     return(FALSE)
+                if (value == '')
+                    return('')
 
                 vars <- list(...)
                 for (name in names(vars))
                     private$.env[[name]] <- vars[[name]]
-                private$.env[['data']] <- self$.getData()
 
-                nch <- nchar(value)
-                if ( ! is.na(suppressWarnings(as.numeric(value))))
-                    value <- as.numeric(value)
-                else if (nch > 0 && substring(value, 1, 1) == "(" && substring(value, nch) == ")")
-                    value <- self$.eval(text=value)
-                else
-                    value <- jmvcore::format(value, ...)
+                match <- regexpr('^\\([\\$A-Za-z].*\\)$', value)
 
-                if (is.character(value))
-                    base::Encoding(value) <- 'UTF-8'
+                if (match != -1) {  # data-binding
+
+                    content <- substring(value, match + 1, attr(match, 'match.length') - 1)
+
+                    match <- regexpr('^levels\\([\\$A-Za-z].*\\)$', content)
+
+                    if (match != -1) {  # levels
+
+                        optionName <- substring(content, 8, nchar(content)-1)
+
+                        if (optionName == '$key') {
+                            optionValue <- vars$.key
+                        } else if (self$has(optionName)) {
+                            optionValue <- self$get(optionName)
+                        } else {
+                            reject("Option '{}' does not exist, cannot be bound to", optionName, code=NULL)
+                        }
+
+                        if (is.null(optionValue))
+                            return(character())
+
+                        data <- self$.getData()
+
+                        if (optionValue %in% colnames(data)) {
+                            return(base::levels(data[[optionValue]]))
+                        } else {
+                            reject("Variable '{}' does not exist in the data", optionValue, code=NULL)
+                        }
+                    }
+                    else if (content == '$key') {
+                        return(vars$.key)
+                    } else if (self$has(content)) {
+                        return(self$get(content))
+                    } else if (grepl(':', content)) {
+                        split <- strsplit(content, ':')[[1]]
+                        name  <- split[1]
+                        value <- split[2]
+                        return (self$has(name) && (value %in% self$get(name)))
+                    } else {
+                        return(self$.eval(content))
+                    }
+
+                } else {
+
+                    nch <- nchar(value)
+                    if ( ! is.na(suppressWarnings(as.numeric(value))))
+                        value <- as.numeric(value)
+                    else
+                        value <- jmvcore::format(value, ...)
+
+                    if (is.character(value))
+                        base::Encoding(value) <- 'UTF-8'
+                }
 
                 if (length(names(vars)) > 0)
                     rm(list=names(vars), envir=private$.env)
@@ -233,6 +281,9 @@ Option <- R6::R6Class(
                 data <- NULL
             private$.check(data)
         },
+        getBoundValue=function(args) {
+            self$value
+        },
         .setParent=function(parent) {
             private$.parent <- parent
         },
@@ -255,6 +306,13 @@ Option <- R6::R6Class(
 OptionBool <- R6::R6Class(
     "OptionBool",
     inherit=Option,
+    public=list(
+        initialize=function(name, default=FALSE, ...) {
+            super$initialize(name, default=default, ...)
+
+            self$value <- default
+        }
+    ),
     private=list(
         .check=function(data) {
             if (length(private$.value) == 1 &&
@@ -271,13 +329,36 @@ OptionBool <- R6::R6Class(
 OptionList <- R6::R6Class(
     "OptionList",
     inherit=Option,
+    public=list(
+        initialize=function(name, options, ...) {
+
+            if (length(options) == 0)
+                reject("OptionList '{}': at least one option must be provided", name, code=NULL)
+
+            private$.default <- NULL
+
+            if ('name' %in% names(options[[1]]))
+                options <- sapply(options, function(x) x$name)
+
+            super$initialize(name, options=options, ...)
+
+            if (is.null(private$.default)) {
+                private$.default <- options[[1]]
+            } else if ( ! private$.default %in% private$.options) {
+                reject("OptionList '{}': default '{}' is not listed as a possible option", name, private$.default, code=NULL)
+            }
+
+            self$value <- private$.default
+        }
+    ),
     private=list(
         .options=NA,
+        .default=NA,
         .check=function(data) {
-            # if ( ! (private$.value %in% info$options)) {
-            #     options <- paste("'", info$options, "'", collapse=", ", sep="")
-            #     reject("Argument '{a}' must be one of {options}", code="a_must_be_one_of", a=info$name, options=options)
-            # }
+            if ( ! (private$.value %in% private$.options)) {
+                options <- paste("'", private$.options, "'", collapse=", ", sep="")
+                reject("Argument '{a}' must be one of {options}", code="a_must_be_one_of", a=self$name, options=options)
+            }
         }
     )
 )
@@ -286,7 +367,35 @@ OptionList <- R6::R6Class(
 #' @export
 OptionNMXList <- R6::R6Class(
     "OptionNMXList",
-    inherit=Option
+    inherit=Option,
+    public=list(
+        initialize=function(name, options, default=character(), ...) {
+
+            if (length(options) == 0)
+                reject("OptionList '{}': at least one option must be provided", name, code=NULL)
+
+            if ('name' %in% names(options[[1]]))
+                options <- sapply(options, function(x) x$name)
+
+            super$initialize(name, options=options, default=default, ...)
+
+            badDefaults <- default[ ! (default %in% private$.options)]
+            if (length(badDefaults) > 0)
+                reject("OptionNMXList '{}': default {} is not listed as a possible option", name, paste("'", badDefaults, "'", sep='', collapse=', '), code=NULL)
+
+            private$.value <- private$.default
+        }
+    ),
+    private=list(
+        .options=character(),
+        .default=character(),
+        .check=function(data) {
+            badValues <- private$.value[ ! (private$.value %in% private$.options)]
+            if (length(badValues) > 0) {
+                options <- paste0("'", private$.options, "'", collapse=', ')
+                reject("Argument '{a}' may only contain {options}", code="a_must_be_one_of", a=self$name, options=options)
+            }
+        })
 )
 
 #' @rdname Options
@@ -394,9 +503,14 @@ OptionNumber <- R6::R6Class(
     inherit=Option,
     private=list(
         .min=-Inf,
-        .max=Inf
+        .max=Inf,
+        .default=0
     ),
     public=list(
+        initialize=function(name, ...) {
+            super$initialize(name, ...)
+            self$value <- private$.default
+        },
         check=function() {
             value <- self$value
             if (value > private$.max || value < private$.min)
