@@ -383,7 +383,15 @@ OptionNMXList <- R6::R6Class(
             if (length(badDefaults) > 0)
                 reject("OptionNMXList '{}': default {} is not listed as a possible option", name, paste("'", badDefaults, "'", sep='', collapse=', '), code=NULL)
 
-            private$.value <- private$.default
+            self$value <- private$.default
+        }
+    ),
+    active=list(
+        value=function(v) {
+            if (base::missing(v))
+                return(private$.value)
+            private$.value <- unlist(v)
+            invisible(self)
         }
     ),
     private=list(

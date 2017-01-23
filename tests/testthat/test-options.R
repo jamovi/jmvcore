@@ -79,8 +79,8 @@ test_that('OptionNMXList works', {
 
     lst <- OptionNMXList$new(
         name='list',
-        options=c('a', 'b', 'c', 'd'),
-        default=c('a'))
+        options=list('a', 'b', 'c', 'd'),
+        default=list('a'))
     expect_equal(lst$value, 'a')
 
     lst <- OptionNMXList$new(
