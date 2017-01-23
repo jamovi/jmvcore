@@ -192,16 +192,16 @@ Analysis <- R6::R6Class("Analysis",
         .render=function(funName, image, ppi=72, ...) {
 
             if ( ! is.null(image$path))
-                return()
+                return(FALSE)
 
             render <- private[[funName]]
 
             if (image$visible == FALSE)
-                return()
+                return(FALSE)
 
             if (is.function(render) == FALSE) {
                 image$.setPath(NULL)
-                return()
+                return(FALSE)
             }
 
             if (is.function(private$.resourcesPathSource)) {
@@ -253,6 +253,8 @@ Analysis <- R6::R6Class("Analysis",
 
                 image$.setPath(NULL)
             }
+
+            rendered
         },
         .setReadDatasetSource=function(read) {
             private$.readDataset <- read

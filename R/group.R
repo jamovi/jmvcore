@@ -36,10 +36,12 @@ Group <- R6::R6Class("Group",
             private$.items[[name]]
         },
         .render=function(...) {
+            rendered <- FALSE
             if (self$visible) {
                 for (item in private$.items)
-                    item$.render(...)
+                    rendered <- item$.render(...) | rendered
             }
+            rendered
         },
         add=function(item) {
             item$.parent = self

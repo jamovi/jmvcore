@@ -114,7 +114,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
             private$.titleValue <- paste0(private$.options$eval(private$.titleExpr, .key=private$.key, .name=private$.name, .index=private$.index))
         },
         .render=function(...) {
-
+            FALSE
         },
         .optionsChanged=function(...) {
             private$.updated <- FALSE

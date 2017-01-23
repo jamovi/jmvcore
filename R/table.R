@@ -214,7 +214,7 @@ Table <- R6::R6Class("Table",
                 private$.columns <- newColumns
             }
         },
-        addRow=function(rowKey, values) {
+        addRow=function(rowKey, values=list()) {
 
             private$.rowKeys[length(private$.rowKeys)+1] <- list(rowKey)  # allow NULL
             private$.rowCount <- private$.rowCount + 1

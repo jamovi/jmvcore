@@ -61,10 +61,12 @@ Array <- R6::R6Class("Array",
             self$.createItem(key, index)
         },
         .render=function(...) {
+            rendered <- FALSE
             if (self$visible) {
                 for (item in private$.items)
-                    item$.render(...)
+                    rendered <- item$.render(...) | rendered
             }
+            rendered
         },
         .update=function() {
 
