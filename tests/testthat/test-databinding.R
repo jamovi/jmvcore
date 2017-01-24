@@ -63,5 +63,10 @@ test_that('basic bindings work', {
     expect_equal(options$eval('(nmx:fred)'), FALSE)
     expect_equal(options$eval('(nmx:jim)'), TRUE)
     expect_equal(options$eval('(nmx:bob)'), TRUE)
+    expect_equal(options$eval('(nmx:bob && nmx:jim)'), TRUE)
+    expect_equal(options$eval('(nmx:bob && nmx:fred)'), FALSE)
+    expect_equal(options$eval('(nmx:bob || nmx:fred)'), TRUE)
+    expect_equal(options$eval('(nmx:bob && (nmx:jim || nmx:fred))'), TRUE)
+    expect_equal(options$eval('(nmx:bob && flyx)'), TRUE)
 })
 

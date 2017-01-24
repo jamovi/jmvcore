@@ -115,14 +115,27 @@ Options <- R6::R6Class(
                         }
                     }
                     else if (content == '$key') {
+
                         return(vars$.key)
+
                     } else if (self$has(content)) {
+
                         return(self$get(content))
-                    } else if (grepl(':', content)) {
-                        split <- strsplit(content, ':')[[1]]
-                        name  <- split[1]
-                        value <- split[2]
-                        return (self$has(name) && (value %in% self$get(name)))
+
+                    } else if (grepl('[A-Za-z][A-Za-z0-9]*:[A-Za-z][A-Za-z0-9]*', content)) {
+
+                        subed <- regexSub(
+                            '[A-Za-z][A-Za-z0-9]*:[A-Za-z][A-Za-z0-9]*',
+                            content,
+                            function(x) {
+                                split <- strsplit(x, ':')[[1]]
+                                name  <- split[1]
+                                value <- split[2]
+                                return (self$has(name) && (value %in% self$get(name)))
+                            })
+
+                        return(self$.eval(subed))
+
                     } else {
                         return(self$.eval(content))
                     }

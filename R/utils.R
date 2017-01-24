@@ -935,3 +935,39 @@ fromB64 <- function(names) {
         rawToChar(base64enc::base64decode(name))
     }, USE.NAMES=FALSE)
 }
+
+extractRegexMatches <- function(text, match) {
+    match <- match[[1]]
+    extracted <- character()
+    starts   <- match
+    lengths  <- attr(match, 'match.length')
+    stops    <- starts + lengths - 1
+    for (i in seq_along(match)) {
+        piece <- substring(text, starts[i], stops[i])
+        extracted <- c(extracted, piece)
+    }
+    extracted
+}
+
+replaceRegexMatches <- function(text, match, pieces) {
+    match <- match[[1]]
+    starts   <- match
+    lengths  <- attr(match, 'match.length')
+    stops    <- starts + lengths - 1
+    for (i in rev(seq_along(match))) {
+        start  <- starts[i]
+        stop   <- stops[i]
+        piece  <- pieces[i]
+        before <- substring(text, 1, start - 1)
+        after  <- substring(text, stop + 1)
+        text <- paste0(before, piece, after)
+    }
+    text
+}
+
+regexSub <- function(pattern, text, fun) {
+    match <- gregexpr(pattern, text)
+    pieces <- extractRegexMatches(text, match)
+    pieces <- sapply(pieces, fun, USE.NAMES=FALSE)
+    replaceRegexMatches(text, match, pieces)
+}
