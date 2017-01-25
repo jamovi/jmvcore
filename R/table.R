@@ -234,9 +234,6 @@ Table <- R6::R6Class("Table",
         },
         setRow=function(values, rowNo=NA, rowKey=NULL) {
 
-            if ( ! is.na(rowNo) && rowNo == private$.rowCount + 1)
-                self$addRow(rowKey=rowNo, values)
-
             if (is.na(rowNo)) {
 
                 found <- FALSE
