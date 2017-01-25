@@ -389,6 +389,8 @@ OptionNMXList <- R6::R6Class(
 
             if ('name' %in% names(options[[1]]))
                 options <- sapply(options, function(x) x$name)
+            options <- unlist(options)
+            default <- unlist(default)
 
             super$initialize(name, options=options, default=default, ...)
 
