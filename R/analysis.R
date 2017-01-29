@@ -77,7 +77,18 @@ Analysis <- R6::R6Class("Analysis",
         results=function() private$.results,
         status=function() private$.status),
     public=list(
-        initialize=function(package, name, version, options, results, data=NULL, datasetId="", analysisId="", revision=0) {
+        initialize=function(
+            package,
+            name,
+            version,
+            options,
+            results,
+            pause=NULL,
+            data=NULL,
+            datasetId="",
+            analysisId="",
+            revision=0,
+            ...) {
 
             private$.package <- package
             private$.name    <- name
