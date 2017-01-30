@@ -199,6 +199,9 @@ Analysis <- R6::R6Class("Analysis",
                 oChanges <- private$.options$compProtoBuf(pb$options)
                 private$.results$fromProtoBuf(pb$results, oChanges, vChanges)
             }
+
+            if (self$results$isFilled())
+                private$.status <- 'complete'
         },
         .render=function(funName, image, ppi=72, ...) {
 

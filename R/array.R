@@ -60,11 +60,18 @@ Array <- R6::R6Class("Array",
             private$.itemNames[[index]] <- rjson::toJSON(key)
             self$.createItem(key, index)
         },
+        isFilled=function() {
+            for (item in private$.items) {
+                if (item$visible && item$isNotFilled())
+                    return(FALSE)
+            }
+            TRUE
+        },
         .render=function(...) {
             rendered <- FALSE
             if (self$visible) {
                 for (item in private$.items)
-                    rendered <- item$.render(...) | rendered
+                    rendered <- item$.render(...) || rendered
             }
             rendered
         },

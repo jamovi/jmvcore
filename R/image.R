@@ -43,6 +43,13 @@ Image <- R6::R6Class("Image",
 
             private$.path <- NULL
         },
+        isFilled=function() {
+            if (private$.stale)
+                return(FALSE)
+            if (is.null(private$.path))
+                return(FALSE)
+            return(TRUE)
+        },
         .render=function(path, ...) {
             if ( ! is.character(private$.renderFun))
                 return()

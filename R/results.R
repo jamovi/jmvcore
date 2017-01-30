@@ -72,6 +72,14 @@ ResultsElement <- R6::R6Class("ResultsElement",
 
             private$.options$addChangeListener(self$.optionsChanged)
         },
+        isFilled=function() {
+            if (private$.stale)
+                return(FALSE)
+            return(TRUE)
+        },
+        isNotFilled=function() {
+            ! self$isFilled()
+        },
         .setKey = function(key, index) {
             private$.key <- key
             private$.name <- rjson::toJSON(key)

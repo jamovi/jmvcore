@@ -79,6 +79,9 @@ Table <- R6::R6Class("Table",
             notes=list(),
             swapRowsColumns=FALSE) {
 
+            if (missing(options))
+                options <- Options$new()
+
             super$initialize(
                 options=options,
                 name=name,
@@ -107,6 +110,54 @@ Table <- R6::R6Class("Table",
 
             for (column in columns)
                 do.call(self$addColumn, column)
+        },
+        isFilled=function(col, rowNo, rowKey) {
+
+            cols <- integer()
+
+            if (missing(col)) {
+                cols <- seq_along(private$.columns)
+            } else if (is.character(col)) {
+                for (i in seq_along(private$.columns)) {
+                    column <- private$.columns[[i]]
+                    if (col == column$name) {
+                        cols <- i
+                        break()
+                    }
+                }
+                if (length(cols) == 0)
+                    reject("No such column: '{}'", col, code=NULL)
+            } else if (is.numeric(col)) {
+                cols <- col
+            } else {
+                stop('isFilled(): bad col argument')
+            }
+
+            rows <- integer()
+
+            if ( ! missing(rowNo)) {
+                rows <- rowNo
+            } else if ( ! missing(rowKey)) {
+                for (rowNo in seq_along(private$.rowKeys)) {
+                    if (base::identical(rowKey, private$.rowKeys[[rowNo]])) {
+                        rows <- rowNo
+                        break()
+                    }
+                }
+                if (length(rows) == 0)
+                    reject("No such row: '{}'", col, code=NULL)
+            } else {
+                rows <- seq_along(private$.rowKeys)
+            }
+
+            for (col in cols) {
+                for (row in rows) {
+                    if (self$getCell(rowNo=row, col=col)$isNotFilled())
+                        return(FALSE)
+                }
+            }
+
+            TRUE
         },
         .update=function() {
 

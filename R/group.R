@@ -4,7 +4,16 @@
 Group <- R6::R6Class("Group",
     inherit=ResultsElement,
     private=list(
-        .items=NA),
+        .items=NA,
+        deep_clone=function(name, value) {
+            if (name == '.items') {
+                items <- list()
+                for (name in names(value))
+                    items[[name]] <- value[[name]]$clone(deep=TRUE)
+                return(items)
+            }
+            value
+        }),
     active=list(
         items=function() private$.items,
         itemNames=function() names(private$.items),
@@ -39,13 +48,20 @@ Group <- R6::R6Class("Group",
             rendered <- FALSE
             if (self$visible) {
                 for (item in private$.items)
-                    rendered <- item$.render(...) | rendered
+                    rendered <- item$.render(...) || rendered
             }
             rendered
         },
         add=function(item) {
             item$.parent = self
             private$.items[[item$name]] <- item
+        },
+        isFilled=function() {
+            for (item in private$.items) {
+                if (item$visible && item$isNotFilled())
+                    return(FALSE)
+            }
+            TRUE
         },
         .update=function() {
             if (private$.updated)
