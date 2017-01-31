@@ -320,10 +320,8 @@ OptionBool <- R6::R6Class(
     "OptionBool",
     inherit=Option,
     public=list(
-        initialize=function(name, default=FALSE, ...) {
-            super$initialize(name, default=default, ...)
-
-            self$value <- default
+        initialize=function(name, value=FALSE, ...) {
+            super$initialize(name, value, ...)
         }
     ),
     private=list(
@@ -343,25 +341,21 @@ OptionList <- R6::R6Class(
     "OptionList",
     inherit=Option,
     public=list(
-        initialize=function(name, options, ...) {
+        initialize=function(name, value, options, ...) {
 
             if (length(options) == 0)
                 reject("OptionList '{}': at least one option must be provided", name, code=NULL)
 
-            private$.default <- NULL
-
             if ('name' %in% names(options[[1]]))
                 options <- sapply(options, function(x) x$name)
+            else
+                options <- unlist(options)
 
-            super$initialize(name, options=options, ...)
 
-            if (is.null(private$.default)) {
-                private$.default <- options[[1]]
-            } else if ( ! private$.default %in% private$.options) {
-                reject("OptionList '{}': default '{}' is not listed as a possible option", name, private$.default, code=NULL)
-            }
+            if (missing(value) || is.null(value))
+                value <- options[1]
 
-            self$value <- private$.default
+            super$initialize(name, value, options=options, ...)
         }
     ),
     private=list(
@@ -382,7 +376,7 @@ OptionNMXList <- R6::R6Class(
     "OptionNMXList",
     inherit=Option,
     public=list(
-        initialize=function(name, options, default=character(), ...) {
+        initialize=function(name, value=character(), options, ...) {
 
             if (length(options) == 0)
                 reject("OptionList '{}': at least one option must be provided", name, code=NULL)
@@ -390,15 +384,8 @@ OptionNMXList <- R6::R6Class(
             if ('name' %in% names(options[[1]]))
                 options <- sapply(options, function(x) x$name)
             options <- unlist(options)
-            default <- unlist(default)
 
-            super$initialize(name, options=options, default=default, ...)
-
-            badDefaults <- default[ ! (default %in% private$.options)]
-            if (length(badDefaults) > 0)
-                reject("OptionNMXList '{}': default {} is not listed as a possible option", name, paste("'", badDefaults, "'", sep='', collapse=', '), code=NULL)
-
-            self$value <- private$.default
+            super$initialize(name, value=value, options=options, ...)
         }
     ),
     active=list(
@@ -530,9 +517,8 @@ OptionNumber <- R6::R6Class(
         .default=0
     ),
     public=list(
-        initialize=function(name, ...) {
-            super$initialize(name, ...)
-            self$value <- private$.default
+        initialize=function(name, value=0, ...) {
+            super$initialize(name, value, ...)
         },
         check=function() {
             value <- self$value

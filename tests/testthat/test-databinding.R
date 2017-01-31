@@ -14,7 +14,7 @@ analysis <- Analysis$new(
 
 number <- OptionNumber$new(
     name='number',
-    default=7)
+    value=7)
 
 var <- OptionVariable$new(
     name='var')

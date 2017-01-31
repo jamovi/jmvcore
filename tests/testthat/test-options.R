@@ -4,9 +4,9 @@ context('options')
 test_that('OptionNumber works', {
     number <- OptionNumber$new(
         'number',
+        value=1,
         min=0,
-        max=2,
-        default=1)
+        max=2)
 
     expect_equal(number$value, 1)
 
@@ -45,18 +45,8 @@ test_that('OptionList works', {
     lst <- OptionList$new(
         name='list',
         options=list('a', 'b', 'c', 'd'),
-        default='b')
+        value='b')
     expect_equal(lst$value, 'b')
-})
-
-test_that('OptionList rejects bad default', {
-    expect_error(
-        OptionList$new(
-            name='list',
-            options=list('a', 'b', 'c', 'd'),
-            default='f'),
-        "OptionList 'list': default 'f' is not listed as a possible option",
-        fixed=TRUE)
 })
 
 test_that('OptionList rejects bad value', {
@@ -80,7 +70,7 @@ test_that('OptionNMXList works', {
     lst <- OptionNMXList$new(
         name='list',
         options=list('a', 'b', 'c', 'd'),
-        default=list('a'))
+        value=list('a'))
     expect_equal(lst$value, 'a')
 
     lst <- OptionNMXList$new(
@@ -88,25 +78,6 @@ test_that('OptionNMXList works', {
         options=c('a', 'b', 'c', 'd'))
     lst$value <- 'a'
     expect_equal(lst$value, 'a')
-})
-
-test_that('OptionNMXList rejects bad defaults', {
-
-    expect_error(
-        OptionNMXList$new(
-            name='list',
-            options=c('a', 'b', 'c'),
-            default='d'),
-        "OptionNMXList 'list': default 'd' is not listed as a possible option",
-        fixed=TRUE)
-
-    expect_error(
-        OptionNMXList$new(
-            name='list',
-            options=c('a', 'b', 'c'),
-            default=c('d', 'e')),
-        "OptionNMXList 'list': default 'd', 'e' is not listed as a possible option",
-        fixed=TRUE)
 })
 
 test_that('OptionNMXList rejects bad values', {
