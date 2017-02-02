@@ -32,6 +32,13 @@ Preformatted <- R6::R6Class("Preformatted",
                 visible=visible,
                 clearWith=clearWith)
         },
+        isFilled=function() {
+            if (private$.stale)
+                return(FALSE)
+            if (identical(private$.content, ''))
+                return(FALSE)
+            return(TRUE)
+        },
         asString=function() {
             private$.content
         },

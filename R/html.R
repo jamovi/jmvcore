@@ -68,6 +68,13 @@ Html <- R6::R6Class("Html",
                 visible=visible,
                 clearWith=clearWith)
         },
+        isFilled=function() {
+            if (private$.stale)
+                return(FALSE)
+            if (identical(private$.content, ''))
+                return(FALSE)
+            return(TRUE)
+        },
         asString=function() {
             "\n  [No plain text representation available]\n\n"
         },
@@ -105,4 +112,3 @@ Html <- R6::R6Class("Html",
         }
     )
 )
-

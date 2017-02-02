@@ -49,11 +49,11 @@ Analysis <- R6::R6Class("Analysis",
             }
             ''
         },
-        .asArgs=function() {
+        .asArgs=function(incData=TRUE) {
             source <- ''
             sep <- '\n    '
 
-            if (self$options$requiresData) {
+            if (incData && self$options$requiresData) {
                 source <- paste0(sep, 'data=data')
                 sep <- paste0(',\n    ')
             }
