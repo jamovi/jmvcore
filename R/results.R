@@ -158,8 +158,8 @@ ResultsElement <- R6::R6Class("ResultsElement",
             else
                 v <- jamovi.coms.Visible$DEFAULT_NO
 
-            if ( ! is.null(status))
-                s <- status
+            if (self$isFilled())
+                s <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE
             else if (private$.status == 'running')
                 s <- jamovi.coms.AnalysisStatus$ANALYSIS_RUNNING
             else if (private$.status == 'inited')
@@ -168,6 +168,19 @@ ResultsElement <- R6::R6Class("ResultsElement",
                 s <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE
             else
                 s <- jamovi.coms.AnalysisStatus$ANALYSIS_NONE
+
+            if ( ! is.null(status)) {
+                if (status == jamovi.coms.AnalysisStatus$ANALYSIS_ERROR)
+                    s <- status
+                else if (status == jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE)
+                    s <- status
+                else if (status == jamovi.coms.AnalysisStatus$ANALYSIS_RUNNING &&
+                         s != jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE)
+                    s <- status
+                else if (status == jamovi.coms.AnalysisStatus$ANALYSIS_INITED &&
+                         s == jamovi.coms.AnalysisStatus$ANALYSIS_NONE)
+                    s <- status
+            }
 
             element <- RProtoBuf::new(jamovi.coms.ResultsElement,
                 name=private$.name,

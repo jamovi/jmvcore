@@ -335,32 +335,25 @@ Analysis <- R6::R6Class("Analysis",
             response$version$revision <- private$.version[3]
             response$revision <- private$.revision
 
-            overrideChildStatus <- NULL
-
             if (private$.status == "inited") {
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_INITED;
             } else if (private$.status == "running") {
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_RUNNING;
             } else if (private$.status == "complete") {
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE;
-
-                overrideChildStatus <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE;
-
             } else {
                 error <- RProtoBuf::new(jamovi.coms.Error)
                 error$message <- private$.error
                 response$error <- error
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_ERROR;
-
-                overrideChildStatus <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE;
             }
 
             if (incAsText) {
                 response$incAsText <- TRUE
                 syntax <- RProtoBuf::new(jamovi.coms.ResultsElement, name='syntax', syntax=self$asSource())
-                response$results <- self$results$asProtoBuf(incAsText=incAsText, status=overrideChildStatus, prepend=syntax);
+                response$results <- self$results$asProtoBuf(incAsText=incAsText, status=response$status, prepend=syntax);
             } else {
-                response$results <- self$results$asProtoBuf(incAsText=incAsText, status=overrideChildStatus);
+                response$results <- self$results$asProtoBuf(incAsText=incAsText, status=response$status);
             }
 
             if (incOptions)
