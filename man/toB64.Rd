@@ -9,6 +9,9 @@ toB64(names)
 
 fromB64(names)
 }
+\arguments{
+\item{names}{the names to be converted base64}
+}
 \description{
 Note: uses the . and _ characters rather than + and / allowing these to be
 used as variable names
