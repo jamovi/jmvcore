@@ -111,7 +111,7 @@ Table <- R6::R6Class("Table",
             for (column in columns)
                 do.call(self$addColumn, column)
         },
-        isFilled=function(col, rowNo, rowKey) {
+        isFilled=function(col, rowNo, rowKey, excHidden=TRUE) {
 
             cols <- integer()
 
@@ -151,6 +151,9 @@ Table <- R6::R6Class("Table",
             }
 
             for (col in cols) {
+                column <- private$.columns[[col]]
+                if (excHidden && column$visible == FALSE)
+                    next()
                 for (row in rows) {
                     if (self$getCell(rowNo=row, col=col)$isNotFilled())
                         return(FALSE)
