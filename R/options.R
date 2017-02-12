@@ -267,6 +267,7 @@ Option <- R6::R6Class(
         .title=NA,
         .parent=NA,
         .value=NA,
+        .default=NA,
         .check=function(data){},
         deep_clone=function(name, value) {
             value
@@ -304,6 +305,7 @@ Option <- R6::R6Class(
         }),
     active=list(
         name=function() private$.name,
+        default=function() private$.default,
         vars=function() NULL,
         value=function(value) {
             if (base::missing(value))
@@ -358,6 +360,7 @@ OptionList <- R6::R6Class(
     ),
     private=list(
         .options=NA,
+        .default=NA,
         .check=function(data) {
             if ( ! (private$.value %in% private$.options)) {
                 options <- paste("'", private$.options, "'", collapse=", ", sep="")
@@ -395,6 +398,7 @@ OptionNMXList <- R6::R6Class(
     ),
     private=list(
         .options=character(),
+        .default=character(),
         .check=function(data) {
             badValues <- private$.value[ ! (private$.value %in% private$.options)]
             if (length(badValues) > 0) {
@@ -509,7 +513,8 @@ OptionNumber <- R6::R6Class(
     inherit=Option,
     private=list(
         .min=-Inf,
-        .max=Inf
+        .max=Inf,
+        .default=0
     ),
     public=list(
         initialize=function(name, value=0, ...) {
