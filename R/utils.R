@@ -336,7 +336,7 @@ nDigits <- function(x, negSign=TRUE) {
     n
 }
 
-measureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7, type='number', p=FALSE, zto=FALSE) {
+measureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7, type='number', p=FALSE, zto=FALSE, pc=FALSE) {
 
     # non-scientific
     dp <- 0
@@ -360,6 +360,14 @@ measureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7, type='num
         sch <- Inf
     }
 
+    if (pc) {
+        dp <- sf - 2
+        maxdp <- sf - 2
+        scl <- 0
+        sch <- Inf
+        maxns <- 100
+    }
+
     for (elem in elems) {
 
         sups <- integer()
@@ -368,6 +376,9 @@ measureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7, type='num
             sups <- elem$sups
             elem <- elem$value
         }
+
+        if (pc)
+            elem <- elem * 100
 
         if (is.null(elem)) {
 
@@ -462,7 +473,7 @@ measureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7, type='num
     list(sf=sf, dp=dp, width=width, expwidth=expwidth, supwidth=maxsupwidth)
 }
 
-formatElement <- function(elem, w=NULL, expw=NULL, supw=0, dp=2, sf=3, scl=1e-3, sch=1e7, type='number', p=FALSE, zto=FALSE) {
+formatElement <- function(elem, w=NULL, expw=NULL, supw=0, dp=2, sf=3, scl=1e-3, sch=1e7, type='number', p=FALSE, zto=FALSE, pc=FALSE) {
 
     sups <- integer()
     supspad <- ''
@@ -512,7 +523,7 @@ formatElement <- function(elem, w=NULL, expw=NULL, supw=0, dp=2, sf=3, scl=1e-3,
 
         width <- nchar(elem)
         padstr <- spaces(max(w - width, 0))
-        if (type == 'number')
+        if (type == 'number' || type == 'integer')
             str <- paste0(padstr, elem)
         else
             str <- paste0(elem, padstr)
@@ -526,6 +537,9 @@ formatElement <- function(elem, w=NULL, expw=NULL, supw=0, dp=2, sf=3, scl=1e-3,
         str <- "< .001"
 
     } else if (elem == 0 || zto || (abs(elem) > scl && abs(elem) < sch)) {
+
+        if (pc)
+            elem <- 100 * elem
 
         # non-scientific values
         str <- sprintf(paste0("%", w, ".", dp, "f"), elem)

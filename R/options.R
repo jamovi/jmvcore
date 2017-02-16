@@ -137,7 +137,13 @@ Options <- R6::R6Class(
                         return(self$.eval(subed))
 
                     } else {
-                        return(self$.eval(content))
+
+                        value <- try({ self$.eval(content) })
+                        if (inherits(value, 'try-error')) {
+                            message <- jmvcore::format("Could not resolve '{}'", content)
+                            stop(message, call.=FALSE)
+                        }
+                        return(value)
                     }
 
                 } else {
@@ -376,16 +382,18 @@ OptionNMXList <- R6::R6Class(
     "OptionNMXList",
     inherit=Option,
     public=list(
-        initialize=function(name, value=character(), options, ...) {
+        initialize=function(name, value=character(), options, default=NULL, ...) {
 
             if (length(options) == 0)
                 reject("OptionList '{}': at least one option must be provided", name, code=NULL)
+
+            default <- unlist(default)
 
             if ('name' %in% names(options[[1]]))
                 options <- sapply(options, function(x) x$name)
             options <- unlist(options)
 
-            super$initialize(name, value=value, options=options, ...)
+            super$initialize(name, value=value, options=options, default=default, ...)
         }
     ),
     active=list(

@@ -65,6 +65,7 @@ Table <- R6::R6Class("Table",
             private$.updateFootnotes()
             private$.footnotes
         },
+        columns=function() private$.columns,
         rowCount=function() private$.rowCount
     ),
     public=list(
@@ -448,7 +449,10 @@ Table <- R6::R6Class("Table",
 
             width
         },
-        asString=function() {
+        asString=function(.folded=FALSE) {
+
+            if ( ! .folded)
+                return(fold(self)$asString(.folded=TRUE))
 
             self$.updateFootnotes()
 

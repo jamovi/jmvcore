@@ -22,6 +22,8 @@ Column <- R6::R6Class("Column",
     active=list(
         name=function() private$.name,
         title=function() private$.title,
+        type=function() private$.type,
+        format=function() paste0(private$.format, collapse=','),
         cells=function() private$.cells,
         superTitle=function() private$.superTitle,
         hasSuperTitle=function() ( ! is.null(private$.superTitle)),
@@ -127,11 +129,12 @@ Column <- R6::R6Class("Column",
 
             p <- ('pvalue' %in% private$.format)
             zto <- ('zto' %in% private$.format)
+            pc <- ('pc' %in% private$.format)
 
             if (private$.type == "integer")
-                private$.measures <- measureElements(private$.cells, maxdp=0, type=private$.type, p=p, zto=zto)
+                private$.measures <- measureElements(private$.cells, maxdp=0, type=private$.type, p=p, zto=zto, pc=pc)
             else
-                private$.measures <- measureElements(private$.cells, type=private$.type, p=p, zto=zto)
+                private$.measures <- measureElements(private$.cells, type=private$.type, p=p, zto=zto, pc=pc)
 
             private$.width <- max(private$.measures$width, titleWidth)
             private$.measured <- TRUE
@@ -157,6 +160,7 @@ Column <- R6::R6Class("Column",
 
             p <- ('pvalue' %in% private$.format)
             zto <- ('zto' %in% private$.format)
+            pc <- ('pc' %in% private$.format)
 
             formatElement(private$.cells[[i]],
                 w=measures$width,
@@ -166,7 +170,8 @@ Column <- R6::R6Class("Column",
                 supw=measures$supwidth,
                 type=private$.type,
                 p=p,
-                zto=zto)
+                zto=zto,
+                pc=pc)
         },
         asProtoBuf=function() {
             initProtoBuf()
