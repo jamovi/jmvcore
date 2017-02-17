@@ -59,6 +59,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
             private$.options <- options
             private$.name <- name
             private$.titleExpr <- title
+            private$.titleValue <- title
 
             if (identical(visible, TRUE))
                 private$.visibleExpr <- NULL

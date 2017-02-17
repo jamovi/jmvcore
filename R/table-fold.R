@@ -31,7 +31,13 @@ fold <- function(input) {
     if (nFolds == 1)
         return(input)
 
-    output <- Table$new()
+    output <- Table$new(
+        name=input$name,
+        title=input$title)
+
+    for (note in input$notes)
+        output$setNote(note$key, note$note, note$init)
+
     blankRow <- list()
 
     for (foldedName in names(rowPlan)) {
@@ -41,16 +47,23 @@ fold <- function(input) {
             name=foldedName,
             title=inColumn$title,
             type=inColumn$type,
-            format=inColumn$format)
+            format=inColumn$format,
+            combineBelow=inColumn$combineBelow)
         blankRow[[foldedName]] <- ''
     }
 
-    for (rowNo in seq_len(input$rowCount)) {
-        for (fold in seq_len(nFolds))
-            output$addRow(rowKey=((rowNo - 1) * (fold - 1)) + 1, values=blankRow)
-    }
-
     rowNo <- 1
+
+    for (i in seq_len(input$rowCount)) {
+        if (i > 1) {
+            output$addRow(rowKey=rowNo, values=blankRow)
+            rowNo <- rowNo + 1
+        }
+        for (fold in seq_len(nFolds)) {
+            output$addRow(rowKey=rowNo, values=blankRow)
+            rowNo <- rowNo + 1
+        }
+    }
 
     for (rowNo in seq_len(input$rowCount)) {
         for (colNo in seq_along(rowPlan)) {
@@ -59,7 +72,7 @@ fold <- function(input) {
             for (fold in seq_along(foldedIndices)) {
                 index <- foldedIndices[fold];
                 value <- input$getColumn(index)$.cellForPrint(rowNo)
-                outRow <- ((rowNo - 1) * nFolds) + fold
+                outRow <- ((rowNo - 1) * nFolds) + fold + (rowNo - 1)
                 output$setCell(rowNo=outRow, colNo, value)
             }
         }

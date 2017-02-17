@@ -66,7 +66,8 @@ Table <- R6::R6Class("Table",
             private$.footnotes
         },
         columns=function() private$.columns,
-        rowCount=function() private$.rowCount
+        rowCount=function() private$.rowCount,
+        notes=function() private$.notes
     ),
     public=list(
         initialize=function(
