@@ -1,6 +1,5 @@
 
 #' the jmvcore Object classes
-#' @importFrom base64enc base64encode
 #' @export
 Analysis <- R6::R6Class("Analysis",
     private=list(

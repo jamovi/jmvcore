@@ -1,6 +1,5 @@
 
 #' @rdname Analysis
-#' @importFrom knitr knit_print
 #' @export
 Html <- R6::R6Class("Html",
     inherit=ResultsElement,

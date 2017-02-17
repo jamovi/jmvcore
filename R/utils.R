@@ -925,7 +925,6 @@ canBeNumeric <- function(object) {
 #'
 #' Note: uses the . and _ characters rather than + and / allowing these to be
 #' used as variable names
-#' @importFrom base64enc base64encode
 #' @param names the names to be converted base64
 #' @export
 toB64 <- function(names) {
@@ -941,7 +940,6 @@ toB64 <- function(names) {
 }
 
 #' @rdname toB64
-#' @importFrom base64enc base64decode
 #' @export
 fromB64 <- function(names) {
     sapply(names, function(name) {
