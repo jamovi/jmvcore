@@ -632,6 +632,8 @@ Table <- R6::R6Class("Table",
             bound <- self$getBoundVars(private$.rowsExpr)
             changes <- vChanges[vChanges %in% bound]
 
+            super$fromProtoBuf(element)
+
             tablePB <- element$table
             columnsPB <- tablePB$columns
 

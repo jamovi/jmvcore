@@ -183,10 +183,21 @@ ResultsElement <- R6::R6Class("ResultsElement",
                     s <- status
             }
 
+            state <- private$.state
+            if ( ! is.null(state)) {
+                conn <- rawConnection(raw(), 'r+')
+                base::saveRDS(state, file=conn)
+                state <- rawConnectionValue(conn)
+                close(conn)
+            } else {
+                state <- raw()
+            }
+
             element <- RProtoBuf::new(jamovi.coms.ResultsElement,
                 name=private$.name,
                 title=self$title,
                 stale=private$.stale,
+                state=state,
                 status=s,
                 visible=v)
 
@@ -194,6 +205,14 @@ ResultsElement <- R6::R6Class("ResultsElement",
         },
         fromProtoBuf=function(pb, oChanges=NULL, vChanges=NULL) {
 
+            if ( ! base::identical(pb$state, raw())) {
+                conn <- rawConnection(pb$state, 'r')
+                state <- base::readRDS(file=conn)
+                private$.state <- state
+                close(conn)
+            } else {
+                private$.state <- NULL
+            }
         },
         getBoundVars=function(expr) {
             if ( ! startsWith(expr, '('))

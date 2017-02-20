@@ -360,6 +360,12 @@ Analysis <- R6::R6Class("Analysis",
 
             response
         },
+        serialize=function(incOptions=FALSE, incAsText=FALSE) {
+            serial <- try(RProtoBuf::serialize(self$asProtoBuf(incOptions=incOptions, incAsText=incAsText), NULL))
+            if (base::inherits(serial, 'try-error'))
+                return(raw())
+            serial
+        },
         asSource=function() {
             paste0(private$.package, '::', private$.name, '(', private$.asArgs(), ')')
         })

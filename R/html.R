@@ -96,7 +96,7 @@ Html <- R6::R6Class("Html",
                     }
                 }
             }
-
+            super$fromProtoBuf(element)
             private$.content <- element$html$content
             private$.scripts <- element$html$scripts
             private$.stylesheets <- element$html$stylesheets

@@ -98,6 +98,8 @@ Group <- R6::R6Class("Group",
             if (someChanges && base::identical('*', private$.clearWith))
                 return()
 
+            super$fromProtoBuf(pb)
+
             for (itemPB in pb$group$elements) {
                 itemName <- itemPB$name
                 target <- private$.items[[itemName]]

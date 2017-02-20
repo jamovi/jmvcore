@@ -101,6 +101,8 @@ Image <- R6::R6Class("Image",
                     return()
             }
 
+            super$fromProtoBuf(element)
+
             image <- element$image
 
             private$.width <- image$width

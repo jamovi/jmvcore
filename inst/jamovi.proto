@@ -198,6 +198,7 @@ message ResultsElement {
         ResultsHtml html = 12;
     }
 
+    bytes state = 14;
     Visible visible = 15;
 }
 
