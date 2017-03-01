@@ -10,6 +10,7 @@
 \alias{OptionNMXList}
 \alias{OptionNumber}
 \alias{OptionPairs}
+\alias{OptionSort}
 \alias{OptionString}
 \alias{OptionTerms}
 \alias{OptionVariable}
@@ -39,6 +40,8 @@ OptionNumber
 OptionString
 
 OptionGroup
+
+OptionSort
 
 OptionArray
 

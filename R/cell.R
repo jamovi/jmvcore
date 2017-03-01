@@ -42,6 +42,7 @@ Cell <- R6::R6Class(
         sups=integer(),
         symbols=character(),
         format=0,
+        sortKey=0,
         initialize=function(v=NA) {
             self$value <- v
         },
@@ -84,6 +85,7 @@ Cell <- R6::R6Class(
 
             self$footnotes <- cellPB$footnotes
             self$symbols <- cellPB$symbols
+            self$sortKey <- cellPB$sortKey
         },
         asProtoBuf=function() {
             initProtoBuf()
@@ -108,6 +110,7 @@ Cell <- R6::R6Class(
             cell$footnotes <- self$footnotes
             cell$symbols   <- self$symbols
             cell$format    <- self$format
+            cell$sortKey <- self$sortKey
 
             cell
         }))

@@ -385,6 +385,10 @@ measureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7, type='num
 
             maxstr <- max(maxstr, 1)  # width of '.'
 
+        } else if (length(elem) == 0) {
+
+            maxstr <- max(maxstr, nchar(utils::capture.output(elem)))
+
         } else if (is.nan(elem)) {
 
             maxstr <- max(maxstr, 3)  # width of 'NaN'
@@ -496,6 +500,12 @@ formatElement <- function(elem, w=NULL, expw=NULL, supw=0, dp=2, sf=3, scl=1e-3,
 
         padstr <- spaces(max(w - 1, 0))
         str <- paste0(".", padstr)
+
+    } else if (length(elem) == 0) {
+
+        str <- utils::capture.output(elem)
+        padstr <- spaces(max(w - nchar(str), 0))
+        str <- paste0(str, padstr)
 
     } else if (is.nan(elem)) {
 
@@ -882,10 +892,15 @@ naOmit <- function(object) {
         for (name in names(object))
             attrList[[name]] <- base::attributes(object[[name]])
 
+        nRowsBefore <- nrow(object)
         object <- stats::na.omit(object)
+        nRowsAfter <- nrow(object)
+        nRowsOmitted <- nRowsBefore - nRowsAfter
 
         for (name in names(attrList))
             base::attributes(object[[name]]) <- attrList[[name]]
+
+        base::attr(object, 'nRowsOmitted') <- nRowsOmitted
     }
     else {
         attrs <- base::attributes(object)

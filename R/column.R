@@ -11,6 +11,8 @@ Column <- R6::R6Class("Column",
         .visibleExpr=NA,
         .superTitle=NA,
         .combineBelow=FALSE,
+        .sortable=FALSE,
+        .hasSortKeys=FALSE,
         .cells=list(),
         .width = 0,
         .measures=list(),
@@ -25,6 +27,7 @@ Column <- R6::R6Class("Column",
         type=function() private$.type,
         format=function() paste0(private$.format, collapse=','),
         combineBelow=function() private$.combineBelow,
+        sortable=function() private$.sortable,
         cells=function() private$.cells,
         superTitle=function() private$.superTitle,
         hasSuperTitle=function() ( ! is.null(private$.superTitle)),
@@ -59,7 +62,8 @@ Column <- R6::R6Class("Column",
             content,
             type,
             format,
-            combineBelow) {
+            combineBelow,
+            sortable) {
 
             private$.options <- options
 
@@ -74,6 +78,7 @@ Column <- R6::R6Class("Column",
             private$.type <- type
             private$.format <- strsplit(format, ',', fixed=TRUE)[[1]]
             private$.combineBelow <- combineBelow
+            private$.sortable <- sortable
 
             private$.measured <- FALSE
             private$.cells <- list()
@@ -123,6 +128,14 @@ Column <- R6::R6Class("Column",
         clear=function() {
             private$.cells <- list()
             private$.measured <- FALSE
+        },
+        setSortKeys=function(keys) {
+            if (length(keys) != length(private$.cells))
+                stop('length(keys) is not equal to rowCount')
+
+            private$.hasSortKeys <- TRUE
+            for (i in seq_along(private$.cells))
+                private$.cells[[i]]$sortKey <- keys[[i]]
         },
         .measure=function() {
             base::Encoding(private$.title) <- 'UTF-8'
@@ -216,6 +229,8 @@ Column <- R6::R6Class("Column",
                 superTitle=superTitle,
                 format=paste0(private$.format, collapse=','),
                 combineBelow=private$.combineBelow,
+                sortable=private$.sortable,
+                hasSortKeys=private$.hasSortKeys,
                 visible=v)
 
             for (cell in private$.cells)
