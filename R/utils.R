@@ -184,6 +184,7 @@ stringifyTerm <- function(components, sep=getOption('jmvTermSep', ':')) {
         x
     })
     term <- paste(components, collapse=sep)
+    Encoding(term) <- 'UTF-8'
     term
 }
 
