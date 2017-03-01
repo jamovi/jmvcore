@@ -205,6 +205,21 @@ ResultsElement <- R6::R6Class("ResultsElement",
         },
         fromProtoBuf=function(pb, oChanges=NULL, vChanges=NULL) {
 
+            someChanges <- length(oChanges) > 0 || length(vChanges) > 0
+            if (someChanges && base::identical('*', private$.clearWith))
+                return()
+
+            if (base::any(oChanges %in% private$.clearWith))
+                return()
+
+            for (name in private$.clearWith) {
+                option <- private$.options$option(name)
+                if (is.null(option))
+                    next()
+                if (base::any(vChanges %in% option$vars))
+                    return()
+            }
+
             if ( ! base::identical(pb$state, raw())) {
                 conn <- rawConnection(pb$state, 'r')
                 state <- base::readRDS(file=conn)
