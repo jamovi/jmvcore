@@ -11,6 +11,7 @@ Analysis <- R6::R6Class("Analysis",
         .options=NA,
         .results=NA,
         .status="none",
+        .completeWhenFilled=FALSE,
         .init=function() NULL,
         .run=function() NULL,
         .readDataset=NA,
@@ -87,6 +88,7 @@ Analysis <- R6::R6Class("Analysis",
             datasetId="",
             analysisId="",
             revision=0,
+            completeWhenFilled=FALSE,
             ...) {
 
             private$.package <- package
@@ -99,6 +101,7 @@ Analysis <- R6::R6Class("Analysis",
             private$.analysisId <- analysisId
             private$.datasetId <- datasetId
             private$.revision <- revision
+            private$.completeWhenFilled <- completeWhenFilled
 
             private$.results$.parent <- self
             private$.options$analysis <- self
@@ -199,7 +202,7 @@ Analysis <- R6::R6Class("Analysis",
                 private$.results$fromProtoBuf(pb$results, oChanges, vChanges)
             }
 
-            if (self$results$isFilled())
+            if (isTRUE(private$.completeWhenFilled) && self$results$isFilled())
                 private$.status <- 'complete'
         },
         .render=function(funName, image, ppi=72, ...) {
