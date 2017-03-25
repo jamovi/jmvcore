@@ -772,7 +772,7 @@ as.data.frame.Table <- function(x, row.names, optional, ...) {
     df <- data.frame()
     names <- character()
 
-    for (column in table$columns) {
+    for (column in x$columns) {
         if ( ! column$visible)
             next()
         names <- c(names, column$name)
@@ -785,7 +785,7 @@ as.data.frame.Table <- function(x, row.names, optional, ...) {
     }
 
     colnames(df) <- names
-    rownames(df) <- table$rowNames
+    rownames(df) <- x$rowNames
 
     df
 }
