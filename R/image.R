@@ -50,7 +50,10 @@ Image <- R6::R6Class("Image",
                 return(FALSE)
             return(TRUE)
         },
-        .render=function(path, ...) {
+        print=function() {
+            self$.render()
+        },
+        .render=function(...) {
             if ( ! is.character(private$.renderFun))
                 return()
 

@@ -252,3 +252,16 @@ Column <- R6::R6Class("Column",
         }
     )
 )
+
+#' @export
+as.list.Column <- function(x, ...) {
+    lapply(x$cells, function(x) {
+        v <- x$value
+        if (is.null(v))
+            return(NA)
+        if (identical(v, ''))
+            return(NA)
+        v
+    })
+}
+

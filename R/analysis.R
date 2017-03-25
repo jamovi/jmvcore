@@ -119,10 +119,14 @@ Analysis <- R6::R6Class("Analysis",
 
             wasNull <- FALSE
 
-            if (is.null(private$.data)) {
+            if ( ! self$options$requiresData) {
+                # do nothing
+            } else if (is.null(private$.data)) {
                 private$.data <- self$readDataset(TRUE)
                 wasNull <- TRUE
             } else {
+                if ( ! is.data.frame(private$.data))
+                    reject("Argument 'data' must be a data frame")
                 private$.data <- select(private$.data, self$options$varsRequired)
             }
 
@@ -133,8 +137,11 @@ Analysis <- R6::R6Class("Analysis",
                 private$.init()
             })
 
-            if (wasNull)
+            if ( ! self$options$requiresData) {
+                # do nothing
+            } else if (wasNull) {
                 private$.data <- NULL
+            }
 
             if (base::inherits(result, 'try-error')) {
                 errorMessage <- extractErrorMessage(result)

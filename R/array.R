@@ -217,3 +217,21 @@ Array <- R6::R6Class("Array",
             result
         })
 )
+
+#' @export
+length.Array <- function(x) {
+    length(x$items)
+}
+
+#' @export
+names.Array <- function(x) {
+    x$itemNames
+}
+
+#' @export
+`[[.Array` <- function(array, i) {
+    if (is.numeric(i))
+        return(array$get(index=i))
+    else
+        return(array$get(name=i))
+}

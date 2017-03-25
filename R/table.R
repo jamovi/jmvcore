@@ -43,6 +43,7 @@ Table <- R6::R6Class("Table",
             value
         }),
     active=list(
+        names=function() private$.rowNames,
         rowKeys=function() private$.rowKeys,
         width=function() {
 
@@ -764,3 +765,29 @@ Table <- R6::R6Class("Table",
         }
     )
 )
+
+#' @export
+as.data.frame.Table <- function(x, row.names, optional, ...) {
+
+    df <- data.frame()
+    names <- character()
+
+    for (column in table$columns) {
+        if ( ! column$visible)
+            next()
+        names <- c(names, column$name)
+        values <- unlist(as.list(column), use.names=FALSE)
+        if (ncol(df) == 0) {
+            df <- data.frame(values)
+        } else {
+            df <- cbind(df, values)
+        }
+    }
+
+    colnames(df) <- names
+    rownames(df) <- table$rowNames
+
+    df
+}
+
+

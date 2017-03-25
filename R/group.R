@@ -132,3 +132,18 @@ Group <- R6::R6Class("Group",
             result
         })
 )
+
+#' @export
+length.Group <- function(x) {
+    length(x$items)
+}
+
+#' @export
+names.Group <- function(x) {
+    x$itemNames
+}
+
+#' @export
+`[[.Group` <- function(group, i) {
+    group$get(i)
+}
