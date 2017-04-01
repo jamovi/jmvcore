@@ -27,6 +27,11 @@ tryStack <- function(expr, silent=FALSE) {
     result
 }
 
+utf8 <- function(str) {
+    Encoding(str) <- 'UTF-8'
+    str
+}
+
 #' @rdname reject
 #' @export
 createError <- function(formats, code=NULL, ...) {

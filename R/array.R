@@ -160,8 +160,8 @@ Array <- R6::R6Class("Array",
 
             if (noneVisible)
                 return('')
-            else
-                return(paste0(pieces, collapse=""))
+
+            utf8(paste0(pieces, collapse=""))
         },
         fromProtoBuf=function(element, oChanges=NULL, vChanges=NULL) {
             if ( ! base::inherits(element, "Message"))

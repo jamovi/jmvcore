@@ -87,8 +87,8 @@ Group <- R6::R6Class("Group",
 
             if (noneVisible)
                 return('')
-            else
-                return(paste0(pieces, collapse=""))
+
+            utf8(paste0(pieces, collapse=""))
         },
         fromProtoBuf=function(pb, oChanges=NULL, vChanges=NULL) {
             if ( ! "Message" %in% class(pb))

@@ -70,7 +70,7 @@ Image <- R6::R6Class("Image",
             pieces <- c(' ', private$.title, '\n')
             pieces <- c(pieces, '\n ', private$.path, '\n')
 
-            return(paste0(pieces, collapse=""))
+            utf8(paste0(pieces, collapse=""))
         },
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
             initProtoBuf()
