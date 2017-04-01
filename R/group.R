@@ -108,13 +108,13 @@ Group <- R6::R6Class("Group",
                     target$fromProtoBuf(itemPB, oChanges, vChanges)
             }
         },
-        asProtoBuf=function(incAsText=FALSE, status=NULL, prepend=NULL) {
+        asProtoBuf=function(incAsText=FALSE, status=NULL, prepend=NULL, append=NULL) {
             initProtoBuf()
 
             group <- RProtoBuf::new(jamovi.coms.ResultsGroup)
 
-            if ( ! is.null(prepend))
-                group$add("elements", prepend)
+            for (prep in prepend)
+                group$add("elements", prep)
 
             for (item in private$.items)
                 group$add("elements", item$asProtoBuf(incAsText=incAsText, status=status))

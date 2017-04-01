@@ -8,6 +8,25 @@ ignore <- function(...) {
         warning(paste(paste0("Ignoring argument '", names(list(...)),"'"), collapse='\n'))
 }
 
+tryStack <- function(expr, silent=FALSE) {
+    byref <- new.env()
+    result <- try(withCallingHandlers(
+        expr,
+        error=function(e) {
+            stack <- sys.calls()
+            stack <- stack[-(1:8)]
+            stack <- head(stack, -2)
+            stack <- paste(stack, collapse='\n')
+            stack <- paste0(as.character(e), '\n', stack)
+            byref$stack <- stack
+        })
+    , silent=silent)
+    if (isError(result)) {
+        attr(result, 'stack') <- byref$stack
+    }
+    result
+}
+
 #' @rdname reject
 #' @export
 createError <- function(formats, code=NULL, ...) {
@@ -716,9 +735,13 @@ indexOf <- function(item, array) {
 #' @export
 extractErrorMessage <- function(error) {
 
-    split <- base::strsplit(as.character(error), ":")[[1]]
-    last <- split[[length(split)]]
-    base::trimws(last)
+    if (inherits(error, 'try-error'))
+        error <- attr(error, 'condition')
+
+    if (inherits(error, 'simpleError'))
+        return(error$message)
+
+    return('Unknown error')
 }
 
 rethrow <- function(error) {

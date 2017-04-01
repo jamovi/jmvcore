@@ -159,7 +159,9 @@ ResultsElement <- R6::R6Class("ResultsElement",
             else
                 v <- jamovi.coms.Visible$DEFAULT_NO
 
-            if (self$isFilled())
+            if (private$.status == 'error')
+                s <- jamovi.coms.AnalysisStatus$ANALYSIS_ERROR
+            else if (self$isFilled())
                 s <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE
             else if (private$.status == 'running')
                 s <- jamovi.coms.AnalysisStatus$ANALYSIS_RUNNING

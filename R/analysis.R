@@ -25,6 +25,7 @@ Analysis <- R6::R6Class("Analysis",
         .version=NA,
         .changed=character(),
         .revision=0,
+        .stacktrace='',
         .checkpoint=function(flush=TRUE) {
             if (is.null(private$.checkpointCB))
                 return()
@@ -75,7 +76,9 @@ Analysis <- R6::R6Class("Analysis",
         data=function() private$.data,
         options=function() private$.options,
         results=function() private$.results,
-        status=function() private$.status),
+        status=function() private$.status,
+        complete=function() base::identical(private$.status, 'complete'),
+        errored=function() base::identical(private$.status, 'error')),
     public=list(
         initialize=function(
             package,
@@ -113,29 +116,39 @@ Analysis <- R6::R6Class("Analysis",
         check=function() {
             private$.options$check()
         },
-        init=function() {
-            if (private$.status != "none")
-                return()
+        setStatus=function(status) {
+            private$.status <- status
+        },
+        setError=function(message, stacktrace=NULL) {
+            private$.status <- 'error'
+            private$.results$setError(message)
+            if ( ! is.null(stacktrace))
+                private$.stacktrace <- stacktrace
+        },
+        init=function(noThrow=FALSE) {
 
-            wasNull <- FALSE
+            result <- tryStack({
+                if (private$.status != "none")
+                    return()
 
-            if ( ! self$options$requiresData) {
-                # do nothing
-            } else if (is.null(private$.data)) {
-                private$.data <- self$readDataset(TRUE)
-                wasNull <- TRUE
-            } else {
-                if ( ! is.data.frame(private$.data))
-                    reject("Argument 'data' must be a data frame")
-                private$.data <- select(private$.data, self$options$varsRequired)
-            }
+                wasNull <- FALSE
 
-            self$options$check()
-            self$results$.update()
+                if ( ! self$options$requiresData) {
+                    # do nothing
+                } else if (is.null(private$.data)) {
+                    private$.data <- self$readDataset(TRUE)
+                    wasNull <- TRUE
+                } else {
+                    if ( ! is.data.frame(private$.data))
+                        reject("Argument 'data' must be a data frame")
+                    private$.data <- select(private$.data, self$options$varsRequired)
+                }
 
-            result <- try({
+                self$options$check()
+                self$results$.update()
+
                 private$.init()
-            })
+            }, silent=TRUE)
 
             if ( ! self$options$requiresData) {
                 # do nothing
@@ -143,9 +156,12 @@ Analysis <- R6::R6Class("Analysis",
                 private$.data <- NULL
             }
 
-            if (base::inherits(result, 'try-error')) {
-                errorMessage <- extractErrorMessage(result)
-                private$.results$setError(errorMessage)
+            if (isError(result)) {
+                message <- extractErrorMessage(result)
+                if ( ! noThrow)
+                    stop(message, call.=FALSE)
+                stack <- attr(result, 'stack')
+                self$setError(message, stack)
                 private$.status <- 'error'
             } else {
                 private$.status <- 'inited'
@@ -165,20 +181,21 @@ Analysis <- R6::R6Class("Analysis",
 
             private$.status <- "running"
 
-            if (noThrow) {
-                result <- try(private$.run(), silent=TRUE)
-            } else {
+            result <- tryStack({
                 result <- private$.run()
-            }
+            }, silent=TRUE)
 
             if (wasNull)
                 private$.data <- NULL
 
             if (private$.status == 'restarting') {
                 return(FALSE)  # FALSE means don't bother sending results
-            } else if (base::inherits(result, 'try-error')) {
-                errorMessage <- extractErrorMessage(result)
-                private$.results$setError(errorMessage)
+            } else if (isError(result)) {
+                message <- extractErrorMessage(result)
+                if ( ! noThrow)
+                    stop(message, call.=FALSE)
+                stack <- attr(result, 'stack')
+                self$setError(message, stack)
                 private$.status <- 'error'
             } else {
                 private$.status <- 'complete'
@@ -189,8 +206,16 @@ Analysis <- R6::R6Class("Analysis",
         print=function() {
             cat(self$results$asString())
         },
-        render=function(...) {
-            private$.results$.render(ppi=self$options$ppi, ...)
+        render=function(noThrow=FALSE, ...) {
+            result <- tryStack(private$.results$.render(ppi=self$options$ppi, ...))
+            if (isError(result)) {
+                message <- extractErrorMessage(result)
+                if ( ! noThrow)
+                    stop(message, call.=FALSE)
+                stack <- attr(result, 'stack')
+                self$setError(message, stack)
+                private$.status <- 'error'
+            }
         },
         .save=function() {
             path <- private$.statePathSource()
@@ -351,18 +376,20 @@ Analysis <- R6::R6Class("Analysis",
             } else if (private$.status == "complete") {
                 response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE;
             } else {
-                error <- RProtoBuf::new(jamovi.coms.Error)
-                error$message <- private$.error
-                response$error <- error
-                response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_ERROR;
+                response$status <- jamovi.coms.AnalysisStatus$ANALYSIS_ERROR
             }
+
+            prepend <- list()
+            if ( ! identical(private$.stacktrace, ''))
+                prepend[[length(prepend)+1]] <- RProtoBuf::new(jamovi.coms.ResultsElement, name='debug', title='Debug', preformatted=private$.stacktrace)
 
             if (incAsText) {
                 response$incAsText <- TRUE
-                syntax <- RProtoBuf::new(jamovi.coms.ResultsElement, name='syntax', syntax=self$asSource())
-                response$results <- self$results$asProtoBuf(incAsText=incAsText, status=response$status, prepend=syntax);
+                syntax <- RProtoBuf::new(jamovi.coms.ResultsElement, name='syntax', preformatted=self$asSource())
+                prepend <- c(list(syntax), prepend)
+                response$results <- self$results$asProtoBuf(incAsText=incAsText, status=response$status, prepend=prepend);
             } else {
-                response$results <- self$results$asProtoBuf(incAsText=incAsText, status=response$status);
+                response$results <- self$results$asProtoBuf(incAsText=incAsText, status=response$status, prepend=prepend);
             }
 
             if (incOptions)
@@ -371,9 +398,16 @@ Analysis <- R6::R6Class("Analysis",
             response
         },
         serialize=function(incOptions=FALSE, incAsText=FALSE) {
-            serial <- try(RProtoBuf::serialize(self$asProtoBuf(incOptions=incOptions, incAsText=incAsText), NULL))
-            if (base::inherits(serial, 'try-error'))
-                return(raw())
+            serial <- tryStack(RProtoBuf::serialize(self$asProtoBuf(incOptions=incOptions, incAsText=incAsText), NULL))
+            if (isError(serial))
+                serial <- createErrorAnalysis(
+                    as.character(serial),
+                    attr(serial, 'stack'),
+                    private$.package,
+                    private$.name,
+                    private$.datasetId,
+                    private$.analysisId,
+                    private$.revision)$serialize()
             serial
         },
         asSource=function() {

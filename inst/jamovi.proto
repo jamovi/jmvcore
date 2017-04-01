@@ -78,6 +78,7 @@ message AnalysisResponse {
     bool incAsText = 10;
     int32 revision = 11;
     bool restartEngines = 12;
+    string stacktrace = 13;
 }
 
 message AnalysisOption {
@@ -239,6 +240,7 @@ message OpenProgress {
 message SaveRequest {
     string filename = 1;
     bool overwrite = 2;
+    bool export = 3;
 }
 
 message SaveProgress {
@@ -324,24 +326,29 @@ message DataSetSchema {
     message ColumnSchema {
         int32 id = 1;
         string name = 2;
+        int32 index = 3;
 
         enum MeasureType {
-            MISC = 0;
+            NONE = 0;
             NOMINAL_TEXT = 1;
             NOMINAL = 2;
             ORDINAL = 3;
             CONTINUOUS = 4;
         }
 
-        MeasureType measureType = 3;
-        bool autoMeasure = 4;
-        int32 width = 5;
-        bool hasLevels = 6;
-        repeated VariableLevel levels = 7;
-        int32 dps = 8;
-        string importName = 9;
+        MeasureType measureType = 4;
+        bool autoMeasure = 5;
+        int32 width = 6;
+        bool hasLevels = 7;
+        repeated VariableLevel levels = 8;
+        int32 dps = 9;
+        string importName = 10;
     }
     repeated ColumnSchema columns = 1;
+    uint32 rowCount = 5;
+    uint32 columnCount = 6;
+    uint32 vRowCount = 7;
+    uint32 vColumnCount = 8;
 }
 
 enum GetSet {
@@ -359,8 +366,6 @@ message InfoResponse {
     bool edited = 4;
     bool blank = 5;
     DataSetSchema schema = 6;
-    uint32 rowCount = 7;
-    uint32 columnCount = 8;
     repeated AnalysisResponse analyses = 9;
 }
 
@@ -396,7 +401,10 @@ message DataSetRR {
     }
 
     repeated ColumnData data = 8;
-    repeated DataSetSchema.ColumnSchema schema = 9;
+    DataSetSchema schema = 9;
+
+    bool incSerializedData = 10;
+    bytes serializedData = 11;
 }
 
 message ModuleRequest {
