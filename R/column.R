@@ -90,6 +90,9 @@ Column <- R6::R6Class("Column",
         setSuperTitle=function(title) {
             private$.superTitle <- title
         },
+        setVisible=function(visible) {
+            private$.visibleExpr <- paste(visible)
+        },
         addCell=function(value, ...) {
 
             if (base::missing(value)) {
