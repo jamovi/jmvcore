@@ -127,7 +127,11 @@ Analysis <- R6::R6Class("Analysis",
         },
         init=function(noThrow=FALSE) {
 
-            result <- tryStack({
+            try <- dontTry
+            if (noThrow)
+                try <- tryStack
+
+            result <- try({
                 if (private$.status != "none")
                     return()
 
@@ -158,8 +162,6 @@ Analysis <- R6::R6Class("Analysis",
 
             if (isError(result)) {
                 message <- extractErrorMessage(result)
-                if ( ! noThrow)
-                    stop(message, call.=FALSE)
                 stack <- attr(result, 'stack')
                 self$setError(message, stack)
                 private$.status <- 'error'
@@ -181,7 +183,11 @@ Analysis <- R6::R6Class("Analysis",
 
             private$.status <- "running"
 
-            result <- tryStack({
+            try <- dontTry
+            if (noThrow)
+                try <- tryStack
+
+            result <- try({
                 result <- private$.run()
             }, silent=TRUE)
 
@@ -192,8 +198,6 @@ Analysis <- R6::R6Class("Analysis",
                 return(FALSE)  # FALSE means don't bother sending results
             } else if (isError(result)) {
                 message <- extractErrorMessage(result)
-                if ( ! noThrow)
-                    stop(message, call.=FALSE)
                 stack <- attr(result, 'stack')
                 self$setError(message, stack)
                 private$.status <- 'error'
@@ -207,15 +211,7 @@ Analysis <- R6::R6Class("Analysis",
             cat(self$results$asString())
         },
         render=function(noThrow=FALSE, ...) {
-            result <- tryStack(private$.results$.render(ppi=self$options$ppi, ...))
-            if (isError(result)) {
-                message <- extractErrorMessage(result)
-                if ( ! noThrow)
-                    stop(message, call.=FALSE)
-                stack <- attr(result, 'stack')
-                self$setError(message, stack)
-                private$.status <- 'error'
-            }
+            private$.results$.render(ppi=self$options$ppi, noThrow=noThrow, ...)
         },
         .save=function() {
             path <- private$.statePathSource()
@@ -237,7 +233,7 @@ Analysis <- R6::R6Class("Analysis",
             if (isTRUE(private$.completeWhenFilled) && self$results$isFilled())
                 private$.status <- 'complete'
         },
-        .render=function(funName, image, ppi=72, ...) {
+        .render=function(funName, image, ppi=72, noThrow=FALSE, ...) {
 
             if ( ! is.null(image$path))
                 return(FALSE)
@@ -283,7 +279,21 @@ Analysis <- R6::R6Class("Analysis",
                 private$.data <- self$readDataset()
             }
 
-            rendered <- render(image)
+
+            try <- dontTry
+            if (noThrow)
+                try <- tryStack
+
+            ev <- parse(text=paste0('private$', funName, '(image)'))
+            result <- try(eval(ev), silent=TRUE)
+
+            if (isError(result)) {
+                message <- extractErrorMessage(result)
+                stack <- attr(result, 'stack')
+                self$setError(message, stack)
+                private$.status <- 'error'
+                result <- FALSE
+            }
 
             if (wasNull)
                 private$.data <- NULL
@@ -292,7 +302,7 @@ Analysis <- R6::R6Class("Analysis",
 
                 grDevices::dev.off()
 
-                if (rendered)
+                if (result)
                     image$.setPath(paths$relPath)
                 else
                     image$.setPath(NULL)
@@ -302,7 +312,7 @@ Analysis <- R6::R6Class("Analysis",
                 image$.setPath(NULL)
             }
 
-            rendered
+            result
         },
         .setReadDatasetSource=function(read) {
             private$.readDataset <- read

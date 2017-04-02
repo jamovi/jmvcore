@@ -67,6 +67,14 @@ test_that('Table works', {
     expect_equal(table$isFilled(rowKey=2, col=3), FALSE)
     expect_equal(table$isFilled(rowKey=3, col=3), FALSE)
 
+
+    test_that('Table rejects bad things', {
+
+        expect_error(table$setRow(rowKey=1, values=list(`1`=list(5))), "Table$setRow(): value '1' is not atomic", fixed=TRUE)
+        expect_error(table$setRow(rowKey=1, values=list(`2`=list())),  "Table$setRow(): value '2' is not atomic", fixed=TRUE)
+        expect_error(table$setTitle(list('moose')), "setTitle(): title must be a string", fixed=TRUE)
+    })
+
 })
 
 test_that('Table folding works', {

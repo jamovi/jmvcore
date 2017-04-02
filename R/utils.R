@@ -8,6 +8,11 @@ ignore <- function(...) {
         warning(paste(paste0("Ignoring argument '", names(list(...)),"'"), collapse='\n'))
 }
 
+dontTry <- function(expr, ...) {
+    eval(expr)
+}
+
+#' @importFrom utils head
 tryStack <- function(expr, silent=FALSE) {
     byref <- new.env()
     result <- try(withCallingHandlers(
@@ -15,7 +20,14 @@ tryStack <- function(expr, silent=FALSE) {
         error=function(e) {
             stack <- sys.calls()
             stack <- stack[-(1:8)]
-            stack <- head(stack, -2)
+            for (i in seq_along(stack)) {
+                call <- stack[i]
+                if (startsWith(call, 'withCallingHandlers(expr, error = function(e) {')) {
+                    stack <- stack[-(1:i)]
+                    break()
+                }
+            }
+            stack <- utils::head(stack, -2)
             stack <- paste(stack, collapse='\n')
             stack <- paste0(as.character(e), '\n', stack)
             byref$stack <- stack
@@ -30,6 +42,20 @@ tryStack <- function(expr, silent=FALSE) {
 utf8 <- function(str) {
     Encoding(str) <- 'UTF-8'
     str
+}
+
+isValue <- function(value) {
+    if (is.null(value))
+        return(TRUE)
+    if ( ! is.atomic(value))
+        return(FALSE)
+    if (length(value) == 1)
+        return(TRUE)
+    return(FALSE)
+}
+
+isString <- function(value) {
+    (is.character(value) && length(value) == 1)
 }
 
 #' @rdname reject

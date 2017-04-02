@@ -87,6 +87,8 @@ ResultsElement <- R6::R6Class("ResultsElement",
             private$.index <- index
         },
         setStatus=function(status) {
+            if ( ! is.character(status) || length(status) != 1)
+                reject('setStatus(): status must be a string')
             private$.status <- status
         },
         setState=function(state) {
@@ -97,6 +99,8 @@ ResultsElement <- R6::R6Class("ResultsElement",
             private$.visibleValue <- visible
         },
         setTitle=function(title) {
+            if ( ! is.character(title) || length(title) != 1)
+                reject('setTitle(): title must be a string')
             private$.titleExpr <- title
             private$.titleValue <- title
         },
@@ -132,6 +136,8 @@ ResultsElement <- R6::R6Class("ResultsElement",
             paste0(".", name) %in% names(private)
         },
         setError = function(message) {
+            if ( ! is.character(message) || length(message) != 1)
+                reject('setError(): message must be a string')
             private$.error <- message
             private$.status <- 'error'
         },
