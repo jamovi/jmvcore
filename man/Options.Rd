@@ -2,20 +2,20 @@
 % Please edit documentation in R/options.R
 \docType{data}
 \name{Options}
-\alias{OptionArray}
+\alias{Options}
 \alias{OptionBool}
-\alias{OptionGroup}
-\alias{OptionInteger}
 \alias{OptionList}
 \alias{OptionNMXList}
-\alias{OptionNumber}
-\alias{OptionPairs}
-\alias{OptionSort}
-\alias{OptionString}
-\alias{OptionTerms}
-\alias{OptionVariable}
 \alias{OptionVariables}
-\alias{Options}
+\alias{OptionVariable}
+\alias{OptionTerms}
+\alias{OptionInteger}
+\alias{OptionNumber}
+\alias{OptionString}
+\alias{OptionGroup}
+\alias{OptionSort}
+\alias{OptionArray}
+\alias{OptionPairs}
 \title{The jmv Options classes}
 \format{An object of class \code{R6ClassGenerator} of length 24.}
 \usage{
@@ -51,4 +51,3 @@ OptionPairs
 The jmv Options classes
 }
 \keyword{datasets}
-

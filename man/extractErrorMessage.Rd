@@ -12,4 +12,3 @@ extractErrorMessage(error)
 \description{
 Extracts the error message from an error object
 }
-

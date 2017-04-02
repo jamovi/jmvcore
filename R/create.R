@@ -3,6 +3,12 @@
 #'
 #' Used internally by jamovi
 #'
+#' @param ns package name
+#' @param name analysis name
+#' @param optionsPB options protobuf object
+#' @param datasetId dataset id
+#' @param analysisId analysis id
+#' @param revision revision
 #' @export
 create <- function(ns, name, optionsPB, datasetId, analysisId, revision) {
 

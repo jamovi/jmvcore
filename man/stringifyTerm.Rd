@@ -36,4 +36,3 @@ stringifyTerm(c('a', 'b', 'c'))
 # "quoted * b * c"
 
 }
-

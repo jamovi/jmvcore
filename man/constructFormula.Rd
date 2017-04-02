@@ -29,4 +29,3 @@ constructFormula('with spaces', list('a', 'b', c('a', 'b')))
 '`with spaces`~a+b+a:b'
 
 }
-

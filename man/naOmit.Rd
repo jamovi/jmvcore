@@ -16,4 +16,3 @@ removes all rows from the data frame which contain missing values (NA)
 this function is equivalent to \code{\link{na.omit}} from the stats package,
 however it preserves attributes on columns in data frames
 }
-

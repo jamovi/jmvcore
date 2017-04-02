@@ -41,4 +41,3 @@ decomposeTerm('a:b:`with space`')
 # c('a', 'b', 'with space')
 
 }
-

@@ -46,4 +46,3 @@ jmvcore::format('that is simply not {}', TRUE, context='R')
 # 'that is simply not TRUE'
 
 }
-

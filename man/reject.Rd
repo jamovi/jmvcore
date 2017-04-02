@@ -19,4 +19,3 @@ reject(formats, code = NULL, ...)
 \description{
 These functions are convenience functions for creating and throwing errors.
 }
-

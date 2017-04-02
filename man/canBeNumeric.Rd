@@ -12,4 +12,3 @@ canBeNumeric(object)
 \description{
 Determines whether an object is or can be converted to numeric
 }
-

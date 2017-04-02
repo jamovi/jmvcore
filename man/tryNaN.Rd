@@ -15,4 +15,3 @@ the result, or NaN on failure
 \description{
 if the expression fails, NaN is returned silently
 }
-

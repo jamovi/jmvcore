@@ -13,4 +13,3 @@ toNumeric(object)
 Similar to \code{\link{as.numeric}}, however if the object has a values
 attribute attached, these are used as the numeric values
 }
-

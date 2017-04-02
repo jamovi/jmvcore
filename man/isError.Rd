@@ -15,4 +15,3 @@ TRUE if the object is an error
 \description{
 Determine if an object is an error
 }
-

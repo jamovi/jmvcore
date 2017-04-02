@@ -2,9 +2,9 @@
 % Please edit documentation in R/cell.R
 \docType{data}
 \name{Cell.BEGIN_GROUP}
-\alias{Cell.BEGIN_END_GROUP}
 \alias{Cell.BEGIN_GROUP}
 \alias{Cell.END_GROUP}
+\alias{Cell.BEGIN_END_GROUP}
 \alias{Cell.NEGATIVE}
 \title{Constants to specify formatting of Table cells}
 \format{An object of class \code{numeric} of length 1.}
@@ -35,4 +35,3 @@ table$addFormat(rowNo=1, col=1, Cell.BEGIN_END_GROUP)
 
 }
 \keyword{datasets}
-

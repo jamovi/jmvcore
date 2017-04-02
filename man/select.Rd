@@ -18,4 +18,3 @@ the new data frame
 Shorthand equivalent to \code{\link{subset}(df, select=columnNames)}, however
 it additionally preserves attributes on the columns
 }
-

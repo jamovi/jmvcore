@@ -4,7 +4,20 @@
 \alias{create}
 \title{Create an analysis}
 \usage{
-create(ns, name, optionsPB, datasetsId, analysisId, revision)
+create(ns, name, optionsPB, datasetId, analysisId, revision)
+}
+\arguments{
+\item{ns}{package name}
+
+\item{name}{analysis name}
+
+\item{optionsPB}{options protobuf object}
+
+\item{datasetId}{dataset id}
+
+\item{analysisId}{analysis id}
+
+\item{revision}{revision}
 }
 \description{
 Used internally by jamovi
