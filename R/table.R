@@ -715,7 +715,8 @@ Table <- R6::R6Class("Table",
                 rowName <- private$.rowNames[[i]]
                 rowKey <- private$.rowKeys[[i]]
 
-                if ( ! is.na(indexOf(rowKey, changes)))
+                keyElems <- unlist(rowKey, use.names=FALSE)
+                if (any(keyElems %in% changes))
                     next()
 
                 fromRowIndex <- indexOf(rowName, tablePB$rowNames)

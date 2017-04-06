@@ -255,7 +255,11 @@ ResultsElement <- R6::R6Class("ResultsElement",
             if ( ! private$.options$has(optName))
                 return(NULL)
 
-            return(private$.options$get(optName))
+            value <- private$.options$get(optName)
+            value <- unlist(value, use.names=FALSE)
+            value <- unique(value)
+
+            value
         },
         print=function() {
             cat(self$asString())

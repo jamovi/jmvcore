@@ -195,7 +195,8 @@ Array <- R6::R6Class("Array",
                 itemName <- private$.itemNames[[i]]
                 itemKey  <- private$.itemKeys[[i]]
 
-                if ( ! is.na(indexOf(itemKey, changes)))
+                keyElems <- unlist(itemKey, use.names=FALSE)
+                if (any(keyElems %in% changes))
                     next()
 
                 fromItemIndex <- arrayPBIndicesByName[[itemName]]
