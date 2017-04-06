@@ -122,13 +122,6 @@ Group <- R6::R6Class("Group",
             result <- super$asProtoBuf(incAsText=incAsText, status=status)
             result$group <- group
 
-            if (private$.status == 'error') {
-                error <- RProtoBuf::new(jamovi.coms.Error,
-                    message=private$.error)
-                result$error <- error
-                result$status <- jamovi.coms.AnalysisStatus$ANALYSIS_ERROR
-            }
-
             result
         })
 )

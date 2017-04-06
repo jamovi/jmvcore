@@ -209,6 +209,13 @@ ResultsElement <- R6::R6Class("ResultsElement",
                 status=s,
                 visible=v)
 
+            if (private$.status == 'error') {
+                error <- RProtoBuf::new(jamovi.coms.Error,
+                                        message=private$.error)
+                element$error <- error
+                element$status <- jamovi.coms.AnalysisStatus$ANALYSIS_ERROR
+            }
+
             element
         },
         fromProtoBuf=function(pb, oChanges=NULL, vChanges=NULL) {
