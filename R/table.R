@@ -319,6 +319,11 @@ Table <- R6::R6Class("Table",
         },
         addRow=function(rowKey, values=list()) {
 
+            for (value in values) {
+                if ( ! isValue(value))
+                    reject("Table$addRow(): value is not atomic", code='error')
+            }
+
             private$.rowKeys[length(private$.rowKeys)+1] <- list(rowKey)  # allow NULL
             private$.rowCount <- private$.rowCount + 1
             private$.rowNames <- sapply(private$.rowKeys, rjson::toJSON, USE.NAMES=FALSE)
