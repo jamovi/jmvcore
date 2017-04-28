@@ -32,6 +32,14 @@ Preformatted <- R6::R6Class("Preformatted",
                 visible=visible,
                 clearWith=clearWith)
         },
+        setContent=function(value) {
+            if ( ! is.character(value))
+                value <- capture.output(value)
+            value <- paste0(value, collapse='\n')
+            private$.content <- value
+            private$.stale <- FALSE
+            base::invisible(self)
+        },
         isFilled=function() {
             if (private$.stale)
                 return(FALSE)
