@@ -165,7 +165,7 @@ Analysis <- R6::R6Class("Analysis",
                 stack <- attr(result, 'stack')
                 self$setError(message, stack)
                 private$.status <- 'error'
-            } else {
+            } else if (private$.status != 'complete') {
                 private$.status <- 'inited'
             }
         },
