@@ -742,3 +742,11 @@ parseOptionPB <- function(pb) {
 
     value
 }
+
+#' @export
+`$.Options` <- function(x, name) {
+    if ( ! exists(name, envir = x)) {
+        stop("options$", name, " does not exist", call.=FALSE)
+    }
+    x[[name]]
+}

@@ -266,3 +266,16 @@ ResultsElement <- R6::R6Class("ResultsElement",
             cat(self$asString())
         },
         .parent=NA))
+
+
+#' @export
+`$.ResultsElement` <- function(x, name) {
+    if ( ! exists(name, envir = x)) {
+        stop("'", name, "' does not exist in this results element", call.=FALSE)
+    }
+    classes <- class(x)
+    on.exit(class(x) <- classes)
+    class(x) <- 'environment'
+    property <- x[[name]]
+    property
+}

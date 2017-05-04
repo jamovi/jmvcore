@@ -23,6 +23,13 @@ Group <- R6::R6Class("Group",
                     return(TRUE)
             }
             return(FALSE)
+        },
+        asDF=function() {
+            children <- paste0('\n    ...$', self$itemNames, '$asDF', collapse='')
+            stop("This results group cannot be converted to a data frame.\n",
+                 "Perhaps you mean to access some of it's children:",
+                 children,
+                 call.=FALSE)
         }),
     public=list(
         initialize=function(
@@ -140,3 +147,30 @@ names.Group <- function(x) {
 `[[.Group` <- function(group, i) {
     group$get(i)
 }
+
+#' @export
+as.data.frame.Group <- function(x, ..., stringsAsFactors = default.stringsAsFactors()) {
+
+    call <- as.character(sys.call(-1)[2])
+    children <- paste0('\n    as.data.frame(', call, '$', x$itemNames, ')', collapse='')
+
+    stop('This results group cannot be converted to a data frame.\n',
+         'Perhaps you mean to access some of its children:',
+         children,
+         call.=FALSE)
+}
+
+#' @export
+#' @importFrom utils .DollarNames
+.DollarNames.Group <- function(x, pattern = "") {
+    names <- ls(x, all.names=F, pattern = pattern)
+    retain <- c(x$itemNames, 'asDF', 'asString')
+    names <- intersect(names, retain)
+    for (name in x$itemNames) {
+        item <- x$get(name)
+        if ( ! item$visible)
+            names <- setdiff(names, name)
+    }
+    names
+}
+

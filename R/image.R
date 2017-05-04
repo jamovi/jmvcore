@@ -116,3 +116,9 @@ Image <- R6::R6Class("Image",
                 private$.path <- image$path
         })
 )
+
+#' @export
+#' @importFrom utils .DollarNames
+.DollarNames.Image <- function(x, pattern = "") {
+    character()
+}

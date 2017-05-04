@@ -90,7 +90,8 @@ Table <- R6::R6Class("Table",
         },
         columns=function() private$.columns,
         rowCount=function() private$.rowCount,
-        notes=function() private$.notes
+        notes=function() private$.notes,
+        asDF=function() as.data.frame.Table(self)
     ),
     public=list(
         initialize=function(
@@ -812,9 +813,17 @@ as.data.frame.Table <- function(x, row.names, optional, ...) {
     }
 
     colnames(df) <- names
-    rownames(df) <- x$rowNames
+    rownames(df) <- x$names
 
     df
 }
 
+#' @export
+#' @importFrom utils .DollarNames
+.DollarNames.Table <- function(x, pattern = "") {
+    names <- ls(x, all.names=F, pattern = pattern)
+    retain <- c('asDF', 'asString')
+    names <- intersect(names, retain)
+    names
+}
 
