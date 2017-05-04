@@ -76,7 +76,7 @@ Group <- R6::R6Class("Group",
 
             noneVisible <- TRUE
 
-            pieces <- c('\n ', self$title, '\n')
+            pieces <- c('\n ', base::toupper(self$title), '\n')
 
             for (item in private$.items) {
                 if (item$visible) {
