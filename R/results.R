@@ -129,6 +129,9 @@ ResultsElement <- R6::R6Class("ResultsElement",
         .createImages=function(...) {
             FALSE
         },
+        .render=function(image, ...) {
+            FALSE
+        },
         .optionsChanged=function(...) {
             private$.updated <- FALSE
         },

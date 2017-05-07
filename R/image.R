@@ -94,10 +94,15 @@ Image <- R6::R6Class("Image",
 
             self$analysis$.render(funName=private$.renderFun, image=self, ...)
         },
-        .createImages=function(...) {
-
+        .render=function(...) {
             if ( ! is.character(private$.renderFun))
-                return()
+                return(FALSE)
+
+            self$analysis$.render(funName=private$.renderFun, image=self, ...)
+        },
+        .createImages=function(...) {
+            if ( ! is.character(private$.renderFun))
+                return(FALSE)
 
             self$analysis$.createImage(funName=private$.renderFun, image=self, ...)
         },

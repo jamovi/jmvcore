@@ -51,6 +51,14 @@ Group <- R6::R6Class("Group",
         get=function(name) {
             private$.items[[name]]
         },
+        .render=function(...) {
+            rendered <- FALSE
+            if (self$visible) {
+                for (item in private$.items)
+                    rendered <- item$.render(...) || rendered
+            }
+            rendered
+        },
         .createImages=function(...) {
             rendered <- FALSE
             if (self$visible) {

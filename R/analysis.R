@@ -210,9 +210,6 @@ Analysis <- R6::R6Class("Analysis",
         print=function() {
             cat(self$results$asString())
         },
-        .createImages=function(noThrow=FALSE, ...) {
-            private$.results$.createImages(ppi=self$options$ppi, noThrow=noThrow, ...)
-        },
         .save=function() {
             path <- private$.statePathSource()
             pb <- self$asProtoBuf(incOptions=TRUE)
@@ -245,6 +242,11 @@ Analysis <- R6::R6Class("Analysis",
 
             if (identical(result, FALSE))
                 stop('Rendering failed', call.=FALSE)
+
+            result
+        },
+        .createImages=function(noThrow=FALSE, ...) {
+            private$.results$.createImages(ppi=self$options$ppi, noThrow=noThrow, ...)
         },
         .createImage=function(funName, image, ppi=72, noThrow=FALSE, ...) {
 
@@ -286,12 +288,11 @@ Analysis <- R6::R6Class("Analysis",
                 on.exit(grDevices::dev.off())
             }
 
+            dataRequired <- FALSE
             if (image$requiresData && is.null(private$.data)) {
-                wasNull <- TRUE
+                dataRequired <- TRUE
                 private$.data <- self$readDataset()
-                on.exit(private$.data <- NULL)
             }
-
 
             try <- dontTry
             if (noThrow)
@@ -299,6 +300,9 @@ Analysis <- R6::R6Class("Analysis",
 
             ev <- parse(text=paste0('private$', funName, '(image, ...)'))
             result <- try(eval(ev), silent=TRUE)
+
+            if (dataRequired)
+                private$.data <- NULL
 
             if (isError(result)) {
                 message <- extractErrorMessage(result)

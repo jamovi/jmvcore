@@ -82,6 +82,14 @@ Array <- R6::R6Class("Array",
             }
             rendered
         },
+        .render=function(...) {
+            rendered <- FALSE
+            if (self$visible) {
+                for (item in private$.items)
+                    rendered <- item$.render(...) || rendered
+            }
+            rendered
+        },
         .update=function() {
 
             if (private$.updated)
