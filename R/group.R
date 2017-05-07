@@ -51,11 +51,11 @@ Group <- R6::R6Class("Group",
         get=function(name) {
             private$.items[[name]]
         },
-        .render=function(...) {
+        .createImages=function(...) {
             rendered <- FALSE
             if (self$visible) {
                 for (item in private$.items)
-                    rendered <- item$.render(...) || rendered
+                    rendered <- item$.createImages(...) || rendered
             }
             rendered
         },
@@ -78,6 +78,19 @@ Group <- R6::R6Class("Group",
 
             for (item in private$.items)
                 item$.update()
+        },
+        .lookup=function(path) {
+            if (length(path) == 0 || identical(path, ""))
+                return(self)
+
+            first <- path[ 1]
+            path  <- path[-1]
+
+            element <- self$get(first)
+            if (length(path) == 0)
+                return(element)
+            else
+                return(element$.lookup(path))
         },
         asString=function() {
 

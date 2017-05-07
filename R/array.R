@@ -74,11 +74,11 @@ Array <- R6::R6Class("Array",
             }
             TRUE
         },
-        .render=function(...) {
+        .createImages=function(...) {
             rendered <- FALSE
             if (self$visible) {
                 for (item in private$.items)
-                    rendered <- item$.render(...) || rendered
+                    rendered <- item$.createImages(...) || rendered
             }
             rendered
         },
@@ -169,6 +169,19 @@ Array <- R6::R6Class("Array",
                 return('')
 
             utf8(paste0(pieces, collapse=""))
+        },
+        .lookup=function(path) {
+            if (length(path) == 0 || identical(path, ""))
+                return(self)
+
+            first <- path[1]
+            path  <- path[-1]
+
+            element <- self$get(name=first)
+            if (length(path) == 0)
+                return(element)
+            else
+                return(element$.lookup(path))
         },
         fromProtoBuf=function(element, oChanges=NULL, vChanges=NULL) {
             if ( ! base::inherits(element, "Message"))

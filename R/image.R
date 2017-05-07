@@ -53,11 +53,53 @@ Image <- R6::R6Class("Image",
         print=function() {
             self$.render()
         },
-        .render=function(...) {
+        saveAs=function(path, ...) {
+
+            if ( ! is.character(private$.renderFun))
+                stop('no render function', call.=FALSE)
+
+            if (endsWith(tolower(path), '.pdf')) {
+                cairo_pdf(
+                    file=path,
+                    width=private$.width/72,
+                    height=private$.height/72)
+            } else if (endsWith(tolower(path), '.svg')) {
+                svg(
+                    file=path,
+                    width=private$.width/72,
+                    height=private$.height/72)
+            } else if (endsWith(tolower(path), '.eps')) {
+                cairo_ps(
+                    file=path,
+                    width=private$.width/72,
+                    height=private$.height/72)
+            } else if (endsWith(tolower(path), '.png')) {
+
+                multip <- 144 / 72
+                grType <- 'cairo'
+                if (Sys.info()['sysname'] == 'Windows')
+                    grType <- 'windows'
+
+                grDevices::png(type=grType,
+                               filename=path,
+                               width=private$.width * multip,
+                               height=private$.height * multip,
+                               bg='transparent',
+                               res=72 * multip)
+            } else {
+                reject('unrecognised format')
+            }
+
+            on.exit(grDevices::dev.off())
+
+            self$analysis$.render(funName=private$.renderFun, image=self, ...)
+        },
+        .createImages=function(...) {
+
             if ( ! is.character(private$.renderFun))
                 return()
 
-            self$analysis$.render(funName=private$.renderFun, image=self, ...)
+            self$analysis$.createImage(funName=private$.renderFun, image=self, ...)
         },
         .setPath=function(path) {
             private$.path <- path
@@ -120,5 +162,8 @@ Image <- R6::R6Class("Image",
 #' @export
 #' @importFrom utils .DollarNames
 .DollarNames.Image <- function(x, pattern = "") {
-    character()
+    names <- ls(x, all.names=F, pattern = pattern)
+    retain <- c('saveAs')
+    names <- intersect(names, retain)
+    names
 }

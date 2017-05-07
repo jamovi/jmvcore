@@ -126,7 +126,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
 
             private$.titleValue <- paste0(private$.options$eval(private$.titleExpr, .key=private$.key, .name=private$.name, .index=private$.index))
         },
-        .render=function(...) {
+        .createImages=function(...) {
             FALSE
         },
         .optionsChanged=function(...) {
@@ -134,6 +134,9 @@ ResultsElement <- R6::R6Class("ResultsElement",
         },
         .has=function(name) {
             paste0(".", name) %in% names(private)
+        },
+        get=function(name) {
+            stop("This element does not support get()")
         },
         setError = function(message) {
             if ( ! is.character(message) || length(message) != 1)
