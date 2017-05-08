@@ -237,7 +237,11 @@ Analysis <- R6::R6Class("Analysis",
                 on.exit(private$.data <- NULL)
             }
 
-            ev <- parse(text=paste0('private$', funName, '(image, ...)'))
+            t <- themes[[self$options$theme]]
+            if (is.null(t))
+                t <- themes$default
+
+            ev <- parse(text=paste0('private$', funName, '(image, theme = t, ...)'))
             result <- eval(ev)
 
             if (identical(result, FALSE))
@@ -298,7 +302,11 @@ Analysis <- R6::R6Class("Analysis",
             if (noThrow)
                 try <- tryStack
 
-            ev <- parse(text=paste0('private$', funName, '(image, ...)'))
+            t <- themes[[self$options$theme]]
+            if (is.null(t))
+                t <- themes$default
+
+            ev <- parse(text=paste0('private$', funName, '(image, theme = t, ...)'))
             result <- try(eval(ev), silent=TRUE)
 
             if (dataRequired)
