@@ -11,6 +11,7 @@ Options <- R6::R6Class(
         .pb=NA,
         .env=NA,
         .ppi=72,
+        .theme='default',
         .requiresData=TRUE),
     active=list(
         analysis=function(analysis) {
@@ -31,6 +32,7 @@ Options <- R6::R6Class(
         },
         names=function() names(private$.options),
         ppi=function() private$.ppi,
+        theme=function() private$.theme,
         options=function() private$.options),
     public=list(
         initialize=function(requiresData=TRUE, ...) {
@@ -46,6 +48,8 @@ Options <- R6::R6Class(
             args <- list(...)
             if ('.ppi' %in% names(args))
                 private$.ppi <- args$.ppi
+            if ('.theme' %in% names(args))
+                private$.theme <- args$.theme
 
             private$.env[["levels"]] <- self$levels
         },
@@ -229,6 +233,8 @@ Options <- R6::R6Class(
 
                 if (name == '.ppi') {
                     private$.ppi <- value
+                } else if (name == '.theme') {
+                    private$.theme <- value
                 } else {
                     private$.options[[name]]$value <- value
                     private$.env[[name]] <- private$.options[[name]]$value
