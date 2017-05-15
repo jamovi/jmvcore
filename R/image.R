@@ -132,6 +132,12 @@ Image <- R6::R6Class("Image",
                 path=path)
 
             result <- super$asProtoBuf(incAsText=incAsText, status=status)
+
+            if (status == jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE &&
+                ( ! is.null(self$state)) &&
+                path == '')
+                    result$status <- jamovi.coms.AnalysisStatus$ANALYSIS_RENDERING
+
             result$image <- image
             result
         },
