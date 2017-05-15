@@ -241,7 +241,7 @@ Analysis <- R6::R6Class("Analysis",
             if (is.null(t))
                 t <- themes$default
 
-            ev <- parse(text=paste0('private$', funName, '(image, theme = t, ...)'))
+            ev <- parse(text=paste0('private$', funName, '(image, theme = t$theme, ggtheme = t$ggtheme, ...)'))
             result <- eval(ev)
 
             if (identical(result, FALSE))
@@ -306,7 +306,7 @@ Analysis <- R6::R6Class("Analysis",
             if (is.null(t))
                 t <- themes$default
 
-            ev <- parse(text=paste0('private$', funName, '(image, theme = t, ...)'))
+            ev <- parse(text=paste0('private$', funName, '(image, theme = t$theme, ggtheme = t$ggtheme, ...)'))
             result <- try(eval(ev), silent=TRUE)
 
             if (dataRequired)
