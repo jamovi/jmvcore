@@ -230,6 +230,9 @@ Analysis <- R6::R6Class("Analysis",
             if (isTRUE(private$.completeWhenFilled) && self$results$isFilled())
                 private$.status <- 'complete'
         },
+        render=function() {
+            # deprecated
+        },
         .render=function(funName, image, ...) {
 
             if (image$requiresData && is.null(private$.data)) {
