@@ -10,7 +10,8 @@
 themes <- R6::R6Class(
     active=list(
         hadley = function() {
-            ggtheme <- ggplot2::theme(
+            if (requireNamespace('ggplot2'))
+                ggtheme <- ggplot2::theme(
                         text = ggplot2::element_text(size=16, colour='#333333'),
                         plot.background = ggplot2::element_rect(fill='transparent', color=NA),
                         panel.background = ggplot2::element_rect(fill='#E8E8E8'),
@@ -26,6 +27,8 @@ themes <- R6::R6Class(
                         legend.text = ggplot2::element_text(colour='#333333'),
                         strip.text.x = ggplot2::element_text(colour='#333333'),
                         strip.text.y = ggplot2::element_text(colour='#333333'))
+            else
+                ggtheme <- NULL
 
             theme <- private$.getTheme('hadley')
 
@@ -34,13 +37,16 @@ themes <- R6::R6Class(
             return(t)
         },
         default = function() {
-            ggtheme <- self$hadley$ggtheme + ggplot2::theme(
+            if (requireNamespace('ggplot2'))
+                ggtheme <- self$hadley$ggtheme + ggplot2::theme(
                         panel.background=ggplot2::element_rect(fill='transparent', color=NA),
                         axis.line = ggplot2::element_line(size = .5, colour = "#333333"),
                         panel.grid.major = ggplot2::element_blank(),
                         panel.grid.minor = ggplot2::element_blank(),
                         legend.key = ggplot2::element_blank(),
                         strip.background = ggplot2::element_rect(fill='transparent', color=NA))
+            else
+                ggtheme <- NULL
 
             theme <- private$.getTheme('default')
 
@@ -49,13 +55,16 @@ themes <- R6::R6Class(
             return(t)
         },
         iheartspss = function() {
-            ggtheme <- self$hadley$ggtheme + ggplot2::theme(
+            if (requireNamespace('ggplot2'))
+                ggtheme <- self$hadley$ggtheme + ggplot2::theme(
                         panel.border = ggplot2::element_rect(colour="#333333", fill=NA, size=0.5),
                         panel.background = ggplot2::element_rect(fill='#F0F0F0'),
                         panel.grid.major = ggplot2::element_blank(),
                         panel.grid.minor = ggplot2::element_blank(),
                         legend.key = ggplot2::element_blank(),
                         strip.background = ggplot2::element_rect(fill='transparent', color=NA))
+            else
+                ggtheme <- NULL
 
             theme <- private$.getTheme('iheartspss')
 
@@ -64,7 +73,8 @@ themes <- R6::R6Class(
             return(t)
         },
         minimal = function() {
-            ggtheme <- self$hadley$ggtheme + ggplot2::theme(
+            if (requireNamespace('ggplot2'))
+                ggtheme <- self$hadley$ggtheme + ggplot2::theme(
                         panel.background= ggplot2::element_rect(fill='transparent', color=NA),
                         axis.line = ggplot2::element_blank(),
                         panel.grid = ggplot2::element_blank(),
@@ -73,6 +83,8 @@ themes <- R6::R6Class(
                         axis.ticks = ggplot2::element_blank(),
                         legend.key = ggplot2::element_blank(),
                         strip.background = ggplot2::element_rect(fill='transparent', color=NA))
+            else
+                ggtheme <- NULL
 
             theme <- private$.getTheme('minimal')
 
@@ -82,7 +94,8 @@ themes <- R6::R6Class(
         },
         liberace = function() {
 
-            ggtheme <- self$hadley$ggtheme + ggplot2::theme(
+            if (requireNamespace('ggplot2'))
+                ggtheme <- self$hadley$ggtheme + ggplot2::theme(
                         panel.background=ggplot2::element_rect(fill='#FAFAD2'),
                         plot.background = ggplot2::element_rect(fill='#EEE8AA'),
                         axis.ticks = ggplot2::element_line(size = .5, colour = "#C5B358"),
@@ -97,6 +110,8 @@ themes <- R6::R6Class(
                         strip.text.x = ggplot2::element_text(colour='#996515'),
                         strip.text.y = ggplot2::element_text(colour='#996515'),
                         strip.background = ggplot2::element_rect(fill='transparent', color=NA))
+            else
+                ggtheme <- NULL
 
             theme <- private$.getTheme('liberace')
 
