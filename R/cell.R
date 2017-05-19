@@ -52,7 +52,14 @@ Cell <- R6::R6Class(
             self$symbols <- character()
         },
         isNotFilled=function() {
-            is.null(self$value) || is.na(self$value)
+            v <- self$value
+            if (is.null(v))
+                return(TRUE)
+            if (is.nan(v))
+                return(FALSE)
+            if (is.na(v))
+                return(TRUE)
+            return(FALSE)
         },
         isFilled=function() {
             ! self$isNotFilled()
