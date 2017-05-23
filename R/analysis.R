@@ -46,7 +46,7 @@ Analysis <- R6::R6Class("Analysis",
             def <- option$default
 
             if ( ! ((is.numeric(value) && isTRUE(all.equal(value, def))) || base::identical(value, def))) {
-                return(paste0(option$name, '=', sourcify(value, '    ')))
+                return(paste0(option$name, ' = ', sourcify(value, '    ')))
             }
             ''
         },
@@ -55,7 +55,7 @@ Analysis <- R6::R6Class("Analysis",
             sep <- '\n    '
 
             if (incData && self$options$requiresData) {
-                source <- paste0(sep, 'data=data')
+                source <- paste0(sep, 'data = data')
                 sep <- paste0(',\n    ')
             }
 
