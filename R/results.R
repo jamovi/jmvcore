@@ -160,9 +160,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
 
             initProtoBuf()
 
-            if (is.null(private$.visibleExpr))
-                v <- jamovi.coms.Visible$DEFAULT_YES
-            else if (identical(private$.visibleExpr, 'TRUE'))
+            if (identical(private$.visibleExpr, 'TRUE'))
                 v <- jamovi.coms.Visible$YES
             else if (identical(private$.visibleExpr, 'FALSE'))
                 v <- jamovi.coms.Visible$NO
