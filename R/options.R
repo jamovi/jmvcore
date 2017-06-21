@@ -63,9 +63,9 @@ Options <- R6::R6Class(
                 return(NULL)
             private$.analysis$data
         },
-        check=function() {
+        check=function(checkVars=TRUE) {
             for (option in private$.options)
-                option$check()
+                option$check(checkVars)
         },
         values=function() {
             private$.env
@@ -287,7 +287,7 @@ Option <- R6::R6Class(
         .parent=NA,
         .value=NA,
         .default=NA,
-        .check=function(data){},
+        .check=function(data, checkVars){},
         deep_clone=function(name, value) {
             value
         }),
@@ -306,12 +306,12 @@ Option <- R6::R6Class(
                     private[[pname]] <- args[[name]]
             }
         },
-        check=function() {
+        check=function(checkVars=TRUE) {
             if ( ! is.null(private$.parent))
                 data <- private$.parent$.getData()
             else
                 data <- NULL
-            private$.check(data)
+            private$.check(data, checkVars)
         },
         getBoundValue=function(args) {
             self$value
@@ -344,7 +344,7 @@ OptionBool <- R6::R6Class(
         }
     ),
     private=list(
-        .check=function(data) {
+        .check=function(data, checkVars) {
             if (length(private$.value) == 1 &&
                 private$.value != FALSE &&
                 private$.value != TRUE)
@@ -380,7 +380,7 @@ OptionList <- R6::R6Class(
     private=list(
         .options=NA,
         .default=NA,
-        .check=function(data) {
+        .check=function(data, checkVars) {
             if ( ! (private$.value %in% private$.options)) {
                 options <- paste("'", private$.options, "'", collapse=", ", sep="")
                 reject("Argument '{a}' must be one of {options}", code="a_must_be_one_of", a=self$name, options=options)
@@ -420,7 +420,7 @@ OptionNMXList <- R6::R6Class(
     private=list(
         .options=character(),
         .default=character(),
-        .check=function(data) {
+        .check=function(data, checkVars) {
             badValues <- private$.value[ ! (private$.value %in% private$.options)]
             if (length(badValues) > 0) {
                 options <- paste0("'", private$.options, "'", collapse=', ')
@@ -446,7 +446,7 @@ OptionVariables <- R6::R6Class(
         .rejectInf=TRUE,
         .rejectMissing=FALSE,
         .permitted=NA,
-        .check=function(data) {
+        .check=function(data, checkVars) {
 
             value <- private$.value
 
@@ -455,6 +455,9 @@ OptionVariables <- R6::R6Class(
 
             if (is.character(value) == FALSE && is.list(value) == FALSE)
                 reject("Argument '{a}' must be a character vector", code="a_is_not_a_string", a=self$name)
+
+            if ( ! checkVars)
+                return()
 
             notInDataset <- value[ ! (value %in% names(data))]
             if (length(notInDataset) == 1) {
@@ -535,16 +538,16 @@ OptionNumber <- R6::R6Class(
     private=list(
         .min=-Inf,
         .max=Inf,
-        .default=0
+        .default=0,
+        .check=function(data, checkVars) {
+            value <- self$value
+            if (value > private$.max || value < private$.min)
+                reject('{title} must be between {min} and {max} (is {value})', title=private$.title, min=private$.min, max=private$.max, value=value)
+        }
     ),
     public=list(
         initialize=function(name, value=0, ...) {
             super$initialize(name, value, ...)
-        },
-        check=function() {
-            value <- self$value
-            if (value > private$.max || value < private$.min)
-                reject('{title} must be between {min} and {max} (is {value})', title=private$.title, min=private$.min, max=private$.max, value=value)
         }
     ))
 
@@ -588,7 +591,7 @@ OptionGroup <- R6::R6Class(
         }),
     private=list(
         .elements=NA,
-        .check=function(data) {
+        .check=function(data, checkVars) {
             for (option in private$.elements)
                 option$check()
         },
@@ -680,7 +683,7 @@ OptionArray <- R6::R6Class(
         .template=NA,
         .elements=NA,
         .isNull=TRUE,
-        .check=function(data) {
+        .check=function(data, checkVars) {
         },
         deep_clone=function(name, value) {
 

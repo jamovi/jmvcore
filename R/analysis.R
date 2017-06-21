@@ -117,8 +117,8 @@ Analysis <- R6::R6Class("Analysis",
 
             private$.checkpointCB <- NULL
         },
-        check=function() {
-            private$.options$check()
+        check=function(checkVars=TRUE) {
+            private$.options$check(checkVars=checkVars)
         },
         setStatus=function(status) {
             private$.status <- status
@@ -152,8 +152,9 @@ Analysis <- R6::R6Class("Analysis",
                     private$.data <- select(private$.data, self$options$varsRequired)
                 }
 
-                self$options$check()
+                self$options$check(checkVars=FALSE)  # don't check vars till after the .update()
                 self$results$.update()
+                self$options$check()
 
                 private$.init()
             }, silent=TRUE)
