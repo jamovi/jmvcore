@@ -43,6 +43,10 @@ Image <- R6::R6Class("Image",
 
             private$.path <- NULL
         },
+        setSize=function(width, height) {
+            private$.width  <- width
+            private$.height <- height
+        },
         isFilled=function() {
             if (private$.stale)
                 return(FALSE)
