@@ -326,11 +326,17 @@ Analysis <- R6::R6Class("Analysis",
                 self$setError(message, stack)
                 private$.status <- 'error'
                 result <- FALSE
+            } else if (identical(result, TRUE)) {
+                # do nothing
+            } else if (identical(result, FALSE)) {
+                # do nothing
+            } else {
+                result <- FALSE
             }
 
             if (is.function(private$.resourcesPathSource)) {
 
-                if (result)
+                if (isTRUE(result))
                     image$.setPath(paths$relPath)
                 else
                     image$.setPath(NULL)
