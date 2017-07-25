@@ -27,28 +27,7 @@ Html <- R6::R6Class("Html",
         content=function(value) {
             if (base::missing(value))
                 return(private$.content)
-            knitted <- knitr::knit_print(value)
-
-            knitMeta <- attr(knitted, 'knit_meta')
-            if ( ! is.null(knitMeta)) {
-                knitMeta <- knitMeta[[1]]
-
-                package  <- self$analysis$package
-
-                srcPath  <- normalizePath(knitMeta$src$file)
-                rootPath <- normalizePath(system.file(package=package))
-                relPath  <- substring(srcPath, nchar(rootPath))
-
-                scripts <- sapply(knitMeta$script,     function(x) file.path(relPath, x), USE.NAMES=FALSE)
-                sss     <- sapply(knitMeta$stylesheet, function(x) file.path(relPath, x), USE.NAMES=FALSE)
-
-                private$.scripts <- scripts
-                private$.stylesheets <- sss
-            }
-
-            attributes(knitMeta) <- NULL
-            private$.content <- knitted
-            private$.stale <- FALSE
+            self$setContent(value)
             base::invisible(self)
         }
     ),
@@ -66,6 +45,37 @@ Html <- R6::R6Class("Html",
                 title=title,
                 visible=visible,
                 clearWith=clearWith)
+        },
+        setContent=function(value) {
+
+            knitted <- knitr::knit_print(value)
+
+            knitMeta <- attr(knitted, 'html_dependencies')
+            if ( ! is.null(knitMeta)) {
+                knitMeta <- knitMeta[[1]]
+
+                package  <- self$analysis$package
+
+                srcPath  <- normalizePath(knitMeta$src$file)
+                rootPath <- normalizePath(system.file(package=package))
+                relPath  <- substring(srcPath, nchar(rootPath)+1)
+
+                joinPaths <- function(path) {
+                    if (identical(relPath, ''))
+                        return(path)
+                    file.path(relPath, path)
+                }
+
+                scripts <- sapply(knitMeta$script,     joinPaths, USE.NAMES=FALSE)
+                sss     <- sapply(knitMeta$stylesheet, joinPaths, USE.NAMES=FALSE)
+
+                private$.scripts <- scripts
+                private$.stylesheets <- sss
+            }
+
+            attributes(knitMeta) <- NULL
+            private$.content <- knitted
+            private$.stale <- FALSE
         },
         isFilled=function() {
             if (private$.stale)
