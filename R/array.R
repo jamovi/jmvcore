@@ -97,7 +97,7 @@ Array <- R6::R6Class("Array",
 
             super$.update()
 
-            if (length(private$.template) == 0)
+            if (is.null(private$.template))
                 return()
 
             error <- NULL
