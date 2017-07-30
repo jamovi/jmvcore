@@ -16,6 +16,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
         .clearWith=NA,
         .state=NA,
         .stale=FALSE,
+        .refs=list(),
         deep_clone=function(name, value) {
             value
         }),
@@ -27,6 +28,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
         visible=function() private$.visibleValue,
         title=function() private$.titleValue,
         state=function() private$.state,
+        refs=function() private$.refs,
         path=function() {
             if ("ResultsElement" %in% class(self$.parent))
                 return(paste(self$.parent$path, self$name, sep="/"))
@@ -54,7 +56,8 @@ ResultsElement <- R6::R6Class("ResultsElement",
             name,
             title,
             visible,
-            clearWith) {
+            clearWith,
+            refs=list()) {
 
             private$.options <- options
             private$.name <- name
@@ -158,8 +161,6 @@ ResultsElement <- R6::R6Class("ResultsElement",
         },
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
 
-            initProtoBuf()
-
             if (identical(private$.visibleExpr, 'TRUE'))
                 v <- jamovi.coms.Visible$YES
             else if (identical(private$.visibleExpr, 'FALSE'))
@@ -171,8 +172,8 @@ ResultsElement <- R6::R6Class("ResultsElement",
 
             if (private$.status == 'error')
                 s <- jamovi.coms.AnalysisStatus$ANALYSIS_ERROR
-            else if (self$isFilled())
-                s <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE
+            # else if (self$isFilled())  # this takes a surprising amount of time
+            #     s <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE
             else if (private$.status == 'running')
                 s <- jamovi.coms.AnalysisStatus$ANALYSIS_RUNNING
             else if (private$.status == 'inited')
@@ -205,7 +206,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
                 state <- raw()
             }
 
-            element <- RProtoBuf::new(jamovi.coms.ResultsElement,
+            element <- RProtoBuf_new(jamovi.coms.ResultsElement,
                 name=private$.name,
                 title=self$title,
                 stale=private$.stale,
@@ -214,7 +215,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
                 visible=v)
 
             if (private$.status == 'error') {
-                error <- RProtoBuf::new(jamovi.coms.Error,
+                error <- RProtoBuf_new(jamovi.coms.Error,
                                         message=private$.error)
                 element$error <- error
                 element$status <- jamovi.coms.AnalysisStatus$ANALYSIS_ERROR

@@ -263,7 +263,8 @@ Table <- R6::R6Class("Table",
             type='number',
             format='',
             combineBelow=FALSE,
-            sortable=FALSE) {
+            sortable=FALSE,
+            value=NA) {
 
             if ( ! isString(name))
                 reject('Table$addColumn(): name must be a string')
@@ -296,7 +297,7 @@ Table <- R6::R6Class("Table",
 
             for (i in seq_len(private$.rowCount)) {
                 rowKey <- private$.rowKeys[[i]]
-                column$addCell(.key=rowKey, .index=i)
+                column$addCell(.key=rowKey, .index=i, value=value)
             }
 
             if (is.na(index)) {
@@ -317,6 +318,8 @@ Table <- R6::R6Class("Table",
 
                 private$.columns <- newColumns
             }
+
+            column
         },
         addRow=function(rowKey, values=list()) {
 
@@ -750,9 +753,8 @@ Table <- R6::R6Class("Table",
             }
         },
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
-            initProtoBuf()
 
-            table <- RProtoBuf::new(jamovi.coms.ResultsTable)
+            table <- RProtoBuf_new(jamovi.coms.ResultsTable)
 
             for (column in private$.columns)
                 table$add("columns", column$asProtoBuf())
@@ -763,7 +765,7 @@ Table <- R6::R6Class("Table",
             table$rowSelected <- self$rowSelected - 1
 
             for (note in private$.notes) {
-                notePB <- RProtoBuf::new(
+                notePB <- RProtoBuf_new(
                     jamovi.coms.ResultsTableNote,
                     key=note$key,
                     note=note$note,
@@ -776,7 +778,7 @@ Table <- R6::R6Class("Table",
                 table$sortSelect <- sortSelect
                 sort <- self$sortSelected
                 if ( ! identical(sort$sortBy, '')) {
-                    sortPB <- RProtoBuf::new(
+                    sortPB <- RProtoBuf_new(
                         jamovi.coms.Sort,
                         sortBy=sort$sortBy,
                         sortDesc=sort$sortDesc)

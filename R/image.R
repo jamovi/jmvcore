@@ -124,13 +124,12 @@ Image <- R6::R6Class("Image",
             utf8(paste0(pieces, collapse=""))
         },
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
-            initProtoBuf()
 
             path <- private$.path
             if (is.null(path))
                 path=''
 
-            image <- RProtoBuf::new(jamovi.coms.ResultsImage,
+            image <- RProtoBuf_new(jamovi.coms.ResultsImage,
                 width=private$.width,
                 height=private$.height,
                 path=path)

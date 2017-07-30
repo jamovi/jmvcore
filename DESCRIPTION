@@ -12,6 +12,7 @@ Description: 'jamovi' is a framework for creating rich interactive statistical
 URL: https://www.jamovi.org
 BugReports: https://github.com/jamovi/jmvcore/issues
 License: GPL (>= 2)
+ByteCompile: yes
 Depends:
     R (>= 3.2)
 Imports:

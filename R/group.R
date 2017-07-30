@@ -37,14 +37,16 @@ Group <- R6::R6Class("Group",
             name=NULL,
             title='no title',
             visible=TRUE,
-            clearWith=NULL) {
+            clearWith=NULL,
+            refs=list()) {
 
             super$initialize(
                 options=options,
                 name=name,
                 title=title,
                 visible=visible,
-                clearWith=clearWith)
+                clearWith=clearWith,
+                refs=refs)
 
             private$.items <- list()
         },
@@ -143,7 +145,7 @@ Group <- R6::R6Class("Group",
         asProtoBuf=function(incAsText=FALSE, status=NULL, prepend=NULL, append=NULL) {
             initProtoBuf()
 
-            group <- RProtoBuf::new(jamovi.coms.ResultsGroup)
+            group <- RProtoBuf_new(jamovi.coms.ResultsGroup)
 
             for (prep in prepend)
                 group$add("elements", prep)

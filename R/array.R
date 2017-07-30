@@ -104,7 +104,7 @@ Array <- R6::R6Class("Array",
 
             newKeys <- try(private$.options$eval(private$.itemsExpr, .key=private$.key, .name=private$.name, .index=private$.index), silent=TRUE)
 
-            if (base::inherits(newKeys, "try-error")) {
+            if (inherits(newKeys, "try-error")) {
                 error <- newKeys
                 newKeys <- list()
             } else if (is.list(newKeys)) {
@@ -234,9 +234,8 @@ Array <- R6::R6Class("Array",
             }
         },
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
-            initProtoBuf()
 
-            array <- RProtoBuf::new(jamovi.coms.ResultsArray)
+            array <- RProtoBuf_new(jamovi.coms.ResultsArray)
 
             for (item in private$.items)
                 array$add("elements", item$asProtoBuf(incAsText=incAsText, status=status))

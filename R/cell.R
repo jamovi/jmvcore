@@ -68,14 +68,12 @@ Cell <- R6::R6Class(
             self$footnotes <- c(self$footnotes, note)
         },
         addFormat=function(format) {
-            self$format <- base::bitwOr(self$format, format)
+            self$format <- bitwOr(self$format, format)
         },
         addSymbol=function(symbol) {
             self$symbols <- c(self$symbols, symbol)
         },
         fromProtoBuf=function(cellPB) {
-            if ( ! base::inherits(cellPB, "Message"))
-                reject("Cell$fromProtoBuf(): expects a jamovi.coms.ResultsCell")
 
             if (cellPB$has('i')) {
                 self$value <- cellPB$i
@@ -95,29 +93,37 @@ Cell <- R6::R6Class(
             self$sortKey <- cellPB$sortKey
         },
         asProtoBuf=function() {
-            initProtoBuf()
-            cell <- RProtoBuf::new(jamovi.coms.ResultsCell)
 
-            vc <- class(self$value)
+            cell <- RProtoBuf_new(jamovi.coms.ResultsCell,
+                        footnotes = self$footnotes,
+                        symbols = self$symbols,
+                        format = self$format,
+                        sortKey = self$sortKey)
 
-            if (vc == "integer") {
-                if (is.na(self$value))
-                    cell$o <- jamovi.coms.ResultsCell.Other$MISSING
-                else
-                    cell$i <- self$value
-            } else if (vc == "numeric")
-                cell$d <- self$value
-            else if (vc == "character")
-                cell$s <- self$value
-            else if (vc == "logical" && is.nan(vc))
-                cell$o <- jamovi.coms.ResultsCell.Other$NOT_A_NUMBER
-            else
+            v <- self$value
+
+            if (length(v) != 1) {
                 cell$o <- jamovi.coms.ResultsCell.Other$MISSING
-
-            cell$footnotes <- self$footnotes
-            cell$symbols   <- self$symbols
-            cell$format    <- self$format
-            cell$sortKey <- self$sortKey
+            }
+            else if (inherits(v, "numeric")) {
+                cell$d <- v
+            }
+            else if (is.na(v)) {
+                if (is.nan(v))
+                    cell$d <- NaN
+                else
+                    cell$o <- jamovi.coms.ResultsCell.Other$MISSING
+            }
+            else if (inherits(v, "integer")) {
+                cell$i <- v
+            }
+            else if (inherits(v, "character")) {
+                cell$s <- v
+            }
+            else {
+                cell$o <- jamovi.coms.ResultsCell.Other$NOT_A_NUMBER
+            }
 
             cell
         }))
+

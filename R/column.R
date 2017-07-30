@@ -37,7 +37,7 @@ Column <- R6::R6Class("Column",
             private$.width
         },
         visible=function(value) {
-            if (base::missing(value)) {
+            if (missing(value)) {
                 if (is.null(private$.visibleExpr) || identical(private$.visibleExpr, 'TRUE'))
                     return(TRUE)
                 else if (identical(private$.visibleExpr, 'FALSE'))
@@ -50,7 +50,7 @@ Column <- R6::R6Class("Column",
                     return( ! is.null(v))
             }
             private$.visibleExpr <- paste(value)
-            base::invisible(self)
+            invisible(self)
         }),
     public=list(
         initialize=function(
@@ -208,13 +208,14 @@ Column <- R6::R6Class("Column",
             return(v)
         },
         asProtoBuf=function() {
-            initProtoBuf()
 
-            if (is.null(private$.visibleExpr))
+            vexpr <- private$.visibleExpr
+
+            if (is.null(vexpr))
                 v <- jamovi.coms.Visible$DEFAULT_YES
-            else if (identical(private$.visibleExpr, 'TRUE'))
+            else if (identical(vexpr, 'TRUE'))
                 v <- jamovi.coms.Visible$YES
-            else if (identical(private$.visibleExpr, 'FALSE'))
+            else if (identical(vexpr, 'FALSE'))
                 v <- jamovi.coms.Visible$NO
             else if (self$visible)
                 v <- jamovi.coms.Visible$DEFAULT_YES
@@ -225,7 +226,7 @@ Column <- R6::R6Class("Column",
             if (self$hasSuperTitle)
                 superTitle <- self$superTitle
 
-            column <- RProtoBuf::new(jamovi.coms.ResultsColumn,
+            column <- RProtoBuf_new(jamovi.coms.ResultsColumn,
                 name=private$.name,
                 title=private$.title,
                 type=private$.type,
@@ -242,8 +243,6 @@ Column <- R6::R6Class("Column",
             column
         },
         fromProtoBuf=function(columnPB) {
-            if ( ! base::inherits(columnPB, "Message"))
-                reject("Cell$fromProtoBuf(): expects a jamovi.coms.ResultsColumn")
 
             cellsPB <- columnPB$cells
 
