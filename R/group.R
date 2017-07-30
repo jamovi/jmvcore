@@ -143,9 +143,7 @@ Group <- R6::R6Class("Group",
             }
         },
         asProtoBuf=function(incAsText=FALSE, status=NULL, prepend=NULL, append=NULL) {
-            initProtoBuf()
-
-            group <- RProtoBuf_new(jamovi.coms.ResultsGroup)
+            group <- RProtoBuf::new(jamovi.coms.ResultsGroup)
 
             for (prep in prepend)
                 group$add("elements", prep)

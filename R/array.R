@@ -148,6 +148,13 @@ Array <- R6::R6Class("Array",
 
             item <- private$.template$clone(deep=TRUE)
             item$.parent <- self
+
+            if (inherits(item, 'Group')) {
+                for (child in item$items) {
+                    child$.parent <- item
+                }
+            }
+
             item$.setKey(key, index)
             item$.update()
 

@@ -30,20 +30,20 @@ ResultsElement <- R6::R6Class("ResultsElement",
         state=function() private$.state,
         refs=function() private$.refs,
         path=function() {
-            if ("ResultsElement" %in% class(self$.parent))
+            if (inherits(self$.parent, "ResultsElement"))
                 return(paste(self$.parent$path, self$name, sep="/"))
             else
                 return(self$name)
         },
         root=function() {
             parent <- self
-            while ("ResultsElement" %in% class(parent))
+            while (inherits(parent, "ResultsElement"))
                 parent <- parent$.parent
             parent
         },
         analysis=function() {
             parent <- self$.parent
-            while ("ResultsElement" %in% class(parent))
+            while (inherits(parent, "ResultsElement"))
                 parent <- parent$.parent
             parent
         },
