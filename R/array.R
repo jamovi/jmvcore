@@ -198,7 +198,7 @@ Array <- R6::R6Class("Array",
             else
                 return(element$.lookup(path))
         },
-        fromProtoBuf=function(element, oChanges=NULL, vChanges=NULL) {
+        fromProtoBuf=function(element, oChanges, vChanges) {
             if ( ! base::inherits(element, "Message"))
                 reject("Array$fromProtoBuf() expects a jamovi.coms.ResultsElement")
 
@@ -236,7 +236,10 @@ Array <- R6::R6Class("Array",
 
                 fromItemIndex <- arrayPBIndicesByName[[itemName]]
                 if ( ! is.null(fromItemIndex)) {
-                    private$.items[[i]]$fromProtoBuf(arrayPB$elements[[fromItemIndex]], oChanges, vChanges)
+
+                    item <- private$.items[[i]]
+                    elementPB <- arrayPB$elements[[fromItemIndex]]
+                    item$fromProtoBuf(elementPB, oChanges, vChanges)
                 }
             }
         },

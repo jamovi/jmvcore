@@ -87,7 +87,7 @@ Html <- R6::R6Class("Html",
         asString=function() {
             "\n  [No plain text representation available]\n\n"
         },
-        fromProtoBuf=function(element, oChanges=NULL, vChanges=NULL) {
+        fromProtoBuf=function(element, oChanges, vChanges) {
             if ( ! base::inherits(element, "Message"))
                 reject("Table$fromProtoBuf() expects a jamovi.coms.ResultsElement")
 
@@ -106,7 +106,7 @@ Html <- R6::R6Class("Html",
                     }
                 }
             }
-            super$fromProtoBuf(element)
+            super$fromProtoBuf(element, oChanges, vChanges)
             private$.content <- element$html$content
             private$.scripts <- element$html$scripts
             private$.stylesheets <- element$html$stylesheets

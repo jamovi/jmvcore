@@ -679,7 +679,7 @@ Table <- R6::R6Class("Table",
 
             paste0(pieces, collapse="")
         },
-        fromProtoBuf=function(element, oChanges=NULL, vChanges=NULL) {
+        fromProtoBuf=function(element, oChanges, vChanges) {
             if ( ! base::inherits(element, "Message"))
                 reject("Table$fromProtoBuf() expects a jamovi.coms.ResultsElement")
 
@@ -698,7 +698,7 @@ Table <- R6::R6Class("Table",
             bound <- self$getBoundVars(private$.rowsExpr)
             changes <- vChanges[vChanges %in% bound]
 
-            super$fromProtoBuf(element)
+            super$fromProtoBuf(element, oChanges, vChanges)
 
             tablePB <- element$table
             columnsPB <- tablePB$columns

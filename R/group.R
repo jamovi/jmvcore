@@ -124,7 +124,7 @@ Group <- R6::R6Class("Group",
 
             utf8(paste0(pieces, collapse=""))
         },
-        fromProtoBuf=function(pb, oChanges=NULL, vChanges=NULL) {
+        fromProtoBuf=function(pb, oChanges, vChanges) {
             if ( ! "Message" %in% class(pb))
                 reject("Group::fromProtoBuf(): expected a jamovi.coms.ResultsElement")
 
@@ -132,7 +132,7 @@ Group <- R6::R6Class("Group",
             if (someChanges && base::identical('*', private$.clearWith))
                 return()
 
-            super$fromProtoBuf(pb)
+            super$fromProtoBuf(pb, oChanges, vChanges)
 
             for (itemPB in pb$group$elements) {
                 itemName <- itemPB$name

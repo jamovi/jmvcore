@@ -223,7 +223,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
 
             element
         },
-        fromProtoBuf=function(pb, oChanges=NULL, vChanges=NULL) {
+        fromProtoBuf=function(pb, oChanges, vChanges) {
 
             someChanges <- length(oChanges) > 0 || length(vChanges) > 0
             if (someChanges && base::identical('*', private$.clearWith))

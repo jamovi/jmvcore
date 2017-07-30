@@ -136,15 +136,20 @@ Image <- R6::R6Class("Image",
 
             result <- super$asProtoBuf(incAsText=incAsText, status=status)
 
-            if (status == jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE &&
+            if (self$isFilled()) {
+
+                result$status <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE
+
+            } else if (status == jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE &&
                 ( ! is.null(self$state)) &&
-                path == '')
+                path == '') {
                     result$status <- jamovi.coms.AnalysisStatus$ANALYSIS_RENDERING
+            }
 
             result$image <- image
             result
         },
-        fromProtoBuf=function(element, oChanges=NULL, vChanges=NULL) {
+        fromProtoBuf=function(element, oChanges, vChanges) {
             if ( ! base::inherits(element, "Message"))
                 reject("Image$fromProtoBuf() expects a jamovi.coms.ResultsElement")
 
@@ -160,7 +165,7 @@ Image <- R6::R6Class("Image",
                     return()
             }
 
-            super$fromProtoBuf(element)
+            super$fromProtoBuf(element, oChanges, vChanges)
 
             image <- element$image
 

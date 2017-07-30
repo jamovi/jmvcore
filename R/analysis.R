@@ -372,7 +372,7 @@ Analysis <- R6::R6Class("Analysis",
                         pb <- RProtoBuf_read(jamovi.coms.ResultsElement, conn)
                         close(conn)
 
-                        self$results$fromProtoBuf(pb)
+                        self$results$fromProtoBuf(pb, NULL, NULL)
                     }
                 }
             })
