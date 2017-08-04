@@ -547,7 +547,9 @@ Table <- R6::R6Class("Table",
             pieces <- c(pieces, self$.footerForPrint())
             pieces <- c(pieces, '\n')
 
-            utf8(paste0(pieces, collapse=""))
+            v <- paste0(pieces, collapse="")
+            Encoding(v) <- 'UTF-8'
+            v
         },
         .titleForPrint=function() {
 

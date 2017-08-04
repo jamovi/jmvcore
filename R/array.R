@@ -183,7 +183,9 @@ Array <- R6::R6Class("Array",
             if (noneVisible)
                 return('')
 
-            utf8(paste0(pieces, collapse=""))
+            v <- paste0(pieces, collapse="")
+            Encoding(v) <- 'UTF-8'
+            v
         },
         .lookup=function(path) {
             if (length(path) == 0 || identical(path, ""))

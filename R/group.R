@@ -122,7 +122,9 @@ Group <- R6::R6Class("Group",
             if (noneVisible)
                 return('')
 
-            utf8(paste0(pieces, collapse=""))
+            v <- paste0(pieces, collapse="")
+            Encoding(v) <- 'UTF-8'
+            v
         },
         fromProtoBuf=function(pb, oChanges, vChanges) {
             if ( ! "Message" %in% class(pb))

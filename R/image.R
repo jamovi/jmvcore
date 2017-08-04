@@ -121,7 +121,9 @@ Image <- R6::R6Class("Image",
             pieces <- c(' ', private$.title, '\n')
             pieces <- c(pieces, '\n ', private$.path, '\n')
 
-            utf8(paste0(pieces, collapse=""))
+            v <- paste0(pieces, collapse="")
+            Encoding(v) <- 'UTF-8'
+            v
         },
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
 
