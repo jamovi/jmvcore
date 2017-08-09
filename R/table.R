@@ -714,7 +714,9 @@ Table <- R6::R6Class("Table",
 
             for (i in seq_along(columnsPB)) {
                 columnPB <- columnsPB[[i]]
-                columnPBIndicesByName[[columnPB$name]] <- i
+                columnPBname <- columnPB$name
+                Encoding(columnPBname) <- 'UTF-8'
+                columnPBIndicesByName[[columnPBname]] <- i
                 cellsPB <- columnPB$cells
                 colCells <- list()
                 for (j in seq_along(cellsPB))
@@ -730,7 +732,9 @@ Table <- R6::R6Class("Table",
                 if (any(keyElems %in% changes))
                     next()
 
-                fromRowIndex <- indexOf(rowName, tablePB$rowNames)
+                tablePBrowNames <- tablePB$rowNames
+                Encoding(tablePBrowNames) <- 'UTF-8'
+                fromRowIndex <- indexOf(rowName, tablePBrowNames)
 
                 if ( ! is.na(fromRowIndex)) {
 

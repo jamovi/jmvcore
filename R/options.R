@@ -726,8 +726,10 @@ parseOptionPB <- function(pb) {
         value <- pb$i
     else if (pb$has('d'))
         value <- pb$d
-    else if (pb$has('s'))
+    else if (pb$has('s')) {
         value <- pb$s
+        Encoding(value) <- 'UTF-8'
+    }
     else if (pb$has('o')) {
 
         # this isn't necessary, but without it the R linter complains :/
