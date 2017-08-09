@@ -1,14 +1,12 @@
 Package: jmvcore
 Type: Package
 Title: Dependencies for the 'jamovi' Framework
-Version: 0.7
-Date: 2017-08-03
+Version: 0.7.1
+Date: 2017-08-05
 Author: Jonathon Love
 Maintainer: Jonathon Love <jon@thon.cc>
-Description: 'jamovi' is a framework for creating rich interactive statistical
-    analyses (see <https://www.jamovi.org> for more information). This package
-    represents the core libraries which jamovi analyses written in R depend
-    upon.
+Description: A framework for creating rich interactive analyses for the jamovi
+    platform (see <https://www.jamovi.org> for more information).
 URL: https://www.jamovi.org
 BugReports: https://github.com/jamovi/jmvcore/issues
 License: GPL (>= 2)
