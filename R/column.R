@@ -23,7 +23,13 @@ Column <- R6::R6Class("Column",
         }),
     active=list(
         name=function() private$.name,
-        title=function() private$.title,
+        title=function() {
+            t <- private$.title
+            t <- gsub('</sub>$', '', t)
+            t <- gsub('</sub>', '-', t, fixed=TRUE)
+            t <- gsub('<sub>', '-', t, fixed=TRUE)
+            t
+        },
         type=function() private$.type,
         format=function() paste0(private$.format, collapse=','),
         combineBelow=function() private$.combineBelow,
@@ -142,7 +148,7 @@ Column <- R6::R6Class("Column",
         },
         .measure=function() {
             base::Encoding(private$.title) <- 'UTF-8'
-            titleWidth <- nchar(private$.title)
+            titleWidth <- nchar(self$title)
 
             p <- ('pvalue' %in% private$.format)
             zto <- ('zto' %in% private$.format)
@@ -157,13 +163,14 @@ Column <- R6::R6Class("Column",
             private$.measured <- TRUE
         },
         .titleForPrint=function(width=NULL) {
-            base::Encoding(private$.title) <- 'UTF-8'
+            t <- self$title
+            base::Encoding(t) <- 'UTF-8'
             if (is.null(width))
                 width <- self$width
-            w <- nchar(private$.title)
+            w <- nchar(t)
             pad <- spaces(max(0, width - w))
 
-            paste0(private$.title, pad)
+            paste0(t, pad)
         },
         .cellForPrint=function(i, measures=NULL, width=NA) {
             if ( ! private$.measured)
