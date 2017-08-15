@@ -13,6 +13,7 @@ Analysis <- R6::R6Class("Analysis",
         .status="none",
         .completeWhenFilled=FALSE,
         .init=function() NULL,
+        .clear=function(vChanges) NULL,
         .run=function() NULL,
         .readDataset=NA,
         .readDatasetHeader=NA,
@@ -154,9 +155,10 @@ Analysis <- R6::R6Class("Analysis",
 
                 self$options$check(checkVars=FALSE)  # don't check vars till after the .update()
                 self$results$.update()
-                self$options$check()
+                self$options$check(checkVars=TRUE)
 
                 private$.init()
+
             }, silent=TRUE)
 
             if ( ! self$options$requiresData) {
@@ -232,11 +234,14 @@ Analysis <- R6::R6Class("Analysis",
                 private$.results$fromProtoBuf(pb$results, oChanges, vChanges)
             }
 
+            private$.clear(vChanges)
+
             if (isTRUE(private$.completeWhenFilled) && self$results$isFilled())
                 private$.status <- 'complete'
         },
         render=function() {
             # deprecated
+            # can remove this once laken's pushes the new TOSTER to CRAN
         },
         .render=function(funName, image, ...) {
 
