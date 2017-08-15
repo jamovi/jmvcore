@@ -267,8 +267,8 @@ ResultsElement <- R6::R6Class("ResultsElement",
             value
         },
         print=function() {
-            self$.render()
             cat(self$asString())
+            self$.render()
         },
         .parent=NA))
 
