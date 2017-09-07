@@ -113,7 +113,7 @@ Group <- R6::R6Class("Group",
             pieces <- c('\n ', base::toupper(self$title), '\n')
 
             for (item in private$.items) {
-                if (item$visible) {
+                if (item$visible && ! is(item, 'Image')) {
                     pieces <- c(pieces, item$asString())
                     noneVisible <- FALSE
                 }

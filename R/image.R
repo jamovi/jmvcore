@@ -114,16 +114,7 @@ Image <- R6::R6Class("Image",
             private$.path <- path
         },
         asString=function() {
-
-            if (is.null(private$.path))
-                return('')
-
-            pieces <- c(' ', private$.title, '\n')
-            pieces <- c(pieces, '\n ', private$.path, '\n')
-
-            v <- paste0(pieces, collapse="")
-            Encoding(v) <- 'UTF-8'
-            v
+            return('')
         },
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
 
