@@ -171,7 +171,7 @@ Array <- R6::R6Class("Array",
 
             noneVisible <- TRUE
 
-            pieces <- c('\n ', base::toupper(self$title), '\n')
+            pieces <- c()
 
             for (item in private$.items) {
                 if (item$visible) {
@@ -184,6 +184,10 @@ Array <- R6::R6Class("Array",
                 return('')
 
             v <- paste0(pieces, collapse="")
+            if (v == '')
+                return('')
+
+            v <- paste0('\n ', base::toupper(self$title), '\n', v)
             Encoding(v) <- 'UTF-8'
             v
         },
