@@ -524,7 +524,19 @@ OptionTerms <- R6::R6Class(
 #' @export
 OptionInteger <- R6::R6Class(
     "OptionInteger",
-    inherit=Option)
+    inherit=Option,
+    private=list(
+        .min=-Inf,
+        .max=Inf,
+        .default=0,
+        .check=function(data, checkVars) {
+            value <- self$value
+            if (value > private$.max || value < private$.min)
+                reject('{title} must be between {min} and {max} (is {value})', title=private$.title, min=private$.min, max=private$.max, value=value)
+            else if (! value %% 1==0)
+                reject('{title} must be an integer value (is {value})', title=private$.title, value=value)
+        }
+    ))
 
 #' @rdname Options
 #' @export
