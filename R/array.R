@@ -9,7 +9,8 @@ Array <- R6::R6Class("Array",
         .itemKeys=NA,
         .template=NA,
         .itemsExpr="0",
-        .itemsValue=0),
+        .itemsValue=0,
+        .layout='none'),
     active=list(
         items=function() private$.items,
         itemNames=function() private$.itemNames,
@@ -29,7 +30,9 @@ Array <- R6::R6Class("Array",
             title='no title',
             visible=TRUE,
             clearWith=NULL,
-            items=0) {
+            items=0,
+            layout='none',
+            ...) {
 
             super$initialize(
                 options=options,
@@ -40,6 +43,7 @@ Array <- R6::R6Class("Array",
 
             private$.template <- template
             private$.itemsExpr <- paste(items)
+            private$.layout <- layout
 
             private$.items <- list()
             private$.itemKeys <- list()
