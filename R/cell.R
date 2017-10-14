@@ -30,6 +30,10 @@ Cell.BEGIN_END_GROUP <- 3
 #' @export
 Cell.NEGATIVE <- 4
 
+#' @rdname Cell.BEGIN_GROUP
+#' @export
+Cell.INDENTED <- 8
+
 Cell <- R6::R6Class(
     "Cell",
     active=list(
@@ -126,4 +130,3 @@ Cell <- R6::R6Class(
 
             cell
         }))
-
