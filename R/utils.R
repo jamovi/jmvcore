@@ -999,13 +999,15 @@ canBeNumeric <- function(object) {
 #' @export
 toB64 <- function(names) {
     sapply(names, function(name) {
-        name <- base64enc::base64encode(charToRaw(name))
+        if (nchar(name) > 0)
+            name <- base64enc::base64encode(charToRaw(name))
         if (endsWith(name, '=='))
             name <- substring(name, 1, nchar(name)-2)
         else if (endsWith(name, '='))
             name <- substring(name, 1, nchar(name)-1)
         name <- gsub('+', '.', name, fixed=TRUE)
         name <- gsub('/', '_', name, fixed=TRUE)
+        name <- paste0('.', name)
     }, USE.NAMES=FALSE)
 }
 
@@ -1013,6 +1015,7 @@ toB64 <- function(names) {
 #' @export
 fromB64 <- function(names) {
     sapply(names, function(name) {
+        name <- substring(name, 2)
         name <- gsub('.', '+', name, fixed=TRUE)
         name <- gsub('_', '/', name, fixed=TRUE)
         rawToChar(base64enc::base64decode(name))
