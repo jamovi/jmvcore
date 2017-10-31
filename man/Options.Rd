@@ -12,6 +12,7 @@
 \alias{OptionInteger}
 \alias{OptionNumber}
 \alias{OptionString}
+\alias{OptionLevel}
 \alias{OptionGroup}
 \alias{OptionSort}
 \alias{OptionArray}
@@ -38,6 +39,8 @@ OptionInteger
 OptionNumber
 
 OptionString
+
+OptionLevel
 
 OptionGroup
 

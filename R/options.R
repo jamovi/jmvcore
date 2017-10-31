@@ -567,6 +567,12 @@ OptionString <- R6::R6Class(
 
 #' @rdname Options
 #' @export
+OptionLevel <- R6::R6Class(
+    "OptionString",
+    inherit=Option)
+
+#' @rdname Options
+#' @export
 OptionGroup <- R6::R6Class(
     "OptionGroup",
     inherit=Option,
