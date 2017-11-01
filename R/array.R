@@ -256,6 +256,8 @@ Array <- R6::R6Class("Array",
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
 
             array <- RProtoBuf_new(jamovi.coms.ResultsArray)
+            if (identical(private$.layout, 'listSelect'))
+                array$layout <- jamovi.coms.ResultsArray$LayoutType$LIST_SELECT
 
             for (item in private$.items)
                 array$add("elements", item$asProtoBuf(incAsText=incAsText, status=status))
