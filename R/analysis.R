@@ -418,9 +418,7 @@ Analysis <- R6::R6Class("Analysis",
             response$analysisId <- self$analysisId
             response$name <- private$.name
             response$ns   <- private$.package
-            response$version$major <- private$.version[1]
-            response$version$minor <- private$.version[2]
-            response$version$revision <- private$.version[3]
+            response$version <- private$.version[1] * 16777216 + private$.version[2] * 65536 + private$.version[3] * 256
             response$revision <- private$.revision
 
             if (private$.status == "inited") {

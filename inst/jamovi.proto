@@ -28,12 +28,6 @@ message ComsMessage {
     Error error = 6;
 }
 
-message Version {
-    int32 major = 1;
-    int32 minor = 2;
-    int32 revision = 3;
-}
-
 message AnalysisRequest {
     string datasetId = 1;
     int32 analysisId = 2;
@@ -76,7 +70,7 @@ message AnalysisResponse {
     int32 analysisId = 2;
     string name = 3;
     string ns = 4;
-    Version version = 5;
+    // Version version = 5;
     AnalysisOptions options = 6;
     ResultsElement results = 7;
     AnalysisStatus status = 8;
@@ -85,6 +79,7 @@ message AnalysisResponse {
     int32 revision = 11;
     bool restartEngines = 12;
     string stacktrace = 13;
+    uint32 version = 14;
 }
 
 message AnalysisOption {
@@ -228,211 +223,4 @@ message ResultsElement {
 
     bytes state = 14;
     Visible visible = 15;
-}
-
-
-// CLIENT
-
-message Progress {
-    uint32 progress = 1;
-    uint32 total = 2;
-}
-
-message InstanceRequest {
-}
-
-message InstanceResponse {
-}
-
-message OpenRequest {
-    string filename = 1;
-}
-
-message OpenProgress {
-}
-
-message SaveRequest {
-    string filename = 1;
-    bool overwrite = 2;
-    bool export = 3;
-    string part = 4;
-    string format = 5;
-    bool incContent = 6;
-    bytes content = 7;
-}
-
-message SaveProgress {
-    bool fileExists = 1;
-    bool success = 2;
-}
-
-message FSEntry {
-    string path = 1;
-
-    enum Type {
-        FILE = 0;
-        FOLDER = 1;
-        DRIVE = 2;
-        SPECIAL_FOLDER = 3;
-    }
-
-    Type type = 2;
-    string name = 3;
-}
-
-message FSRequest {
-    string path = 1;
-}
-
-message FSResponse {
-    repeated FSEntry contents = 1;
-    string errorMessage = 2;
-}
-
-message DataSetEntry {
-    string name = 1;
-    string path = 2;
-    string location = 3;
-    string description = 4;
-}
-
-message AnalysisMeta {
-    string name = 1;
-    string ns = 2;
-    string title = 3;
-
-    string menuGroup = 4;
-    string menuSubgroup = 5;
-    string menuTitle = 6;
-    string menuSubtitle = 7;
-}
-
-message ModuleMeta {
-    string name = 1;
-    string title = 2;
-    Version version = 3;
-    string description = 4;
-    repeated string authors = 5;
-    repeated AnalysisMeta analyses = 6;
-    string path = 10;
-    bool isSystem = 11;
-    bool new = 12;
-}
-
-message SettingsRequest {
-}
-
-message SettingsResponse {
-    repeated DataSetEntry recents = 1;
-    repeated DataSetEntry examples = 2;
-    repeated ModuleMeta modules = 3;
-}
-
-message StoreRequest {
-}
-
-message StoreResponse {
-    repeated ModuleMeta modules = 1;
-}
-
-message VariableLevel {
-    string label = 1;
-    int32 value = 2;
-}
-
-message DataSetSchema {
-    message ColumnSchema {
-        int32 id = 1;
-        string name = 2;
-        int32 index = 3;
-
-        enum MeasureType {
-            NONE = 0;
-            NOMINAL_TEXT = 1;
-            NOMINAL = 2;
-            ORDINAL = 3;
-            CONTINUOUS = 4;
-        }
-
-        MeasureType measureType = 4;
-        bool autoMeasure = 5;
-        int32 width = 6;
-        bool hasLevels = 7;
-        repeated VariableLevel levels = 8;
-        int32 dps = 9;
-        string importName = 10;
-    }
-    repeated ColumnSchema columns = 1;
-    uint32 rowCount = 5;
-    uint32 columnCount = 6;
-    uint32 vRowCount = 7;
-    uint32 vColumnCount = 8;
-}
-
-enum GetSet {
-    GET = 0;
-    SET = 1;
-}
-
-message InfoRequest {
-}
-
-message InfoResponse {
-    bool hasDataSet = 1;
-    string title = 2;
-    string path = 3;
-    bool edited = 4;
-    bool blank = 5;
-    DataSetSchema schema = 6;
-    repeated AnalysisResponse analyses = 9;
-}
-
-enum SpecialValues {
-    MISSING = 0;
-    NOT_A_NUMBER = 1;
-}
-
-message DataSetRR {
-
-    GetSet op = 1;
-
-    bool incData = 2;
-    bool incSchema = 3;
-
-    uint32 rowStart = 4;
-    uint32 columnStart = 5;
-    uint32 rowEnd = 6;
-    uint32 columnEnd = 7;
-
-    message ColumnData {
-
-        message CellValue {
-            oneof type {
-                int32 i = 1;
-                double d = 2;
-                string s = 3;
-                SpecialValues o = 4;
-            }
-        }
-
-        repeated CellValue values = 1;
-    }
-
-    repeated ColumnData data = 8;
-    DataSetSchema schema = 9;
-
-    bool incSerializedData = 10;
-    bytes serializedData = 11;
-}
-
-message ModuleRequest {
-
-    enum ModuleCommand {
-        INSTALL = 0;
-        UNINSTALL = 1;
-    }
-
-    ModuleCommand command = 1;
-    string name = 2;
-    string path = 3;
 }
