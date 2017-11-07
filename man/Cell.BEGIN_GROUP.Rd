@@ -6,6 +6,7 @@
 \alias{Cell.END_GROUP}
 \alias{Cell.BEGIN_END_GROUP}
 \alias{Cell.NEGATIVE}
+\alias{Cell.INDENTED}
 \title{Constants to specify formatting of Table cells}
 \format{An object of class \code{numeric} of length 1.}
 \usage{
@@ -16,6 +17,8 @@ Cell.END_GROUP
 Cell.BEGIN_END_GROUP
 
 Cell.NEGATIVE
+
+Cell.INDENTED
 }
 \description{
 Cell.BEGIN_GROUP adds spacing above a cell
