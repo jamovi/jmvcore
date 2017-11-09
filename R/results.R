@@ -17,6 +17,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
         .state=NA,
         .stale=FALSE,
         .refs=list(),
+        .parent=NA,
         deep_clone=function(name, value) {
             value
         }),
@@ -30,25 +31,28 @@ ResultsElement <- R6::R6Class("ResultsElement",
         state=function() private$.state,
         refs=function() private$.refs,
         path=function() {
-            if (inherits(self$.parent, "ResultsElement"))
-                return(paste(self$.parent$path, self$name, sep="/"))
+            if (inherits(private$.parent, "ResultsElement"))
+                return(paste(private$.parent$path, self$name, sep="/"))
             else
                 return(self$name)
         },
         root=function() {
             parent <- self
             while (inherits(parent, "ResultsElement"))
-                parent <- parent$.parent
+                parent <- parent$parent
             parent
         },
         analysis=function() {
-            parent <- self$.parent
+            parent <- private$.parent
             while (inherits(parent, "ResultsElement"))
-                parent <- parent$.parent
+                parent <- parent$parent
             parent
         },
         status=function() {
             private$.status
+        },
+        parent=function() {
+            private$.parent
         }),
     public=list(
         initialize=function(
@@ -270,7 +274,9 @@ ResultsElement <- R6::R6Class("ResultsElement",
             cat(self$asString())
             self$.render()
         },
-        .parent=NA))
+        .setParent=function(parent) {
+            private$.parent <- parent
+        }))
 
 
 #' @export

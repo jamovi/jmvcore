@@ -154,13 +154,7 @@ Array <- R6::R6Class("Array",
         .createItem=function(key, index) {
 
             item <- private$.template$clone(deep=TRUE)
-            item$.parent <- self
-
-            if (inherits(item, 'Group')) {
-                for (child in item$items) {
-                    child$.parent <- item
-                }
-            }
+            item$.setParent(self)
 
             item$.setKey(key, index)
             item$.update()
@@ -270,6 +264,11 @@ Array <- R6::R6Class("Array",
             result <- super$asProtoBuf(incAsText=incAsText, status=status)
             result$array <- array
             result
+        },
+        .setParent=function(parent) {
+            private$.parent <- parent
+            for (item in private$.items)
+                item$.setParent(self)
         })
 )
 

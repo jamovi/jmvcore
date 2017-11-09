@@ -111,7 +111,7 @@ Analysis <- R6::R6Class("Analysis",
             private$.revision <- revision
             private$.completeWhenFilled <- completeWhenFilled
 
-            private$.results$.parent <- self
+            private$.results$.setParent(self)
             private$.options$analysis <- self
 
             private$.options$addChangeListener(private$.optionsChangedHandler)

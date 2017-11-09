@@ -74,7 +74,7 @@ Group <- R6::R6Class("Group",
             rendered
         },
         add=function(item) {
-            item$.parent = self
+            item$.setParent(self)
             private$.items[[item$name]] <- item
         },
         isFilled=function() {
@@ -157,6 +157,11 @@ Group <- R6::R6Class("Group",
             result$group <- group
 
             result
+        },
+        .setParent=function(parent) {
+            private$.parent <- parent
+            for (item in private$.items)
+                item$.setParent(self)
         })
 )
 
