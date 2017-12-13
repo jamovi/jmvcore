@@ -84,7 +84,9 @@ Cell <- R6::R6Class(
             } else if (cellPB$has('d')) {
                 self$value <- cellPB$d
             } else if (cellPB$has('s')) {
-                self$value <- cellPB$s
+                v <- cellPB$s
+                Encoding(v) <- 'UTF-8'
+                self$value <- v
             } else if (cellPB$has('o')) {
                 if (cellPB$o == jamovi.coms.ResultsCell.Other$MISSING)
                     self$value <- NA
