@@ -428,9 +428,6 @@ measureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7, type='num
             elem <- elem$value
         }
 
-        if (pc)
-            elem <- elem * 100
-
         if (is.null(elem)) {
 
             maxstr <- max(maxstr, 1)  # width of '.'
@@ -475,6 +472,9 @@ measureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7, type='num
 
             # non-scientific values
 
+            if (pc)
+                elem <- elem * 100
+
             if (is.integer(elem))
                 dp <- max(dp, 0)
             else
@@ -486,6 +486,9 @@ measureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7, type='num
         } else {
 
             # scientific values
+
+            if (pc)
+                elem <- elem * 100
 
             exp <- floor(log10(abs(elem)))
             man <- elem / (10 ^ exp)
