@@ -1002,6 +1002,8 @@ canBeNumeric <- function(object) {
 #' @export
 toB64 <- function(names) {
     sapply(names, function(name) {
+        if (is.na(name))
+            return(NA)
         if (nchar(name) > 0)
             name <- base64enc::base64encode(charToRaw(name))
         if (endsWith(name, '=='))
@@ -1018,6 +1020,8 @@ toB64 <- function(names) {
 #' @export
 fromB64 <- function(names) {
     sapply(names, function(name) {
+        if (is.na(name))
+            return(NA)
         name <- substring(name, 2)
         name <- gsub('.', '+', name, fixed=TRUE)
         name <- gsub('_', '/', name, fixed=TRUE)
