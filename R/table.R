@@ -176,7 +176,7 @@ Table <- R6::R6Class("Table",
                     }
                 }
                 if (length(rows) == 0)
-                    reject("No such row: '{}'", col, code=NULL)
+                    reject("No such row: '{}'", rjson::toJSON(rowKey), code=NULL)
             } else {
                 rows <- seq_along(private$.rowKeys)
             }
