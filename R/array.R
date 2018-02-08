@@ -209,16 +209,27 @@ Array <- R6::R6Class("Array",
             if ( ! base::inherits(element, "Message"))
                 reject("Array$fromProtoBuf() expects a jamovi.coms.ResultsElement")
 
+            clear <- FALSE
+
             someChanges <- length(oChanges) > 0 || length(vChanges) > 0
-            if (someChanges && base::identical('*', private$.clearWith))
-                return()
+            if (someChanges && base::identical('*', private$.clearWith)) {
+                clear <- TRUE
+            } else if (base::any(oChanges %in% private$.clearWith)) {
+                clear <- TRUE
+            } else {
+                for (clearName in private$.clearWith) {
+                    if (base::any(vChanges %in% private$.options$option(clearName)$vars)) {
+                        clear <- TRUE
+                        break()
+                    }
+                }
+            }
 
-            if (base::any(oChanges %in% private$.clearWith))
+            if (clear) {
+                layoutParamName <- paste('results', self$path, 'selected', sep='/')
+                if (self$options$has(layoutParamName))
+                    self$options$.removeOption(layoutParamName)
                 return()
-
-            for (clearName in private$.clearWith) {
-                if (base::any(vChanges %in% private$.options$option(clearName)$vars))
-                    return()
             }
 
             bound <- self$getBoundVars(private$.itemsExpr)

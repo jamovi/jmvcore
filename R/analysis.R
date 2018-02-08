@@ -219,7 +219,7 @@ Analysis <- R6::R6Class("Analysis",
         },
         .save=function() {
             path <- private$.statePathSource()
-            pb <- self$asProtoBuf(incOptions=TRUE)
+            pb <- self$asProtoBuf()
             RProtoBuf_serialize(pb, path)
         },
         .load=function(vChanges=character()) {
@@ -408,7 +408,7 @@ Analysis <- R6::R6Class("Analysis",
         optionsChangedHandler=function(optionNames) {
             private$.status <- "none"
         },
-        asProtoBuf=function(incOptions=FALSE, incAsText=FALSE) {
+        asProtoBuf=function(incAsText=FALSE) {
 
             self$init()
             initProtoBuf()
@@ -444,13 +444,12 @@ Analysis <- R6::R6Class("Analysis",
                 response$results <- self$results$asProtoBuf(incAsText=incAsText, status=response$status, prepend=prepend);
             }
 
-            if (incOptions)
-                response$options <- private$.options$asProtoBuf()
+            response$options <- private$.options$asProtoBuf()
 
             response
         },
-        serialize=function(incOptions=FALSE, incAsText=FALSE) {
-            serial <- tryStack(RProtoBuf_serialize(self$asProtoBuf(incOptions=incOptions, incAsText=incAsText), NULL))
+        serialize=function(incAsText=FALSE) {
+            serial <- tryStack(RProtoBuf_serialize(self$asProtoBuf(incAsText=incAsText), NULL))
             if (isError(serial))
                 serial <- createErrorAnalysis(
                     as.character(serial),
