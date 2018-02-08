@@ -31,10 +31,16 @@ ResultsElement <- R6::R6Class("ResultsElement",
         state=function() private$.state,
         refs=function() private$.refs,
         path=function() {
-            if (inherits(private$.parent, "ResultsElement"))
-                return(paste(private$.parent$path, self$name, sep="/"))
-            else
+            if (inherits(private$.parent, "ResultsElement")) {
+                parentPath <- private$.parent$path
+                if (parentPath == '')
+                    return(self$name)
+                else
+                    return(paste(parentPath, self$name, sep="/"))
+            }
+            else {
                 return(self$name)
+            }
         },
         root=function() {
             parent <- self

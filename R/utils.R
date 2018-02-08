@@ -1064,3 +1064,19 @@ regexSub <- function(pattern, text, fun) {
     pieces <- sapply(pieces, fun, USE.NAMES=FALSE)
     replaceRegexMatches(text, match, pieces)
 }
+
+parseAddress <- function(address) {
+    if (nchar(address) == 0)
+        return (character())
+
+    match <- regexpr('^(.*?)\\/', address, perl=TRUE)
+    if (match != -1) {
+        n <- attr(match, 'match.length')
+        chunk   <- substring(address, 1, n - 1)
+        address <- substring(address, n + 1)
+        return (c(chunk, parseAddress(address)))
+    }
+
+    address
+}
+
