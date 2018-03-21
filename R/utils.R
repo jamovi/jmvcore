@@ -323,20 +323,20 @@ format <- function(str, ..., context="normal") {
 
     for (name in names(args)) {
         value <- args[[name]]
-        if (grepl("^\\..+", name)) {
+        if (grepl("^\\..+", name)[1]) {
             name <- sub(".", "$", name, fixed=TRUE)
             str  <- gsub(name, value[1], str, fixed=TRUE)
         }
     }
 
-    if (grepl("{}", str, fixed=TRUE)) {
+    if (grepl("{}", str, fixed=TRUE)[1]) {
 
         for (token in args)
             str <- sub("{}", stringify(token, context), str, fixed=TRUE)
 
     } else {
 
-        if (grepl("\\{[0-9]+\\}", str)) {
+        if (grepl("\\{[0-9]+\\}", str)[1]) {
 
             i <- 0
             for (token in args) {
@@ -345,7 +345,7 @@ format <- function(str, ..., context="normal") {
             }
 
         }
-        if (grepl("\\{[a-zA-Z]+\\}", str)) {
+        if (grepl("\\{[a-zA-Z]+\\}", str)[1]) {
 
             for (name in names(args)) {
                 if (name != "" && is.null(args[[name]]) == FALSE) {
@@ -1079,4 +1079,3 @@ parseAddress <- function(address) {
 
     address
 }
-
