@@ -30,6 +30,7 @@ tryStack <- function(expr, silent=FALSE) {
             stack <- utils::head(stack, -2)
             stack <- paste(stack, collapse='\n')
             stack <- paste0(as.character(e), '\n', stack)
+            stack <- stringi::stri_encode(stack, to='utf-8')
             byref$stack <- stack
         })
     , silent=silent)
@@ -772,8 +773,11 @@ extractErrorMessage <- function(error) {
     if (inherits(error, 'try-error'))
         error <- attr(error, 'condition')
 
-    if (inherits(error, 'simpleError'))
-        return(error$message)
+    if (inherits(error, 'simpleError')) {
+        message <- error$message
+        message <- stringi::stri_encode(message, to='utf-8')
+        return(message)
+    }
 
     return('Unknown error')
 }

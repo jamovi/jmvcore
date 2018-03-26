@@ -16,7 +16,8 @@ Depends:
 Imports:
     R6 (>= 1.0.1),
     rjson,
-    base64enc
+    base64enc,
+    stringi
 Suggests:
     testthat (>= 1.0.2),
     RProtoBuf,
