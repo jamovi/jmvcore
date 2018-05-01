@@ -48,7 +48,7 @@ Html <- R6::R6Class("Html",
         },
         setContent=function(value) {
 
-            knitted <- knitr::knit_print(value)
+            knitted <- knitr::knit(text=value)
 
             knitMeta <- attr(knitted, 'html_dependencies')
             if ( ! is.null(knitMeta)) {
