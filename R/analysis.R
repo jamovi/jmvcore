@@ -118,8 +118,11 @@ Analysis <- R6::R6Class("Analysis",
 
             private$.checkpointCB <- NULL
         },
-        check=function(checkVars=TRUE) {
-            private$.options$check(checkVars=checkVars)
+        check=function(checkValues=FALSE, checkVars=FALSE, checkData=FALSE) {
+            private$.options$check(
+                checkValues=checkValues,
+                checkVars=checkVars,
+                checkData=checkData)
         },
         setStatus=function(status) {
             private$.status <- status
@@ -153,11 +156,11 @@ Analysis <- R6::R6Class("Analysis",
                     private$.data <- select(private$.data, self$options$varsRequired)
                 }
 
-                self$options$check(checkVars=FALSE)  # don't check vars till after the .update()
+                self$options$check(checkValues=TRUE)
                 self$results$.update()
                 self$options$check(checkVars=TRUE)
-
                 private$.init()
+                self$options$check(checkData=TRUE)
 
             }, silent=TRUE)
 
@@ -172,6 +175,8 @@ Analysis <- R6::R6Class("Analysis",
                 stack <- attr(result, 'stack')
                 self$setError(message, stack)
                 private$.status <- 'error'
+            } else if (self$options$gtg == FALSE) {
+                private$.status <- 'complete'
             } else if (private$.status != 'complete') {
                 private$.status <- 'inited'
             }

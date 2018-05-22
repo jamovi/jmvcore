@@ -29,6 +29,12 @@ Options <- R6::R6Class(
             vars <- unique(vars)
             vars
         },
+        gtg=function() {
+            for (option in private$.options)
+                if ( ! option$gtg)
+                    return(FALSE)
+            TRUE
+        },
         names=function() names(private$.options),
         ppi=function() private$.ppi,
         theme=function() private$.theme,
@@ -62,9 +68,9 @@ Options <- R6::R6Class(
                 return(NULL)
             private$.analysis$data
         },
-        check=function(checkVars=TRUE) {
+        check=function(checkValues=FALSE, checkVars=FALSE, checkData=FALSE) {
             for (option in private$.options)
-                option$check(checkVars)
+                option$check(checkValues, checkVars, checkData)
         },
         values=function() {
             private$.env
@@ -306,7 +312,7 @@ Option <- R6::R6Class(
         .parent=NA,
         .value=NA,
         .default=NA,
-        .check=function(data, checkVars){},
+        .check=function(data, checkValues, checkVars, checkData) { },
         deep_clone=function(name, value) {
             value
         }),
@@ -325,12 +331,14 @@ Option <- R6::R6Class(
                     private[[pname]] <- args[[name]]
             }
         },
-        check=function(checkVars=TRUE) {
+        check=function(checkValues=FALSE, checkVars=FALSE, checkData=FALSE) {
+            if ( ! checkValues && ! checkVars && ! checkData)
+                checkValues <- checkVars <- checkData <- TRUE
             if ( ! is.null(private$.parent))
                 data <- private$.parent$.getData()
             else
                 data <- NULL
-            private$.check(data, checkVars)
+            private$.check(data, checkValues, checkVars, checkData)
         },
         getBoundValue=function(args) {
             self$value
@@ -345,6 +353,7 @@ Option <- R6::R6Class(
         name=function() private$.name,
         default=function() private$.default,
         vars=function() NULL,
+        gtg=function() TRUE,
         value=function(value) {
             if (missing(value))
                 return(private$.value)
@@ -362,7 +371,9 @@ OptionBool <- R6::R6Class(
         }
     ),
     private=list(
-        .check=function(data, checkVars) {
+        .check=function(data, checkValues, checkVars, checkData) {
+            if ( ! checkValues)
+                return()
             if (length(private$.value) == 1 &&
                 private$.value != FALSE &&
                 private$.value != TRUE)
@@ -398,7 +409,9 @@ OptionList <- R6::R6Class(
     private=list(
         .options=NA,
         .default=NA,
-        .check=function(data, checkVars) {
+        .check=function(data, checkValues, checkVars, checkData) {
+            if ( ! checkValues)
+                return()
             if ( ! (private$.value %in% private$.options)) {
                 options <- paste("'", private$.options, "'", collapse=", ", sep="")
                 reject("Argument '{a}' must be one of {options}", code="a_must_be_one_of", a=self$name, options=options)
@@ -437,7 +450,9 @@ OptionNMXList <- R6::R6Class(
     private=list(
         .options=character(),
         .default=character(),
-        .check=function(data, checkVars) {
+        .check=function(data, checkValues, checkVars, checkData) {
+            if ( ! checkValues)
+                return()
             badValues <- private$.value[ ! (private$.value %in% private$.options)]
             if (length(badValues) > 0) {
                 options <- paste0("'", private$.options, "'", collapse=', ')
@@ -457,67 +472,104 @@ OptionVariables <- R6::R6Class(
             if (missing(value))
                 return(private$.value)
             private$.value <- unlist(value)
+        },
+        gtg=function() {
+            ! (private$.required && length(private$.value) == 0)
         }),
     private=list(
         .rejectInf=TRUE,
         .rejectMissing=FALSE,
-        .permitted=NA,
-        .check=function(data, checkVars) {
+        .rejectUnusedLevels=FALSE,
+        .required=FALSE,
+        .permitted=list(
+            'numeric',
+            'factor'),
+        .check=function(data, checkValues, checkVars, checkData) {
 
             value <- private$.value
 
-            if (length(value) == 0)
-                return()
+            if (checkValues) {
 
-            if (is.character(value) == FALSE && is.list(value) == FALSE)
-                reject("Argument '{a}' must be a character vector", code="a_is_not_a_string", a=self$name)
+                if (length(value) == 0)
+                    return()
 
-            if ( ! checkVars)
-                return()
-
-            notInDataset <- value[ ! (value %in% names(data))]
-            if (length(notInDataset) == 1) {
-
-                reject("Argument '{a}' contains '{b}' which is not present in the dataset", code="a_is_not_in_b", a=self$name, b=notInDataset)
-
-            } else if (length(notInDataset) > 1) {
-
-                b <- paste(paste0("'", notInDataset, "'"), collapse=", ")
-                reject("Argument '{a}' contains {b} which are not present in the dataset", code="a_are_not_in_b", a=self$name, b=b)
+                if (is.character(value) == FALSE && is.list(value) == FALSE)
+                    reject("Argument '{a}' must be a character vector", code="a_is_not_a_string", a=self$name)
             }
 
-            if (class(private$.permitted) == 'character') {
-                permitted <- strsplit(private$.permitted, "|", fixed=TRUE)[[1]]
+            if (checkVars) {
 
-                for (columnName in value) {
+                notInDataset <- value[ ! (value %in% names(data))]
+                if (length(notInDataset) == 1) {
 
-                    column <- data[[columnName]]
-                    type <- columnType(column)
+                    reject("Argument '{a}' contains '{b}' which is not present in the dataset", code="a_is_not_in_b", a=self$name, b=notInDataset)
 
-                    if ((type %in% permitted) == FALSE)
-                        reject("Argument '{a}' specifies column '{b}' which is (and must not be) {c}", code="b_is_wrong_measure_type", a=self$name, b=columnName, c=columnTypeRDescription(column))
+                } else if (length(notInDataset) > 1) {
+
+                    b <- paste(paste0("'", notInDataset, "'"), collapse=", ")
+                    reject("Argument '{a}' contains {b} which are not present in the dataset", code="a_are_not_in_b", a=self$name, b=b)
                 }
             }
 
-            if (private$.rejectInf) {  # Infs rejected by default
+            if (checkData) {
 
-                for (columnName in value) {
+                if ( ! 'factor' %in% private$.permitted && ! 'nominaltext' %in% private$.permitted) {
+                    for (columnName in value) {
+                        column <- data[[columnName]]
+                        if ( ! is.numeric(column))
+                            reject("Argument '{a}' requires a numeric variable ('{b}' is not valid)", a=self$name, b=columnName)
+                    }
+                }
 
-                    column <- data[[columnName]]
-                    if (any(is.infinite(column)))
-                        reject("Argument '{a}' specifies column '{b}' which contains (and must not) infinite values", code="b_contains_infinite_values", a=self$name, b=columnName)
+                # if ( ! 'numeric' %in% private$.permitted && ! 'continuous' %in% private$.permitted) {
+                #     for (columnName in value) {
+                #         column <- data[[columnName]]
+                #         if ( ! is.numeric(column))
+                #             reject("Argument '{a}' requires a factor or factor-like object ('{b}' is not valid)", a=self$name, b=columnName)
+                #     }
+                # }
+
+                if ( ! 'id' %in% private$.permitted) {
+                    for (columnName in value) {
+                        column <- data[[columnName]]
+                        if (identical(attr(column, 'jmv-id'), TRUE))
+                            reject("Argument '{a}' does not permit ID variables ('{b}' is not valid)", a=self$name, b=columnName)
+                    }
+                }
+
+                if (private$.rejectInf) {  # Infs rejected by default
+
+                    for (columnName in value) {
+
+                        column <- data[[columnName]]
+                        if (any(is.infinite(column)))
+                            reject("Argument '{a}' specifies column '{b}' which contains (and must not) infinite values", code="b_contains_infinite_values", a=self$name, b=columnName)
+                    }
+                }
+
+                if (private$.rejectMissing) {  # missings not rejected by default
+
+                    for (columnName in value) {
+
+                        column <- data[[columnName]]
+                        if (any(is.na(column)))
+                            reject("Argument '{a}' specifies column '{b}' which contains (and must not) missing values (NAs)", code="b_contains_missing_values", a=self$name, b=columnName)
+                    }
+                }
+
+                if (private$.rejectUnusedLevels) {
+
+                    for (columnName in value) {
+                        column <- data[[columnName]]
+                        if (is.factor(column) && identical(attr(column, 'jmv-unused-levels'), TRUE))
+                            reject(
+                                "Column '{a}' contains (and must not) unused levels",
+                                code="b_contains_unused_levels",
+                                a=columnName)
+                    }
                 }
             }
 
-            if (private$.rejectMissing) {  # missings not rejected by default
-
-                for (columnName in value) {
-
-                    column <- data[[columnName]]
-                    if (any(is.na(column)))
-                        reject("Argument '{a}' specifies column '{b}' which contains (and must not) missing values (NAs)", code="b_contains_missing_values", a=self$name, b=columnName)
-                }
-            }
         })
     )
 
@@ -526,8 +578,69 @@ OptionVariables <- R6::R6Class(
 OptionVariable <- R6::R6Class(
     "OptionVariable",
     inherit=OptionString,
+    private=list(
+        .rejectUnusedLevels=FALSE,
+        .rejectInf=FALSE,
+        .rejectMissing=FALSE,
+        .required=FALSE,
+        .permitted=list(
+            'numeric',
+            'factor'),
+        .check=function(data, checkValues, checkVars, checkData) {
+
+            columnName <- private$.value
+
+            if (is.null(columnName))
+                return()
+
+            if (checkValues) {
+                if ( ! is.character(columnName))
+                    reject("Argument '{a}' must be a character vector", code="a_is_not_a_string", a=self$name)
+            }
+
+            if (checkVars) {
+                if ( ! columnName %in% names(data))
+                    reject("Argument '{a}' contains '{b}' which is not present in the dataset", code="a_is_not_in_b", a=self$name, b=columnName)
+            }
+
+            if (checkData) {
+
+                column <- data[[columnName]]
+
+                if ( ! 'factor' %in% private$.permitted && ! 'nominaltext' %in% private$.permitted && ! canBeNumeric(column))
+                    reject("Argument '{a}' requires a numeric variable ('{b}' is not valid)", a=self$name, b=columnName)
+
+                # if ( ! 'numeric' %in% private$.permitted && ! 'continuous' %in% private$.permitted && is.numeric(column))
+                #     reject("Argument '{a}' requires a factor or factor-like object ('{b}' is not valid)", a=self$name, b=columnName)
+
+                if ( ! 'id' %in% private$.permitted && identical(attr(column, 'jmv-id'), TRUE))
+                    reject("Argument '{a}' does not permit ID variables ('{b}' is not valid)", a=self$name, b=columnName)
+
+                if (private$.rejectInf) {  # Infs rejected by default
+                    if (any(is.infinite(column)))
+                        reject("Argument '{a}' specifies column '{b}' which contains (and must not) infinite values", code="b_contains_infinite_values", a=self$name, b=columnName)
+                }
+
+                if (private$.rejectMissing) {  # missings not rejected by default
+                    if (any(is.na(column)))
+                        reject("Argument '{a}' specifies column '{b}' which contains (and must not) missing values (NAs)", code="b_contains_missing_values", a=self$name, b=columnName)
+                }
+
+                if (private$.rejectUnusedLevels) {
+                    if (is.factor(column) && identical(attr(column, 'jmv-unused-levels'), TRUE))
+                        reject(
+                            "Column '{a}' contains (and must not) unused levels",
+                            code="b_contains_unused_levels",
+                            a=columnName)
+                }
+            }
+
+        }),
     active=list(
-        vars=function() private$.value))
+        vars=function() private$.value,
+        gtg=function() {
+            ! (private$.required && is.null(private$.value))
+        }))
 
 #' @rdname Options
 #' @export
@@ -549,11 +662,13 @@ OptionInteger <- R6::R6Class(
         .min=-Inf,
         .max=Inf,
         .default=0,
-        .check=function(data, checkVars) {
+        .check=function(data, checkValues, checkVars, checkData) {
+            if ( ! checkValues)
+                return()
             value <- self$value
             if (value > private$.max || value < private$.min)
                 reject('{title} must be between {min} and {max} (is {value})', title=private$.title, min=private$.min, max=private$.max, value=value)
-            else if (! value %% 1==0)
+            else if ( ! value %% 1==0)
                 reject('{title} must be an integer value (is {value})', title=private$.title, value=value)
         }
     ))
@@ -567,7 +682,9 @@ OptionNumber <- R6::R6Class(
         .min=-Inf,
         .max=Inf,
         .default=0,
-        .check=function(data, checkVars) {
+        .check=function(data, checkValues, checkVars, checkData) {
+            if ( ! checkValues)
+                return()
             value <- self$value
             if (value > private$.max || value < private$.min)
                 reject('{title} must be between {min} and {max} (is {value})', title=private$.title, min=private$.min, max=private$.max, value=value)
@@ -624,9 +741,9 @@ OptionGroup <- R6::R6Class(
         }),
     private=list(
         .elements=NA,
-        .check=function(data, checkVars) {
+        .check=function(data, checkValues, checkVars, checkData) {
             for (option in private$.elements)
-                option$check()
+                option$check(checkValues, checkVars, checkData)
         },
         deep_clone=function(name, value) {
 
@@ -715,8 +832,7 @@ OptionArray <- R6::R6Class(
         .template=NA,
         .elements=NA,
         .isNull=TRUE,
-        .check=function(data, checkVars) {
-        },
+        .check=function(data, checkValues, checkVars, checkData) { },
         deep_clone=function(name, value) {
 
             if (name == '.elements') {
