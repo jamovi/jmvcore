@@ -516,7 +516,7 @@ OptionVariables <- R6::R6Class(
                 if ( ! 'factor' %in% private$.permitted && ! 'nominaltext' %in% private$.permitted) {
                     for (columnName in value) {
                         column <- data[[columnName]]
-                        if ( ! is.numeric(column))
+                        if ( ! canBeNumeric(column))
                             reject("Argument '{a}' requires a numeric variable ('{b}' is not valid)", a=self$name, b=columnName)
                     }
                 }
