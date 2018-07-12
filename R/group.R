@@ -53,6 +53,9 @@ Group <- R6::R6Class("Group",
         get=function(name) {
             private$.items[[name]]
         },
+        clear=function() {
+            private$.items <- list()
+        },
         .render=function(...) {
             rendered <- FALSE
             if (self$visible) {
@@ -205,4 +208,3 @@ as.data.frame.Group <- function(x, ..., stringsAsFactors = default.stringsAsFact
     }
     names
 }
-
