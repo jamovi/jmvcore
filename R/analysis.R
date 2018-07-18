@@ -257,9 +257,7 @@ Analysis <- R6::R6Class("Analysis",
                 on.exit(private$.data <- NULL, add=TRUE)
             }
 
-            t <- themes[[self$options$theme]]
-            if (is.null(t))
-                t <- themes$default
+            t <- getGlobalTheme(self$options$theme, self$options$palette)
 
             ev <- parse(text=paste0('private$', funName, '(image, theme = t$theme, ggtheme = t$ggtheme, ...)'))
             result <- eval(ev)
@@ -323,9 +321,7 @@ Analysis <- R6::R6Class("Analysis",
             if (noThrow)
                 try <- tryStack
 
-            t <- themes[[self$options$theme]]
-            if (is.null(t))
-                t <- themes$default
+            t <- getGlobalTheme(self$options$theme, self$options$palette)
 
             ev <- parse(text=paste0('private$', funName, '(image, theme = t$theme, ggtheme = t$ggtheme, ...)'))
             result <- try(eval(ev), silent=TRUE)

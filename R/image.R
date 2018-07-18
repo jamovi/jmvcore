@@ -164,7 +164,7 @@ Image <- R6::R6Class("Image",
 
             private$.width <- image$width
             private$.height <- image$height
-            if (image$path == '' || 'theme' %in% oChanges)
+            if (image$path == '' || 'theme' %in% oChanges || 'palette' %in% oChanges)
                 private$.path <- NULL
             else
                 private$.path <- image$path
