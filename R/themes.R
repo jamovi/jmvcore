@@ -1,147 +1,209 @@
-#' The jamovi plot themes
+getGlobalTheme <- function(name, palette) {
+
+    ggtheme <- getGGTheme(name, palette)
+    theme <- getTheme(name, palette)
+
+    return(list(ggtheme=ggtheme, theme=theme))
+}
+
+getGGTheme <- function(name, palette) {
+
+    if (requireNamespace('ggplot2')) {
+
+        base_size <- 16
+
+        if (name == 'hadley')
+            ggtheme <- jmvcore::theme_hadley(base_size, palette)
+        else if (name == 'minimal')
+            ggtheme <- jmvcore::theme_min(base_size, palette)
+        else if (name == 'iheartspss')
+            ggtheme <- jmvcore::theme_spss(base_size, palette)
+        else
+            ggtheme <- jmvcore::theme_default(base_size, palette)
+
+    } else {
+
+        ggtheme <- NULL
+
+    }
+
+    return(ggtheme)
+}
+
+
+getTheme = function(name = 'default', palette = 'Dark2') {
+
+    theme <- list()
+
+    if (name == 'iheartspss') {
+
+        theme[['color']] <- c('#333333', '#333333')
+        theme[['fill']] <- c('#F0F0F0', '#d3ce97')
+        theme[['palette']] <- palette
+
+    } else {
+
+        theme[['color']] <- c('#333333', NULL)
+        theme[['fill']] <- c('#FFFFFF', 'grey35')
+        theme[['palette']] <- palette
+
+    }
+
+    return(theme)
+}
+
+#' Creates the hadley jmv ggplot2 theme
 #'
-#' This contains the following plot themes:
-#' `themes$default` is the default theme
-#' `themes$hadley` is a theme based on the default ggplot2 theme
-#' `themes$iheartspss` is a theme based on the default SPSS theme
-#' `themes$minimal` is a minimal theme
-#' `themes$liberace` is a gold theme
+#' @param base_size Font size
+#' @param palette Color palette name
+#'
+#' @return the hadley jmv ggplot2 theme
 #' @export
-themes <- R6::R6Class(
-    active=list(
-        hadley = function() {
-            if (requireNamespace('ggplot2'))
-                ggtheme <- ggplot2::theme(
-                        text = ggplot2::element_text(size=16, colour='#333333'),
-                        plot.background = ggplot2::element_rect(fill='transparent', color=NA),
-                        panel.background = ggplot2::element_rect(fill='#E8E8E8'),
-                        plot.margin = ggplot2::margin(15, 15, 15, 15),
-                        axis.text.x = ggplot2::element_text(margin=ggplot2::margin(5, 0, 0, 0)),
-                        axis.text.y = ggplot2::element_text(margin=ggplot2::margin(0, 5, 0, 0)),
-                        axis.title.x = ggplot2::element_text(margin=ggplot2::margin(10, 0, 0, 0)),
-                        axis.title.y = ggplot2::element_text(margin=ggplot2::margin(0, 10, 0, 0)),
-                        plot.title = ggplot2::element_text(margin=ggplot2::margin(0, 0, 15, 0)),
-                        legend.background = ggplot2::element_rect("transparent"),
-                        legend.key = ggplot2::element_rect(fill='#E8E8E8'),
-                        legend.title = ggplot2::element_text(colour='#333333'),
-                        legend.text = ggplot2::element_text(colour='#333333'),
-                        strip.text.x = ggplot2::element_text(colour='#333333'),
-                        strip.text.y = ggplot2::element_text(colour='#333333'))
-            else
-                ggtheme <- NULL
+theme_hadley <- function(base_size = 16, palette = 'Dark2') {
+    theme <- list(baseTheme(base_size))
 
-            theme <- private$.getTheme('hadley')
+    theme <- c(theme, ggPalette(palette))
 
-            t <- list('ggtheme'=ggtheme, 'theme'=theme)
+    return(theme)
+}
 
-            return(t)
-        },
-        default = function() {
-            if (requireNamespace('ggplot2'))
-                ggtheme <- self$hadley$ggtheme + ggplot2::theme(
-                        panel.background=ggplot2::element_rect(fill='transparent', color=NA),
-                        axis.line = ggplot2::element_line(size = .5, colour = "#333333"),
-                        panel.grid.major = ggplot2::element_blank(),
-                        panel.grid.minor = ggplot2::element_blank(),
-                        legend.key = ggplot2::element_blank(),
-                        strip.background = ggplot2::element_rect(fill='transparent', color=NA))
-            else
-                ggtheme <- NULL
+#' Creates the default jmv ggplot2 theme
+#'
+#' @param base_size Font size
+#' @param palette Color palette name
+#'
+#' @return the default jmv ggplot2 theme
+#' @export
+theme_default <- function(base_size = 16, palette = 'Dark2') {
+    theme <- list(ggplot2::`%+replace%`(
+        baseTheme(base_size),
+        ggplot2::theme(
+            panel.background=ggplot2::element_rect(fill='transparent', color=NA),
+            axis.line = ggplot2::element_line(size = .5, colour = "#333333"),
+            legend.key = ggplot2::element_blank(),
+            panel.grid.major = ggplot2::element_blank(),
+            panel.grid.minor = ggplot2::element_blank(),
+            strip.background = ggplot2::element_rect(fill='transparent', color=NA))))
 
-            theme <- private$.getTheme('default')
+    theme <- c(theme, ggPalette(palette))
 
-            t <- list('ggtheme'=ggtheme, 'theme'=theme)
+    return(theme)
+}
 
-            return(t)
-        },
-        iheartspss = function() {
-            if (requireNamespace('ggplot2'))
-                ggtheme <- self$hadley$ggtheme + ggplot2::theme(
-                        panel.border = ggplot2::element_rect(colour="#333333", fill=NA, size=0.5),
-                        panel.background = ggplot2::element_rect(fill='#F0F0F0'),
-                        panel.grid.major = ggplot2::element_blank(),
-                        panel.grid.minor = ggplot2::element_blank(),
-                        legend.key = ggplot2::element_blank(),
-                        strip.background = ggplot2::element_rect(fill='transparent', color=NA))
-            else
-                ggtheme <- NULL
+#' Creates the spss jmv ggplot2 theme
+#'
+#' @param base_size Font size
+#' @param palette Color palette name
+#'
+#' @return the spss jmv ggplot2 theme
+#' @export
+theme_spss <- function(base_size = 16, palette = 'Dark2') {
+    theme <- list(ggplot2::`%+replace%`(
+        baseTheme(base_size),
+        ggplot2::theme(
+            panel.border = ggplot2::element_rect(colour="#333333", fill=NA, size=0.5),
+            panel.background = ggplot2::element_rect(fill='#F0F0F0'),
+            panel.grid.major = ggplot2::element_blank(),
+            panel.grid.minor = ggplot2::element_blank(),
+            legend.key = ggplot2::element_blank(),
+            strip.background = ggplot2::element_rect(fill='transparent', color=NA))))
 
-            theme <- private$.getTheme('iheartspss')
+    theme <- c(theme, ggPalette(palette))
 
-            t <- list('ggtheme'=ggtheme, 'theme'=theme)
+    return(theme)
+}
 
-            return(t)
-        },
-        minimal = function() {
-            if (requireNamespace('ggplot2'))
-                ggtheme <- self$hadley$ggtheme + ggplot2::theme(
-                        panel.background= ggplot2::element_rect(fill='transparent', color=NA),
-                        axis.line = ggplot2::element_blank(),
-                        panel.grid = ggplot2::element_blank(),
-                        panel.grid.major = ggplot2::element_line(colour = '#E8E8E8'),
-                        panel.grid.minor = ggplot2::element_blank(),
-                        axis.ticks = ggplot2::element_blank(),
-                        legend.key = ggplot2::element_blank(),
-                        strip.background = ggplot2::element_rect(fill='transparent', color=NA))
-            else
-                ggtheme <- NULL
+#' Creates the minimal jmv ggplot2 theme
+#'
+#' @param base_size Font size
+#' @param palette Color palette name
+#'
+#' @return the minimal jmv ggplot2 theme
+#' @export
+theme_min <- function(base_size = 16, palette = 'Dark2') {
+    theme <- list(ggplot2::`%+replace%`(
+        baseTheme(base_size),
+        ggplot2::theme(
+            panel.background= ggplot2::element_rect(fill='transparent', color=NA),
+            axis.line = ggplot2::element_blank(),
+            panel.grid = ggplot2::element_blank(),
+            panel.grid.major = ggplot2::element_line(colour = '#E8E8E8'),
+            panel.grid.minor = ggplot2::element_blank(),
+            axis.ticks = ggplot2::element_blank(),
+            legend.key = ggplot2::element_blank(),
+            strip.background = ggplot2::element_rect(fill='transparent', color=NA))))
 
-            theme <- private$.getTheme('minimal')
+    theme <- c(theme, ggPalette(palette))
 
-            t <- list('ggtheme'=ggtheme, 'theme'=theme)
+    return(theme)
+}
 
-            return(t)
-        },
-        liberace = function() {
 
-            if (requireNamespace('ggplot2'))
-                ggtheme <- self$hadley$ggtheme + ggplot2::theme(
-                        panel.background=ggplot2::element_rect(fill='#FAFAD2'),
-                        plot.background = ggplot2::element_rect(fill='#EEE8AA'),
-                        axis.ticks = ggplot2::element_line(size = .5, colour = "#C5B358"),
-                        panel.grid.major = ggplot2::element_line(colour = '#C5B358'),
-                        panel.grid.minor = ggplot2::element_line(colour = '#C5B358'),
-                        panel.border = ggplot2::element_rect(colour="#C5B358", fill=NA, size=2),
-                        axis.title=ggplot2::element_text(color='#996515'),
-                        axis.text=ggplot2::element_text(color='#996515'),
-                        legend.key = ggplot2::element_blank(),
-                        legend.title = ggplot2::element_text(colour='#996515'),
-                        legend.text = ggplot2::element_text(colour='#996515'),
-                        strip.text.x = ggplot2::element_text(colour='#996515'),
-                        strip.text.y = ggplot2::element_text(colour='#996515'),
-                        strip.background = ggplot2::element_rect(fill='transparent', color=NA))
-            else
-                ggtheme <- NULL
+#' A vector listing all the RColorBrewer palettes
+brewerPalettes <- c('BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral',
+                    'Accent', 'Dark2', 'Paired', 'Pastel1', 'Pastel2', 'Set1', 'Set2', 'Set3',
+                    'Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd',
+                    'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds', 'YlGn', 'YlGnBu',
+                    'YlOrBr', 'YlOrRd')
 
-            theme <- private$.getTheme('liberace')
+#' A function that creates a color palette
+#'
+#' @param n Number of colors needed
+#' @param pal Color palette name
+#'
+#' @return a vector of hex color codes
+#' @export
+colorPalette <- function(n = 5, pal = 'Dark2') {
 
-            t <- list('ggtheme'=ggtheme, 'theme'=theme)
+    # extract colors belonging to palette name
+    if (pal %in% brewerPalettes) {
+        cols <- suppressWarnings(RColorBrewer::brewer.pal(n, pal))
+    } else if (pal == 'jmv') {
+        cols <- c('#E6AC40', '#9F9F9F', '#6B9DE8')
+        if (n == 2)
+            cols <- cols[c(1,3)]
+    } else if (pal == 'grayScale') {
+        cols <- grDevices::gray.colors(n, start = 0, end = 0.8)
+    } else {
+        cols <- suppressWarnings(RColorBrewer::brewer.pal(n, 'Dark2'))
+    }
 
-            return(t)
-        }
-    ),
-    private = list(
-        .getTheme = function(name = 'default') {
+    # add colors if palette needs more colors
+    if (n > length(cols))
+        cols <- grDevices::colorRampPalette(cols)(n)
 
-            theme <- list()
+    return(cols[1:n])
+}
 
-            if (name == 'default' || name == 'minimal' || name == 'hadley') {
+ggPalette <- function(pal = 'Dark2') {
 
-                theme[['color']] <- c('#333333', 'grey35')
-                theme[['fill']] <- c('#FFFFFF', 'grey35')
+    jmvPalette <- function(n) colorPalette(n, pal=pal)
 
-            } else if (name == 'iheartspss') {
+    return(
+        list(ggplot2::discrete_scale("fill", "jmv", jmvPalette),
+             ggplot2::discrete_scale("colour", "jmv", jmvPalette))
+    )
+}
 
-                theme[['color']] <- c('#333333', '#333333')
-                theme[['fill']] <- c('#F0F0F0', '#d3ce97')
-
-            } else if (name == 'liberace') {
-
-                theme[['color']] <- c('#996515', '#996515')
-                theme[['fill']] <- c('#EEE8AA', '#996515')
-
-            }
-
-            return(theme)
-        }
-    ))$new()
+#' The basis for all jmv ggplot2 themes
+#'
+#' @return the basic jmv ggplot2 theme
+baseTheme <- function(base_size = 16) {
+    ggplot2::`%+replace%`(
+        ggplot2::theme_gray(base_size = base_size),
+        ggplot2::theme(
+            plot.background = ggplot2::element_rect(fill='transparent', color=NA),
+            panel.background = ggplot2::element_rect(fill='#E8E8E8', color=NA),
+            plot.margin = ggplot2::margin(15, 15, 15, 15),
+            axis.text.x = ggplot2::element_text(margin=ggplot2::margin(5, 0, 0, 0), colour='#333333'),
+            axis.text.y = ggplot2::element_text(margin=ggplot2::margin(0, 5, 0, 0), colour='#333333'),
+            axis.title.x = ggplot2::element_text(margin=ggplot2::margin(10, 0, 0, 0), colour='#333333'),
+            axis.title.y = ggplot2::element_text(margin=ggplot2::margin(0, 10, 0, 0), colour='#333333', angle = 90),
+            plot.title = ggplot2::element_text(margin=ggplot2::margin(0, 0, 15, 0), colour='#333333'),
+            legend.background = ggplot2::element_rect("transparent", color=NA),
+            legend.key = ggplot2::element_rect(fill='#E8E8E8', color=NA),
+            legend.title = ggplot2::element_text(colour='#333333'),
+            legend.text = ggplot2::element_text(colour='#333333'),
+            strip.text.x = ggplot2::element_text(colour='#333333'),
+            strip.text.y = ggplot2::element_text(colour='#333333')))
+}
