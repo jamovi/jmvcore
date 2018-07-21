@@ -138,32 +138,69 @@ theme_min <- function(base_size = 16, palette = 'Dark2') {
     return(theme)
 }
 
+seqPalettes <- c('Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges',
+                 'OrRd', 'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds',
+                 'YlGn', 'YlGnBu', 'YlOrBr', 'YlOrRd')
 
-#' A vector listing all the RColorBrewer palettes
-brewerPalettes <- c('BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu', 'RdYlGn', 'Spectral',
-                    'Accent', 'Dark2', 'Paired', 'Pastel1', 'Pastel2', 'Set1', 'Set2', 'Set3',
-                    'Blues', 'BuGn', 'BuPu', 'GnBu', 'Greens', 'Greys', 'Oranges', 'OrRd',
-                    'PuBu', 'PuBuGn', 'PuRd', 'Purples', 'RdPu', 'Reds', 'YlGn', 'YlGnBu',
-                    'YlOrBr', 'YlOrRd')
+otherPalettes <- c('BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu',
+                 'RdYlGn', 'Spectral', 'Accent', 'Dark2', 'Paired', 'Pastel1',
+                 'Pastel2', 'Set1', 'Set2', 'Set3')
+
+interp <- function(n, pal, begin=0.0, end=1.0) {
+
+    palette <- RColorBrewer::brewer.pal(9, pal)
+    rgb <- col2rgb(palette)
+
+    or <- rgb['red',]
+    og <- rgb['green',]
+    ob <- rgb['blue',]
+
+    ox <- seq(0, 1, length.out=9)
+    if (n == 1)
+        nx <- (end + begin) / 2
+    else
+        nx <- seq(begin, end, length.out=n)
+
+    r <- approx(ox, or, nx)$y
+    g <- approx(ox, og, nx)$y
+    b <- approx(ox, ob, nx)$y
+
+    rgb(r, g, b, maxColorValue=255)
+}
 
 #' A function that creates a color palette
 #'
 #' @param n Number of colors needed
 #' @param pal Color palette name
+#' @param type 'fill' or 'line'
 #'
 #' @return a vector of hex color codes
 #' @export
-colorPalette <- function(n = 5, pal = 'Dark2') {
+colorPalette <- function(n = 5, pal = 'Dark2', type='fill') {
 
     # extract colors belonging to palette name
-    if (pal %in% brewerPalettes) {
+    if (pal %in% seqPalettes) {
+
+        if (type == 'fill')
+            cols <- interp(n, pal, 0.1, 0.6)
+        else
+            cols <- interp(n, pal, 0.4, 0.9)
+
+    } else if (pal %in% otherPalettes) {
+
         cols <- suppressWarnings(RColorBrewer::brewer.pal(n, pal))
+
     } else if (pal == 'jmv') {
         cols <- c('#E6AC40', '#9F9F9F', '#6B9DE8')
         if (n == 2)
             cols <- cols[c(1,3)]
     } else if (pal == 'grayScale') {
-        cols <- grDevices::gray.colors(n, start = 0, end = 0.8)
+
+        if (type == 'fill')
+            cols <- grDevices::gray.colors(n, start = 0.4, end = 0.9)
+        else
+            cols <- grDevices::gray.colors(n, start = 0.1, end = 0.7)
+
     } else {
         cols <- suppressWarnings(RColorBrewer::brewer.pal(n, 'Dark2'))
     }
@@ -177,11 +214,12 @@ colorPalette <- function(n = 5, pal = 'Dark2') {
 
 ggPalette <- function(pal = 'Dark2') {
 
-    jmvPalette <- function(n) colorPalette(n, pal=pal)
+    fill <- function(n) colorPalette(n, pal=pal, 'fill')
+    line <- function(n) colorPalette(n, pal=pal, 'line')
 
     return(
-        list(ggplot2::discrete_scale("fill", "jmv", jmvPalette),
-             ggplot2::discrete_scale("colour", "jmv", jmvPalette))
+        list(ggplot2::discrete_scale("fill",   "jmv", fill),
+             ggplot2::discrete_scale("colour", "jmv", line))
     )
 }
 
