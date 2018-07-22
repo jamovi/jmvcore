@@ -31,7 +31,7 @@ getGGTheme <- function(name, palette) {
 }
 
 
-getTheme = function(name = 'default', palette = 'Dark2') {
+getTheme = function(name = 'default', palette = 'jmv') {
 
     theme <- list()
 
@@ -43,8 +43,8 @@ getTheme = function(name = 'default', palette = 'Dark2') {
 
     } else {
 
-        theme[['color']] <- c('#333333', NULL)
-        theme[['fill']] <- c('#FFFFFF', 'grey35')
+        theme[['color']] <- c('#333333', jmvcore::colorPalette(1, palette, 'color'))
+        theme[['fill']] <- c('#FFFFFF', jmvcore::colorPalette(1, palette, 'fill'))
         theme[['palette']] <- palette
 
     }
@@ -59,7 +59,7 @@ getTheme = function(name = 'default', palette = 'Dark2') {
 #'
 #' @return the hadley jmv ggplot2 theme
 #' @export
-theme_hadley <- function(base_size = 16, palette = 'Dark2') {
+theme_hadley <- function(base_size = 16, palette = 'jmv') {
     theme <- list(baseTheme(base_size))
 
     theme <- c(theme, ggPalette(palette))
@@ -74,7 +74,7 @@ theme_hadley <- function(base_size = 16, palette = 'Dark2') {
 #'
 #' @return the default jmv ggplot2 theme
 #' @export
-theme_default <- function(base_size = 16, palette = 'Dark2') {
+theme_default <- function(base_size = 16, palette = 'jmv') {
     theme <- list(ggplot2::`%+replace%`(
         baseTheme(base_size),
         ggplot2::theme(
@@ -97,7 +97,7 @@ theme_default <- function(base_size = 16, palette = 'Dark2') {
 #'
 #' @return the spss jmv ggplot2 theme
 #' @export
-theme_spss <- function(base_size = 16, palette = 'Dark2') {
+theme_spss <- function(base_size = 16, palette = 'jmv') {
     theme <- list(ggplot2::`%+replace%`(
         baseTheme(base_size),
         ggplot2::theme(
@@ -120,7 +120,7 @@ theme_spss <- function(base_size = 16, palette = 'Dark2') {
 #'
 #' @return the minimal jmv ggplot2 theme
 #' @export
-theme_min <- function(base_size = 16, palette = 'Dark2') {
+theme_min <- function(base_size = 16, palette = 'jmv') {
     theme <- list(ggplot2::`%+replace%`(
         baseTheme(base_size),
         ggplot2::theme(
@@ -176,7 +176,7 @@ interp <- function(n, pal, begin=0.0, end=1.0) {
 #'
 #' @return a vector of hex color codes
 #' @export
-colorPalette <- function(n = 5, pal = 'Dark2', type='fill') {
+colorPalette <- function(n = 5, pal = 'jmv', type='fill') {
 
     # extract colors belonging to palette name
     if (pal %in% seqPalettes) {
@@ -190,19 +190,12 @@ colorPalette <- function(n = 5, pal = 'Dark2', type='fill') {
 
         cols <- suppressWarnings(RColorBrewer::brewer.pal(n, pal))
 
-    } else if (pal == 'jmv') {
-        cols <- c('#E6AC40', '#9F9F9F', '#6B9DE8')
+    } else {
+
+        cols <- c('#6B9DE8', '#9F9F9F', '#E6AC40', '#399B3F', '#CE3D3D', '#3E6DA9')
         if (n == 2)
             cols <- cols[c(1,3)]
-    } else if (pal == 'grayScale') {
 
-        if (type == 'fill')
-            cols <- grDevices::gray.colors(n, start = 0.4, end = 0.9)
-        else
-            cols <- grDevices::gray.colors(n, start = 0.1, end = 0.7)
-
-    } else {
-        cols <- suppressWarnings(RColorBrewer::brewer.pal(n, 'Dark2'))
     }
 
     # add colors if palette needs more colors
@@ -212,7 +205,7 @@ colorPalette <- function(n = 5, pal = 'Dark2', type='fill') {
     return(cols[1:n])
 }
 
-ggPalette <- function(pal = 'Dark2') {
+ggPalette <- function(pal = 'jmv') {
 
     fill <- function(n) colorPalette(n, pal=pal, 'fill')
     line <- function(n) colorPalette(n, pal=pal, 'line')
