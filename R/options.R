@@ -12,7 +12,7 @@ Options <- R6::R6Class(
         .env=NA,
         .ppi=72,
         .theme='default',
-        .palette='Dark2',
+        .palette='jmv',
         .requiresData=TRUE),
     active=list(
         analysis=function(analysis) {
