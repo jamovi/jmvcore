@@ -190,6 +190,12 @@ colorPalette <- function(n = 5, pal = 'jmv', type='fill') {
 
         cols <- suppressWarnings(RColorBrewer::brewer.pal(n, pal))
 
+    } else if (pal == 'spss') {
+
+        cols <- c('#3e58ac', '#2eb848', '#d3ce97', '#7c287d', '#fbf873', '#f8981d', '#248bac', '#a21619')
+        if (n == 1)
+            cols <- cols[3]
+
     } else {
 
         cols <- c('#6B9DE8', '#9F9F9F', '#E6AC40', '#399B3F', '#CE3D3D', '#3E6DA9')
