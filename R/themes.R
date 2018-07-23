@@ -168,6 +168,24 @@ interp <- function(n, pal, begin=0.0, end=1.0) {
     rgb(r, g, b, maxColorValue=255)
 }
 
+brighten <- function(colours, amount) {
+    colours <- col2rgb(colours)
+    colours <- colours * amount
+    colours <- pmin(colours, 255)
+    rgb(colours['red',],
+        colours['green',],
+        colours['blue',],
+        maxColorValue=255)
+}
+
+lighten <- function(colours, amount) {
+    colours <- col2rgb(colours)
+    rgb((1 - amount) * colours['red',] + 255 * amount,
+        (1 - amount) * colours['green',] + 255 * amount,
+        (1 - amount) * colours['blue',]  + 255 * amount,
+        maxColorValue=255)
+}
+
 #' A function that creates a color palette
 #'
 #' @param n Number of colors needed
@@ -189,6 +207,10 @@ colorPalette <- function(n = 5, pal = 'jmv', type='fill') {
     } else if (pal %in% otherPalettes) {
 
         cols <- suppressWarnings(RColorBrewer::brewer.pal(n, pal))
+        if (type == 'fill')
+            cols <- lighten(cols, .4)
+        else
+            cols <- lighten(cols, .1)
 
     } else {
 
@@ -196,6 +218,10 @@ colorPalette <- function(n = 5, pal = 'jmv', type='fill') {
         if (n == 2)
             cols <- cols[c(1,3)]
 
+        if (type == 'fill')
+            cols <- lighten(cols, .4)
+        else
+            cols <- lighten(cols, .1)
     }
 
     # add colors if palette needs more colors
