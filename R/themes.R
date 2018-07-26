@@ -1,25 +1,25 @@
 getGlobalTheme <- function(name, palette) {
 
-    ggtheme <- getGGTheme(name, palette)
+    ggtheme <- getGGTheme(name, scale = 'discrete', palette)
     theme <- getTheme(name, palette)
 
     return(list(ggtheme=ggtheme, theme=theme))
 }
 
-getGGTheme <- function(name, palette) {
+getGGTheme <- function(name, scale, palette) {
 
     if (requireNamespace('ggplot2')) {
 
         base_size <- 16
 
         if (name == 'hadley')
-            ggtheme <- jmvcore::theme_hadley(base_size, palette)
+            ggtheme <- jmvcore::theme_hadley(base_size, scale, palette)
         else if (name == 'minimal')
-            ggtheme <- jmvcore::theme_min(base_size, palette)
+            ggtheme <- jmvcore::theme_min(base_size, scale, palette)
         else if (name == 'iheartspss')
-            ggtheme <- jmvcore::theme_spss(base_size, palette)
+            ggtheme <- jmvcore::theme_spss(base_size, scale, palette)
         else
-            ggtheme <- jmvcore::theme_default(base_size, palette)
+            ggtheme <- jmvcore::theme_default(base_size, scale, palette)
 
     } else {
 
@@ -55,14 +55,16 @@ getTheme = function(name = 'default', palette = 'jmv') {
 #' Creates the hadley jmv ggplot2 theme
 #'
 #' @param base_size Font size
+#' @param scale 'none' or 'discrete'
 #' @param palette Color palette name
 #'
 #' @return the hadley jmv ggplot2 theme
 #' @export
-theme_hadley <- function(base_size = 16, palette = 'jmv') {
+theme_hadley <- function(base_size = 16, scale = 'none', palette = 'jmv') {
     theme <- list(baseTheme(base_size))
 
-    theme <- c(theme, ggPalette(palette))
+    if (scale != 'none')
+        theme <- c(theme, ggPalette(palette))
 
     return(theme)
 }
@@ -70,11 +72,12 @@ theme_hadley <- function(base_size = 16, palette = 'jmv') {
 #' Creates the default jmv ggplot2 theme
 #'
 #' @param base_size Font size
+#' @param scale 'none' or 'discrete'
 #' @param palette Color palette name
 #'
 #' @return the default jmv ggplot2 theme
 #' @export
-theme_default <- function(base_size = 16, palette = 'jmv') {
+theme_default <- function(base_size = 16, scale = 'none', palette = 'jmv') {
     theme <- list(ggplot2::`%+replace%`(
         baseTheme(base_size),
         ggplot2::theme(
@@ -85,7 +88,8 @@ theme_default <- function(base_size = 16, palette = 'jmv') {
             panel.grid.minor = ggplot2::element_blank(),
             strip.background = ggplot2::element_rect(fill='transparent', color=NA))))
 
-    theme <- c(theme, ggPalette(palette))
+    if (scale != 'none')
+        theme <- c(theme, ggPalette(palette))
 
     return(theme)
 }
@@ -93,11 +97,12 @@ theme_default <- function(base_size = 16, palette = 'jmv') {
 #' Creates the spss jmv ggplot2 theme
 #'
 #' @param base_size Font size
+#' @param scale 'none' or 'discrete'
 #' @param palette Color palette name
 #'
 #' @return the spss jmv ggplot2 theme
 #' @export
-theme_spss <- function(base_size = 16, palette = 'jmv') {
+theme_spss <- function(base_size = 16, scale = 'none', palette = 'jmv') {
     theme <- list(ggplot2::`%+replace%`(
         baseTheme(base_size),
         ggplot2::theme(
@@ -108,7 +113,8 @@ theme_spss <- function(base_size = 16, palette = 'jmv') {
             legend.key = ggplot2::element_blank(),
             strip.background = ggplot2::element_rect(fill='transparent', color=NA))))
 
-    theme <- c(theme, ggPalette(palette))
+    if (scale != 'none')
+        theme <- c(theme, ggPalette(palette))
 
     return(theme)
 }
@@ -116,11 +122,12 @@ theme_spss <- function(base_size = 16, palette = 'jmv') {
 #' Creates the minimal jmv ggplot2 theme
 #'
 #' @param base_size Font size
+#' @param scale 'none' or 'discrete'
 #' @param palette Color palette name
 #'
 #' @return the minimal jmv ggplot2 theme
 #' @export
-theme_min <- function(base_size = 16, palette = 'jmv') {
+theme_min <- function(base_size = 16, scale = 'none', palette = 'jmv') {
     theme <- list(ggplot2::`%+replace%`(
         baseTheme(base_size),
         ggplot2::theme(
@@ -133,7 +140,8 @@ theme_min <- function(base_size = 16, palette = 'jmv') {
             legend.key = ggplot2::element_blank(),
             strip.background = ggplot2::element_rect(fill='transparent', color=NA))))
 
-    theme <- c(theme, ggPalette(palette))
+    if (scale != 'none')
+        theme <- c(theme, ggPalette(palette))
 
     return(theme)
 }
@@ -190,7 +198,7 @@ lighten <- function(colours, amount) {
 #'
 #' @param n Number of colors needed
 #' @param pal Color palette name
-#' @param type 'fill' or 'line'
+#' @param type 'fill' or 'color'
 #'
 #' @return a vector of hex color codes
 #' @export
@@ -215,8 +223,14 @@ colorPalette <- function(n = 5, pal = 'jmv', type='fill') {
     } else if (pal == 'spss') {
 
         cols <- c('#3e58ac', '#2eb848', '#d3ce97', '#7c287d', '#fbf873', '#f8981d', '#248bac', '#a21619')
-        if (n == 1)
+        if (n == 1) {
             cols <- cols[3]
+        } else {
+            if (type == 'fill')
+                cols <- lighten(cols, .4)
+            else
+                cols <- lighten(cols, .1)
+        }
 
     } else {
 
@@ -237,14 +251,14 @@ colorPalette <- function(n = 5, pal = 'jmv', type='fill') {
     return(cols[1:n])
 }
 
-ggPalette <- function(pal = 'jmv') {
+ggPalette <- function(pal = 'jmv', scale = 'discrete') {
 
     fill <- function(n) colorPalette(n, pal=pal, 'fill')
-    line <- function(n) colorPalette(n, pal=pal, 'line')
+    color <- function(n) colorPalette(n, pal=pal, 'color')
 
     return(
-        list(ggplot2::discrete_scale("fill",   "jmv", fill),
-             ggplot2::discrete_scale("colour", "jmv", line))
+        list(ggplot2::discrete_scale("fill", "jmv", fill),
+             ggplot2::discrete_scale("color", "jmv", color))
     )
 }
 
