@@ -154,6 +154,8 @@ otherPalettes <- c('BrBG', 'PiYG', 'PRGn', 'PuOr', 'RdBu', 'RdGy', 'RdYlBu',
                  'RdYlGn', 'Spectral', 'Accent', 'Dark2', 'Paired', 'Pastel1',
                  'Pastel2', 'Set1', 'Set2', 'Set3')
 
+#' @importFrom grDevices col2rgb rgb
+#' @importFrom stats approx
 interp <- function(n, pal, begin=0.0, end=1.0) {
 
     palette <- RColorBrewer::brewer.pal(9, pal)
@@ -262,9 +264,6 @@ ggPalette <- function(pal = 'jmv', scale = 'discrete') {
     )
 }
 
-#' The basis for all jmv ggplot2 themes
-#'
-#' @return the basic jmv ggplot2 theme
 baseTheme <- function(base_size = 16) {
     ggplot2::`%+replace%`(
         ggplot2::theme_gray(base_size = base_size),
