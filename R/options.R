@@ -122,7 +122,7 @@ Options <- R6::R6Class(
                         data <- self[['.getData']]()
 
                         if (optionValue %in% colnames(data)) {
-                            return(levels(as.factor(data[[optionValue]])))
+                            return(levels(data[[optionValue]]))
                         } else {
                             reject("Variable '{}' does not exist in the data", optionValue, code=NULL)
                         }
@@ -229,10 +229,8 @@ Options <- R6::R6Class(
         },
         levels=function(x) {
             str <- substitute(x)
-            expr <- parse(text=paste0("if (is.null(", str, ")) NULL else base::levels(as.factor(data[[", str, "]]))"))
-            print(expr)
+            expr <- parse(text=paste0("if (is.null(", str, ")) NULL else base::levels(data[[", str, "]])"))
             v <- eval.parent(expr)
-            print(v)
             v
         },
         addChangeListener=function(listener) {
