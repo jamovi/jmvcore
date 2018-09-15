@@ -109,6 +109,11 @@ Group <- R6::R6Class("Group",
             else
                 return(element$.lookup(path))
         },
+        .setKey=function(key, index) {
+            super$.setKey(key, index)
+            for (item in private$.items)
+                item$.setKey(key, index)
+        },
         asString=function() {
 
             noneVisible <- TRUE
