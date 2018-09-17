@@ -157,6 +157,7 @@ Array <- R6::R6Class("Array",
             item$.setParent(self)
 
             item$.setKey(key, index)
+            item$.setName(rjson::toJSON(key))
             item$.update()
 
             private$.items[[index]] <- item

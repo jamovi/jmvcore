@@ -94,10 +94,12 @@ ResultsElement <- R6::R6Class("ResultsElement",
         isNotFilled=function() {
             ! self$isFilled()
         },
-        .setKey = function(key, index) {
+        .setKey=function(key, index) {
             private$.key <- key
-            private$.name <- rjson::toJSON(key)
             private$.index <- index
+        },
+        .setName=function(name) {
+            private$.name <- name
         },
         setStatus=function(status) {
             if ( ! is.character(status) || length(status) != 1)
