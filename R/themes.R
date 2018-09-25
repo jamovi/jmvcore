@@ -234,6 +234,20 @@ colorPalette <- function(n = 5, pal = 'jmv', type='fill') {
                 cols <- lighten(cols, .1)
         }
 
+    } else if (pal == 'hadley') {
+
+        ggColors <- function(n) {
+            hues <- seq(15, 375, length = n + 1)
+            hcl(h = hues, l = 65, c = 100)[1:n]
+        }
+
+        cols <- ggColors(n)
+
+        if (type == 'fill')
+            cols <- lighten(cols, .4)
+        else
+            cols <- lighten(cols, .1)
+
     } else {
 
         cols <- c('#6B9DE8', '#9F9F9F', '#E6AC40', '#399B3F', '#CE3D3D', '#3E6DA9')
