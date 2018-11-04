@@ -1,13 +1,10 @@
 
 language: r
-dist: trusty
-sudo: required
+cache: packages
 warnings_are_errors: false
 
-r_binary_packages:
-    - R6
-    - rjson
-    - base64enc
-    - knitr
-    - testthat
-    - RProtoBuf
+addons:
+  apt:
+    packages:
+      - libprotobuf-dev
+      - libprotoc-dev
