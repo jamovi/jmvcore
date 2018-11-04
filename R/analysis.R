@@ -250,7 +250,9 @@ Analysis <- R6::R6Class("Analysis",
             if (isTRUE(private$.completeWhenFilled) && self$results$isFilled())
                 private$.status <- 'complete'
         },
-        .render=function(funName, image, ...) {
+        .createPlotObject=function(funName, image, ...) {
+            if ( ! is.character(funName))
+                stop('no render function', call.=FALSE)
 
             if (image$requiresData && is.null(private$.data)) {
                 private$.data <- self$readDataset()
@@ -262,15 +264,32 @@ Analysis <- R6::R6Class("Analysis",
             ev <- parse(text=paste0('private$', funName, '(image, theme = t$theme, ggtheme = t$ggtheme, ...)'))
             result <- eval(ev)
 
-            if (identical(result, FALSE))
+            if (identical(result, FALSE) || is.null(result))
                 stop('Rendering failed', call.=FALSE)
 
-            result
+            if (identical(result, TRUE))
+                return(NULL)
+
+            return(result)
+        },
+        .render=function(funName, image, ...) {
+            result <- self$.createPlotObject(funName, image, ...)
+            image$.setPlot(result)
+            if ( ! is.null(result)) {
+                suppressWarnings(suppressMessages(print(result)))
+                return(TRUE)
+            }
+            else {
+                return(FALSE)
+            }
         },
         .createImages=function(noThrow=FALSE, ...) {
             private$.results$.createImages(ppi=self$options$ppi, noThrow=noThrow, ...)
         },
         .createImage=function(funName, image, ppi=72, noThrow=FALSE, ...) {
+
+            if ( ! is.character(funName))
+                stop('no render function', call.=FALSE)
 
             if ( ! is.null(image$path))
                 return(FALSE)
@@ -324,7 +343,7 @@ Analysis <- R6::R6Class("Analysis",
             t <- getGlobalTheme(self$options$theme, self$options$palette)
 
             ev <- parse(text=paste0('private$', funName, '(image, theme = t$theme, ggtheme = t$ggtheme, ...)'))
-            result <- try(eval(ev), silent=TRUE)
+            result <- try(eval(ev), silent=FALSE)
 
             if (dataRequired)
                 private$.data <- NULL
@@ -339,8 +358,11 @@ Analysis <- R6::R6Class("Analysis",
                 # do nothing
             } else if (identical(result, FALSE)) {
                 # do nothing
-            } else {
+            } else if (is.null(result)) {
                 result <- FALSE
+            } else {
+                suppressWarnings(suppressMessages(print(result)))
+                result <- TRUE
             }
 
             if (is.function(private$.resourcesPathSource)) {

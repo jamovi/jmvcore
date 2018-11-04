@@ -9,12 +9,18 @@ Image <- R6::R6Class("Image",
         .height=300,
         .renderInitFun=NA,
         .renderFun=NA,
-        .requiresData=FALSE),
+        .requiresData=FALSE,
+        .plot=NA),
     active=list(
         width=function() private$.width,
         height=function() private$.height,
         path=function() private$.path,
-        requiresData=function() private$.requiresData),
+        requiresData=function() private$.requiresData,
+        plot=function() {
+            if (is.null(private$.plot))
+                private$.plot <- self$analysis$.createPlotObject(funName=private$.renderFun, image=self)
+            return(private$.plot)
+        }),
     public=list(
         initialize=function(
             options,
@@ -42,6 +48,7 @@ Image <- R6::R6Class("Image",
             private$.requiresData <- requiresData
 
             private$.path <- NULL
+            private$.plot <- NULL
         },
         setSize=function(width, height) {
             private$.width  <- width
@@ -58,9 +65,6 @@ Image <- R6::R6Class("Image",
             self$.render()
         },
         saveAs=function(path, ...) {
-
-            if ( ! is.character(private$.renderFun))
-                stop('no render function', call.=FALSE)
 
             if (endsWith(tolower(path), '.pdf')) {
                 cairo_pdf(
@@ -99,15 +103,9 @@ Image <- R6::R6Class("Image",
             self$analysis$.render(funName=private$.renderFun, image=self, ...)
         },
         .render=function(...) {
-            if ( ! is.character(private$.renderFun))
-                return(FALSE)
-
             self$analysis$.render(funName=private$.renderFun, image=self, ...)
         },
         .createImages=function(...) {
-            if ( ! is.character(private$.renderFun))
-                return(FALSE)
-
             self$analysis$.createImage(funName=private$.renderFun, image=self, ...)
         },
         .setPath=function(path) {
@@ -168,6 +166,9 @@ Image <- R6::R6Class("Image",
                 private$.path <- NULL
             else
                 private$.path <- image$path
+        },
+        .setPlot=function(plot) {
+            private$.plot <- plot
         })
 )
 
@@ -175,7 +176,7 @@ Image <- R6::R6Class("Image",
 #' @importFrom utils .DollarNames
 .DollarNames.Image <- function(x, pattern = "") {
     names <- ls(x, all.names=F, pattern = pattern)
-    retain <- c('saveAs')
+    retain <- c('saveAs', 'plot')
     names <- intersect(names, retain)
     names
 }
