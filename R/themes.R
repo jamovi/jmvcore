@@ -203,6 +203,7 @@ lighten <- function(colours, amount) {
 #' @param type 'fill' or 'color'
 #'
 #' @return a vector of hex color codes
+#' @importFrom grDevices hcl
 #' @export
 colorPalette <- function(n = 5, pal = 'jmv', type='fill') {
 
