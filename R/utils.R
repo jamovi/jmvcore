@@ -200,6 +200,25 @@ decomposeTerms <- function(terms) {
     decomposed
 }
 
+decomposeFormula <- function(formula) {
+    terms <- attr(terms(formula), 'term.labels')
+    decomposeTerms(terms)
+}
+
+resolveQuo <- function(quo) {
+    if (rlang::is_null(quo))
+        return(NULL)
+    if (rlang::quo_is_call(quo)) {
+        asc <- as.character(rlang::quo_get_expr(quo))
+        if (asc[1] == 'vars')
+            return(asc[-1])
+    }
+    if (rlang::quo_is_symbol(quo)) {
+        return(rlang::quo_name(quo))
+    }
+    return(rlang::eval_tidy(quo))
+}
+
 #' Converts a term into a string
 #'
 #' Converts a term (a vector of components) into a string for display purposes

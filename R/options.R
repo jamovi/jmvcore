@@ -506,7 +506,7 @@ OptionVariables <- R6::R6Class(
                     return()
 
                 if (is.character(value) == FALSE && is.list(value) == FALSE)
-                    reject("Argument '{a}' must be a character vector", code="a_is_not_a_string", a=self$name)
+                    reject("Argument '{a}' is not valid", code="a_is_not_a_string", a=self$name)
             }
 
             if (checkVars) {
@@ -606,8 +606,10 @@ OptionVariable <- R6::R6Class(
                 return()
 
             if (checkValues) {
+                if (length(columnName) > 1)
+                    reject("Argument '{a}' requires a single variable name", code="too_many_variables_specified", a=self$name)
                 if ( ! is.character(columnName))
-                    reject("Argument '{a}' must be a character vector", code="a_is_not_a_string", a=self$name)
+                    reject("Argument '{a}' is not valid", code="a_is_not_a_string", a=self$name)
             }
 
             if (checkVars) {
