@@ -420,7 +420,7 @@ Analysis <- R6::R6Class("Analysis",
             initProtoBuf()
 
             response <- RProtoBuf_new(jamovi.coms.AnalysisResponse)
-            response$datasetId  <- private$.datasetId
+            response$instanceId  <- private$.datasetId
             response$analysisId <- self$analysisId
             response$name <- private$.name
             response$ns   <- private$.package
