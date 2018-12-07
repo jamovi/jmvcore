@@ -205,6 +205,8 @@ decomposeFormula <- function(formula) {
     decomposeTerms(terms)
 }
 
+enquo <- rlang::enquo
+
 resolveQuo <- function(quo) {
     if (rlang::is_null(quo))
         return(NULL)

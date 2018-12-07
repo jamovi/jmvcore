@@ -1,7 +1,7 @@
 Package: jmvcore
 Type: Package
 Title: Dependencies for the 'jamovi' Framework
-Version: 0.9.5.1
+Version: 0.9.5.2
 Date: 2018-11-04
 Author: Jonathon Love
 Maintainer: Jonathon Love <jon@thon.cc>
@@ -15,7 +15,7 @@ Depends:
     R (>= 3.2)
 Imports:
     R6 (>= 1.0.1),
-    rlang (>= 0.3),
+    rlang (>= 0.3.0.1),
     rjson,
     base64enc,
     stringi
