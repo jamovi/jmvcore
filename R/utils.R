@@ -201,8 +201,46 @@ decomposeTerms <- function(terms) {
 }
 
 decomposeFormula <- function(formula) {
-    terms <- attr(terms(formula), 'term.labels')
-    decomposeTerms(terms)
+
+    chars <- as.character(formula)
+    term  <- chars[length(chars)]
+
+    chars <- strsplit(term, '')[[1]]
+    components <- character()
+    componentChars <- character()
+    inQuote <- FALSE
+
+    i <- 1
+    n <- length(chars)
+
+    while (i <= n) {
+        char <- chars[i]
+        if (char == '`') {
+            inQuote <- ! inQuote
+            componentChars <- c(componentChars, '`')
+        }
+        else if (char == '\\') {
+            i <- i + 1
+            char <- chars[i]
+            componentChars <- c(componentChars, '\\', char)
+        }
+        else if ((char == '*' || char == '+' || char == ' ') && inQuote == FALSE) {
+            component <- paste0(componentChars, collapse='')
+            if (nchar(component) > 0)  # skip empty strings
+                components <- c(components, component)
+            componentChars <- character()
+        }
+        else {
+            componentChars <- c(componentChars, char)
+        }
+        i <- i + 1
+    }
+
+    component <- paste0(componentChars, collapse='')
+    if (nchar(component) > 0)  # skip empty strings
+        components <- c(components, component)
+
+    decomposeTerms(components)
 }
 
 enquo <- rlang::enquo
@@ -212,7 +250,7 @@ resolveQuo <- function(quo) {
         return(NULL)
     if (rlang::quo_is_call(quo)) {
         asc <- as.character(rlang::quo_get_expr(quo))
-        if (asc[1] == 'vars')
+        if (asc[1] == 'c' || asc[1] == 'vars')
             return(asc[-1])
     }
     if (rlang::quo_is_symbol(quo)) {
@@ -719,15 +757,65 @@ constructFormula <- function(dep=NULL, terms) {
         })
         rhItems[[length(rhItems)+1]] <- paste0(term, collapse=":")
     }
-    rhs <- paste0(rhItems, collapse='+')
+    rhs <- paste0(rhItems, collapse=' + ')
     if ( ! is.null(dep)) {
         if (make.names(dep) != dep)
             dep <- paste0('`', gsub('`', '\\`', dep, fixed=TRUE), '`')
-        formulaStr <- paste0(dep, '~', rhs)
+        formulaStr <- paste(dep, '~', rhs)
     } else {
         formulaStr <- rhs
     }
     formulaStr
+}
+
+#' Compose a formula string
+#' @param lht list of character vectors making up the left
+#' @param rht list of character vectors making up the right
+#' @return a string representation of the formula
+#' @examples
+#'
+#' composeFormula(list('a', 'b', c('a', 'b')))
+#' # ~a+b+a:b
+#'
+#' composeFormula('f', list('a', 'b', c('a', 'b')))
+#' # "f~a+b+a:b"
+#'
+#' composeFormula('with spaces', list('a', 'b', c('a', 'b')))
+#' '`with spaces`~a+b+a:b'
+#'
+#' @export
+composeFormula <- function(lht, rht) {
+    if (missing(rht)) {
+        rht <- lht
+        lht <- NULL
+    }
+    rhItems <- list()
+    lhItems <- list()
+    for (term in rht) {
+        term <- sapply(term, function(component) {
+            if (make.names(component) != component)
+                component <- paste0('`', gsub('`', '\\`', component, fixed=TRUE), '`')
+            return(component)
+        })
+        rhItems[[length(rhItems)+1]] <- paste0(term, collapse=":")
+    }
+    rhs <- paste0(rhItems, collapse=' + ')
+
+    if ( ! is.null(lht)) {
+        for (term in lht) {
+            term <- sapply(term, function(component) {
+                if (make.names(component) != component)
+                    component <- paste0('`', gsub('`', '\\`', component, fixed=TRUE), '`')
+                return(component)
+            })
+            lhItems[[length(lhItems)+1]] <- paste0(term, collapse=":")
+        }
+        lhs <- paste0(lhItems, collapse=' + ')
+
+        return(paste(lhs, '~', rhs))
+    } else {
+        return(paste('~', rhs))
+    }
 }
 
 #' Test whether strings start or end with a particular string
@@ -1103,4 +1191,15 @@ parseAddress <- function(address) {
     }
 
     address
+}
+
+trimws <- function (x, which = c("both", "left", "right"))
+{
+    which <- match.arg(which)
+    mysub <- function(re, x) sub(re, "", x, perl = TRUE)
+    if (which == "left")
+        return(mysub("^[ \t\r\n]+", x))
+    if (which == "right")
+        return(mysub("[ \t\r\n]+$", x))
+    mysub("[ \t\r\n]+$", mysub("^[ \t\r\n]+", x))
 }

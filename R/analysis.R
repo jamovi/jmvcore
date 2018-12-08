@@ -50,7 +50,9 @@ Analysis <- R6::R6Class("Analysis",
                 return('data = data')
 
             if ( ! ((is.numeric(value) && isTRUE(all.equal(value, def))) || base::identical(value, def))) {
-                return(paste0(option$name, ' = ', sourcify(value, '    ')))
+                valueAsSource <- option$valueAsSource
+                if ( ! identical(valueAsSource, ''))
+                    return(paste0(option$name, ' = ', valueAsSource))
             }
             ''
         },
@@ -58,9 +60,15 @@ Analysis <- R6::R6Class("Analysis",
             source <- ''
             sep <- '\n    '
 
+            fmla <- self$formula
+            if ( ! identical(fmla, '')) {
+                source <- paste0(source, sep, 'formula = ', fmla)
+                sep <- paste0(',\n    ')
+            }
+
             if (incData && self$options$requiresData) {
                 as <- private$.sourcifyOption(list(name='data', value='data'))
-                source <- paste0(sep, as)
+                source <- paste0(source, sep, as)
                 sep <- paste0(',\n    ')
             }
 
@@ -73,7 +81,8 @@ Analysis <- R6::R6Class("Analysis",
             }
 
             source
-        }),
+        },
+        .formula=function() ''),
     active=list(
         analysisId=function() private$.analysisId,
         name=function() private$.name,
@@ -83,7 +92,8 @@ Analysis <- R6::R6Class("Analysis",
         results=function() private$.results,
         status=function() private$.status,
         complete=function() base::identical(private$.status, 'complete'),
-        errored=function() base::identical(private$.status, 'error')),
+        errored=function() base::identical(private$.status, 'error'),
+        formula=function() private$.formula()),
     public=list(
         initialize=function(
             package,

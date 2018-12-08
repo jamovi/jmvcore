@@ -370,6 +370,9 @@ Option <- R6::R6Class(
             if (missing(value))
                 return(private$.value)
             private$.value <- value
+        },
+        valueAsSource=function() {
+            sourcify(self$value, '    ')
         }))
 
 #' @rdname Options
@@ -485,6 +488,13 @@ OptionVariables <- R6::R6Class(
                 return(private$.value)
             private$.value <- unlist(value)
         },
+        valueAsSource=function() {
+            value <- self$value
+            if (length(value) == 1)
+                return(value)
+            middle <- paste0(self$value, collapse=', ')
+            paste0('vars(', middle, ')')
+        },
         gtg=function() {
             ! (private$.required && length(private$.value) == 0)
         }),
@@ -582,8 +592,7 @@ OptionVariables <- R6::R6Class(
                 }
             }
 
-        })
-    )
+        }))
 
 #' @rdname Options
 #' @export
@@ -654,6 +663,9 @@ OptionVariable <- R6::R6Class(
         vars=function() private$.value,
         gtg=function() {
             ! (private$.required && is.null(private$.value))
+        },
+        valueAsSource=function() {
+            self$value
         }))
 
 #' @rdname Options
@@ -665,7 +677,15 @@ OptionTerms <- R6::R6Class(
         initialize=function(name, value, ...) {
             super$initialize(name, value, OptionVariables$new('term', NULL), ...)
         }
-    ))
+    ),
+    active=list(
+        valueAsSource=function() {
+            if (length(private$.elements) < 1)
+                return('')
+            return (composeFormula(self$value))
+        }
+    )
+)
 
 #' @rdname Options
 #' @export
@@ -841,6 +861,32 @@ OptionArray <- R6::R6Class(
             for (element in private$.elements)
                 vars <- c(vars, element$vars)
             unique(vars)
+        },
+        valueAsSource=function() {
+            if ('OptionVariables' %in% class(private$.template)) {
+                if (length(private$.elements) < 1)
+                    return('')
+                value <- self$value
+                if (length(value) == 1 && is.null(value[[1]]))
+                    return('')
+                value <- value[ ! sapply(value, is.null)]
+                return (paste0('~', paste0(composeTerms(value), collapse='+')))
+            }
+
+            # if ('OptionTerms' %in% class(private$.template)) {
+            #     if (length(private$.elements) < 1)
+            #         return('')
+            #     value <- self$value
+            #     if (length(value) == 1 && is.null(value[[1]]))
+            #         return('')
+            #     value <- value[ ! sapply(value, is.null)]
+            #     value <- sapply(value, function(x) composeFormula(x))
+            #     middle <- paste0(value, collapse=',\n    ')
+            #     print(middle)
+            #     return (paste0('list(\n    ', middle, ')'))
+            # }
+
+            super$valueAsSource
         }),
     private=list(
         .template=NA,
