@@ -176,7 +176,7 @@ Image <- R6::R6Class("Image",
 #' @importFrom utils .DollarNames
 .DollarNames.Image <- function(x, pattern = "") {
     names <- ls(x, all.names=F, pattern = pattern)
-    retain <- c('saveAs', 'plot')
+    retain <- c('saveAs', 'plot', 'state')
     names <- intersect(names, retain)
     names
 }
