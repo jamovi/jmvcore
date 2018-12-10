@@ -870,7 +870,7 @@ OptionArray <- R6::R6Class(
                 if (length(value) == 1 && is.null(value[[1]]))
                     return('')
                 value <- value[ ! sapply(value, is.null)]
-                return (paste0('~', paste0(composeTerms(value), collapse='+')))
+                return (composeFormula(value))
             }
 
             # if ('OptionTerms' %in% class(private$.template)) {
