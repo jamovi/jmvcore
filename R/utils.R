@@ -115,7 +115,14 @@ reject <- function(formats, code=NULL, ...) {
 #' @rdname decomposeTerm
 #' @export
 composeTerm <- function(components) {
-    components <- sapply(components, function(component) {
+
+    uniques <- unique(components)
+    counts <- integer(length(uniques))
+    names(counts) <- uniques
+    for (component in components)
+        counts[component] <- counts[component] + 1
+
+    components <- sapply(uniques, function(component) {
         if (make.names(component) != component) {
             component <- gsub('\\', '\\\\', component, fixed=TRUE)
             component <- gsub('`', '\\`', component, fixed=TRUE)
@@ -123,6 +130,13 @@ composeTerm <- function(components) {
         }
         component
     }, USE.NAMES=FALSE)
+
+    for (i in seq_along(components)) {
+        count <- counts[i]
+        if (count != 1)
+            components[[i]] <- paste0('I(', components[[i]], '^', count, ')')
+    }
+
     term <- paste0(components, collapse=':')
     term
 }
@@ -286,14 +300,28 @@ resolveQuo <- function(quo) {
 #'
 #' @export
 stringifyTerm <- function(components, sep=getOption('jmvTermSep', ':')) {
-    components <- sapply(components, function(x) {
+
+    POWER_SUPS <- c('', '\u00B2', '\u00B3', '\u2074', '\u2075',
+                    '\u2076', '\u2077', '\u2078', '\u2079')
+
+    uniques <- unique(components)
+    counts <- integer(length(uniques))
+    names(counts) <- uniques
+    for (component in components)
+        counts[component] <- counts[component] + 1
+
+    components <- sapply(uniques, function(x) {
         if (startsWith(x, '`') && endsWith(x, '`')) {
             x <- substring(x, 2, nchar(x)-1)
             x <- gsub('`', '\\`', x, fixed=TRUE)
         }
         x
     })
+
+    components <- paste0(components, POWER_SUPS[counts])
+
     term <- paste(components, collapse=sep)
+
     Encoding(term) <- 'UTF-8'
     term
 }
@@ -789,29 +817,13 @@ composeFormula <- function(lht, rht) {
         rht <- lht
         lht <- NULL
     }
-    rhItems <- list()
-    lhItems <- list()
-    for (term in rht) {
-        term <- sapply(term, function(component) {
-            if (make.names(component) != component)
-                component <- paste0('`', gsub('`', '\\`', component, fixed=TRUE), '`')
-            return(component)
-        })
-        rhItems[[length(rhItems)+1]] <- paste0(term, collapse=":")
-    }
+
+    rhItems <- composeTerms(rht)
     rhs <- paste0(rhItems, collapse=' + ')
 
     if ( ! is.null(lht)) {
-        for (term in lht) {
-            term <- sapply(term, function(component) {
-                if (make.names(component) != component)
-                    component <- paste0('`', gsub('`', '\\`', component, fixed=TRUE), '`')
-                return(component)
-            })
-            lhItems[[length(lhItems)+1]] <- paste0(term, collapse=":")
-        }
+        lhItems <- composeTerms(lht)
         lhs <- paste0(lhItems, collapse=' + ')
-
         return(paste(lhs, '~', rhs))
     } else {
         return(paste('~', rhs))
