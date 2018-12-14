@@ -116,6 +116,13 @@ reject <- function(formats, code=NULL, ...) {
 #' @export
 composeTerm <- function(components) {
 
+    # handle ~1, ~0
+    if (length(components) == 1 &&
+        is.numeric(components) &&
+        (components == 1 || components == 0))
+            return(as.character(components))
+
+    components <- as.character(components)
     uniques <- unique(components)
     counts <- integer(length(uniques))
     names(counts) <- uniques
@@ -304,6 +311,7 @@ stringifyTerm <- function(components, sep=getOption('jmvTermSep', ':')) {
     POWER_SUPS <- c('', '\u00B2', '\u00B3', '\u2074', '\u2075',
                     '\u2076', '\u2077', '\u2078', '\u2079')
 
+    components <- unlist(components)
     uniques <- unique(components)
     counts <- integer(length(uniques))
     names(counts) <- uniques
