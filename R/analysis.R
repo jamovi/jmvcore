@@ -15,12 +15,14 @@ Analysis <- R6::R6Class("Analysis",
         .init=function() NULL,
         .clear=function(vChanges) NULL,
         .run=function() NULL,
+        .postInit=function() NULL,
         .readDataset=NA,
         .readDatasetHeader=NA,
         .statePathSource=NA,
         .resourcesPathSource=NA,
         .checkpointCB=NA,
         .data=NA,
+        .dataProvided=TRUE,
         .header=NA,
         .info=NA,
         .version=NA,
@@ -153,13 +155,11 @@ Analysis <- R6::R6Class("Analysis",
                 if (private$.status != "none")
                     return()
 
-                wasNull <- FALSE
-
                 if ( ! self$options$requiresData) {
                     # do nothing
                 } else if (is.null(private$.data)) {
                     private$.data <- self$readDataset(TRUE)
-                    wasNull <- TRUE
+                    private$.dataProvided <- FALSE
                 } else {
                     if ( ! is.data.frame(private$.data))
                         reject("Argument 'data' must be a data frame")
@@ -174,9 +174,30 @@ Analysis <- R6::R6Class("Analysis",
 
             }, silent=TRUE)
 
+            if (isError(result)) {
+                message <- extractErrorMessage(result)
+                stack <- attr(result, 'stack')
+                self$setError(message, stack)
+                private$.status <- 'error'
+            } else if (self$options$gtg == FALSE) {
+                private$.status <- 'complete'
+            } else if (private$.status != 'complete') {
+                private$.status <- 'inited'
+            }
+        },
+        postInit=function(noThrow=FALSE) {
+
+            try <- dontTry
+            if (noThrow)
+                try <- tryStack
+
+            result <- try({
+                private$.postInit()
+            }, silent=TRUE)
+
             if ( ! self$options$requiresData) {
                 # do nothing
-            } else if (wasNull) {
+            } else if ( ! private$.dataProvided) {
                 private$.data <- NULL
             }
 
@@ -190,16 +211,16 @@ Analysis <- R6::R6Class("Analysis",
             } else if (private$.status != 'complete') {
                 private$.status <- 'inited'
             }
+
+            TRUE
         },
         run=function(noThrow=FALSE) {
 
             if (private$.status != "inited")
                 self$init()
 
-            wasNull <- FALSE
-
             if (is.null(private$.data)) {
-                wasNull <- TRUE
+                private$.dataProvided <- FALSE
                 private$.data <- self$readDataset()
             }
 
@@ -213,7 +234,7 @@ Analysis <- R6::R6Class("Analysis",
                 result <- private$.run()
             }, silent=TRUE)
 
-            if (wasNull)
+            if ( ! private$.dataProvided)
                 private$.data <- NULL
 
             if (private$.status == 'restarting') {
