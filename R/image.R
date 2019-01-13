@@ -127,7 +127,7 @@ Image <- R6::R6Class("Image",
 
             result <- super$asProtoBuf(incAsText=incAsText, status=status)
 
-            if (self$isFilled()) {
+            if (self$status == 'none' && self$isFilled()) {
 
                 result$status <- jamovi.coms.AnalysisStatus$ANALYSIS_COMPLETE
 
