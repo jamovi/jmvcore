@@ -322,13 +322,13 @@ Analysis <- R6::R6Class("Analysis",
             if ( ! is.character(funName))
                 stop('no render function', call.=FALSE)
 
-            if ( ! is.null(image$path))
+            if ( ! is.null(image$filePath))
                 return(FALSE)
-
-            render <- private[[funName]]
 
             if (image$visible == FALSE)
                 return(FALSE)
+
+            render <- private[[funName]]
 
             if (is.function(render) == FALSE) {
                 image$.setPath(NULL)
