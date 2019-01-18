@@ -113,6 +113,10 @@ ResultsElement <- R6::R6Class("ResultsElement",
             private$.visibleExpr <- paste0(visible)
             private$.visibleValue <- visible
         },
+        resetVisible=function() {
+            private$.visibleExpr <- NULL
+            private$.visibleValue <- TRUE
+        },
         setTitle=function(title) {
             if ( ! is.character(title) || length(title) != 1)
                 reject('setTitle(): title must be a string')
