@@ -30,7 +30,8 @@ Group <- R6::R6Class("Group",
                  "Perhaps you mean to access some of it's children:",
                  children,
                  call.=FALSE)
-        }),
+        }
+    ),
     public=list(
         initialize=function(
             options,
@@ -38,7 +39,7 @@ Group <- R6::R6Class("Group",
             title='no title',
             visible=TRUE,
             clearWith=NULL,
-            refs=list()) {
+            refs=character()) {
 
             super$initialize(
                 options=options,
@@ -86,6 +87,20 @@ Group <- R6::R6Class("Group",
                     return(FALSE)
             }
             TRUE
+        },
+        getRefs=function(recurse=FALSE) {
+            refs <- character()
+            if (length(private$.items) == 0)
+                return(refs)
+            if (recurse) {
+                for (child in private$.items) {
+                    if (child$visible)
+                        refs <- c(refs, child$getRefs(recurse))
+                }
+            }
+            refs <- c(refs, super$getRefs(recurse))
+            refs <- unique(refs)
+            return(refs)
         },
         .update=function() {
             if (private$.updated)

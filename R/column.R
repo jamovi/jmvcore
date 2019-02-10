@@ -12,6 +12,7 @@ Column <- R6::R6Class("Column",
         .superTitle=NA,
         .combineBelow=FALSE,
         .sortable=FALSE,
+        .refs=NA,
         .hasSortKeys=FALSE,
         .cells=list(),
         .width = 0,
@@ -57,7 +58,8 @@ Column <- R6::R6Class("Column",
             }
             private$.visibleExpr <- paste(value)
             invisible(self)
-        }),
+        }
+    ),
     public=list(
         initialize=function(
             options,
@@ -69,7 +71,8 @@ Column <- R6::R6Class("Column",
             type,
             format,
             combineBelow,
-            sortable) {
+            sortable,
+            refs) {
 
             private$.options <- options
 
@@ -85,6 +88,7 @@ Column <- R6::R6Class("Column",
             private$.format <- strsplit(format, ',', fixed=TRUE)[[1]]
             private$.combineBelow <- combineBelow
             private$.sortable <- sortable
+            private$.refs <- as.character(refs)
 
             private$.measured <- FALSE
             private$.cells <- list()
@@ -145,6 +149,12 @@ Column <- R6::R6Class("Column",
             private$.hasSortKeys <- TRUE
             for (i in seq_along(private$.cells))
                 private$.cells[[i]]$sortKey <- keys[[i]]
+        },
+        setRefs=function(refs) {
+            private$.refs <- as.character(refs)
+        },
+        getRefs=function() {
+            private$.refs
         },
         .measure=function() {
             base::Encoding(private$.title) <- 'UTF-8'
@@ -273,4 +283,3 @@ as.list.Column <- function(x, ...) {
         v
     })
 }
-

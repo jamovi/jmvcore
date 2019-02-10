@@ -80,6 +80,21 @@ message AnalysisResponse {
     bool restartEngines = 12;
     string stacktrace = 13;
     uint32 version = 14;
+    int32 index = 15;
+    repeated Reference references = 16;
+}
+
+message Reference {
+    string name = 1;
+    Authors authors = 2;
+    uint32 year = 3;
+    string title = 4;
+    string publisher = 5;
+    string url = 7;
+}
+
+message Authors {
+    string complete = 8;
 }
 
 message AnalysisOption {
@@ -223,4 +238,5 @@ message ResultsElement {
 
     bytes state = 14;
     Visible visible = 15;
+    repeated string refs = 16;
 }

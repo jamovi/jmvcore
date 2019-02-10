@@ -15,18 +15,18 @@ Note <- R6::R6Class('Note',
 #' @rdname Analysis
 #' @importFrom rjson fromJSON
 #' @export
-Table <- R6::R6Class("Table",
+Table <- R6::R6Class('Table',
     inherit=ResultsElement,
     private=list(
         .columns=NA,
         .rowCount=0,
         .rowKeys=character(),
         .rowNames=character(),
-        .rowsExpr="0",
+        .rowsExpr='0',
         .margin=1,
         .padding=2,
-        .marstr=" ",
-        .padstr="  ",
+        .marstr=' ',
+        .padstr='  ',
         .swapRowsColumns=FALSE,
         .rowSelect='',
         .sortSelect='',
@@ -91,8 +91,7 @@ Table <- R6::R6Class("Table",
         columns=function() private$.columns,
         rowCount=function() private$.rowCount,
         notes=function() private$.notes,
-        asDF=function() as.data.frame.Table(self)
-    ),
+        asDF=function() as.data.frame.Table(self)),
     public=list(
         initialize=function(
             options,
@@ -100,6 +99,7 @@ Table <- R6::R6Class("Table",
             title='no title',
             visible=TRUE,
             clearWith='*',
+            refs=character(),
             columns=list(),
             rows=0,
             notes=list(),
@@ -115,7 +115,8 @@ Table <- R6::R6Class("Table",
                 name=name,
                 title=title,
                 visible=visible,
-                clearWith=clearWith)
+                clearWith=clearWith,
+                refs=refs)
 
             private$.rowSelect <- rowSelect
             private$.sortSelect <- sortSelect
@@ -193,6 +194,16 @@ Table <- R6::R6Class("Table",
 
             TRUE
         },
+        getRefs=function(recurse=FALSE) {
+            refs <- character()
+            for (column in private$.columns) {
+                if (column$visible)
+                    refs <- c(refs, column$getRefs())
+            }
+            refs <- c(super$getRefs(), refs)
+            refs <- unique(refs)
+            refs
+        },
         .update=function() {
 
             if (private$.updated)
@@ -204,7 +215,7 @@ Table <- R6::R6Class("Table",
 
             newKeys <- try(private$.options$eval(private$.rowsExpr, .key=private$.key, .name=private$.name, .index=private$.index), silent=TRUE)
 
-            if (base::inherits(newKeys, "try-error")) {
+            if (base::inherits(newKeys, 'try-error')) {
                 error <- newKeys
                 newKeys <- character()
             } else if (is.list(newKeys)) {
@@ -264,7 +275,8 @@ Table <- R6::R6Class("Table",
             format='',
             combineBelow=FALSE,
             sortable=FALSE,
-            value=NA) {
+            value=NA,
+            refs=character()) {
 
             if ( ! isString(name))
                 reject('Table$addColumn(): name must be a string')
@@ -293,7 +305,8 @@ Table <- R6::R6Class("Table",
                 type=type,
                 format=format,
                 combineBelow=combineBelow,
-                sortable=sortable)
+                sortable=sortable,
+                refs=refs)
 
             for (i in seq_len(private$.rowCount)) {
                 rowKey <- private$.rowKeys[[i]]
@@ -325,7 +338,7 @@ Table <- R6::R6Class("Table",
 
             for (value in values) {
                 if ( ! isValue(value))
-                    reject("Table$addRow(): value is not atomic", code='error')
+                    reject('Table$addRow(): value is not atomic', code='error')
             }
 
             private$.rowKeys[length(private$.rowKeys)+1] <- list(rowKey)  # allow NULL
@@ -361,7 +374,7 @@ Table <- R6::R6Class("Table",
                     reject("Table$setRow(): rowKey '{key}' not found", key=rowKey)
 
             } else if (rowNo > private$.rowCount) {
-                reject("Table$setRow(): rowNo {rowNo} > No. rows ({rowCount})", rowNo=rowNo, rowCount=private$.rowCount)
+                reject('Table$setRow(): rowNo {rowNo} > No. rows ({rowCount})', rowNo=rowNo, rowCount=private$.rowCount)
             }
 
             valueNames <- names(values)
@@ -389,7 +402,7 @@ Table <- R6::R6Class("Table",
                     reject("Table$setCell(): rowKey '{key}' not found", key=rowKey)
 
             } else if (rowNo > private$.rowCount) {
-                reject("Table$setCell(): rowNo exceeds rowCount ({rowNo} > {rowCount})", rowNo=rowNo, rowCount=private$.rowCount)
+                reject('Table$setCell(): rowNo exceeds rowCount ({rowNo} > {rowCount})', rowNo=rowNo, rowCount=private$.rowCount)
             }
 
             column <- private$.columns[[col]]
@@ -406,7 +419,7 @@ Table <- R6::R6Class("Table",
                     reject("Table$getCell(): rowKey '{key}' not found", key=rowKey)
 
             } else if (rowNo > private$.rowCount) {
-                reject("Table$getCell(): rowNo exceeds rowCount ({rowNo} > {rowCount})", rowNo=rowNo, rowCount=private$.rowCount)
+                reject('Table$getCell(): rowNo exceeds rowCount ({rowNo} > {rowCount})', rowNo=rowNo, rowCount=private$.rowCount)
             }
 
             column <- private$.columns[[col]]
@@ -432,7 +445,7 @@ Table <- R6::R6Class("Table",
                     reject("Table$getRow(): rowKey '{key}' not found", key=rowKey)
 
             } else if (rowNo > private$.rowCount) {
-                reject("Table$getRow(): rowNo exceeds rowCount ({rowNo} > {rowCount})", rowNo=rowNo, rowCount=private$.rowCount)
+                reject('Table$getRow(): rowNo exceeds rowCount ({rowNo} > {rowCount})', rowNo=rowNo, rowCount=private$.rowCount)
             }
 
             values <- list()
@@ -547,7 +560,7 @@ Table <- R6::R6Class("Table",
             pieces <- c(pieces, self$.footerForPrint())
             pieces <- c(pieces, '\n')
 
-            v <- paste0(pieces, collapse="")
+            v <- paste0(pieces, collapse='')
             Encoding(v) <- 'UTF-8'
             v
         },
@@ -563,7 +576,7 @@ Table <- R6::R6Class("Table",
             pieces <- c(pieces, private$.marstr, self$title, padright, private$.marstr, '\n')
             pieces <- c(pieces, private$.marstr, repstr('\u2500', wid), private$.marstr, '\n')
 
-            paste0(pieces, collapse="")
+            paste0(pieces, collapse='')
         },
         .headerForPrint=function() {
 
@@ -599,7 +612,7 @@ Table <- R6::R6Class("Table",
 
             pieces <- c(pieces, private$.marstr, repstr('\u2500', wid), private$.marstr, '\n')
 
-            paste0(pieces, collapse="")
+            paste0(pieces, collapse='')
         },
         .footerForPrint=function() {
 
@@ -637,7 +650,7 @@ Table <- R6::R6Class("Table",
                 pieces <- c(pieces, paragraph, '\n')
             }
 
-            paste0(pieces, collapse="")
+            paste0(pieces, collapse='')
         },
         .rowForPrint=function(i) {
 
@@ -679,11 +692,11 @@ Table <- R6::R6Class("Table",
 
             pieces <- c(pieces, private$.marstr, '\n')
 
-            paste0(pieces, collapse="")
+            paste0(pieces, collapse='')
         },
         fromProtoBuf=function(element, oChanges, vChanges) {
-            if ( ! base::inherits(element, "Message"))
-                reject("Table$fromProtoBuf() expects a jamovi.coms.ResultsElement")
+            if ( ! base::inherits(element, 'Message'))
+                reject('Table$fromProtoBuf() expects a jamovi.coms.ResultsElement')
 
             someChanges <- length(oChanges) > 0 || length(vChanges) > 0
             if (someChanges && base::identical('*', private$.clearWith))
@@ -763,7 +776,7 @@ Table <- R6::R6Class("Table",
             table <- RProtoBuf_new(jamovi.coms.ResultsTable)
 
             for (column in private$.columns)
-                table$add("columns", column$asProtoBuf())
+                table$add('columns', column$asProtoBuf())
 
             table$rowNames <- private$.rowNames
             table$swapRowsColumns <- private$.swapRowsColumns
@@ -828,10 +841,9 @@ as.data.frame.Table <- function(x, row.names, optional, ...) {
 
 #' @export
 #' @importFrom utils .DollarNames
-.DollarNames.Table <- function(x, pattern = "") {
+.DollarNames.Table <- function(x, pattern = '') {
     names <- ls(x, all.names=F, pattern = pattern)
     retain <- c('asDF', 'asString')
     names <- intersect(names, retain)
     names
 }
-

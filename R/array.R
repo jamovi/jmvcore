@@ -31,6 +31,7 @@ Array <- R6::R6Class("Array",
             title='no title',
             visible=TRUE,
             clearWith=NULL,
+            refs=character(),
             items=0,
             layout='none',
             hideHeadingOnlyChild=FALSE,
@@ -41,7 +42,8 @@ Array <- R6::R6Class("Array",
                 name=name,
                 title=title,
                 visible=visible,
-                clearWith=clearWith)
+                clearWith=clearWith,
+                refs=refs)
 
             private$.template <- template
             private$.itemsExpr <- paste(items)
@@ -80,6 +82,20 @@ Array <- R6::R6Class("Array",
                     return(FALSE)
             }
             TRUE
+        },
+        getRefs=function(recurse=FALSE) {
+            refs <- character()
+            if (length(private$.items) == 0)
+                return(refs)
+            if (recurse) {
+                for (child in private$.items) {
+                    if (child$visible)
+                        refs <- c(refs, child$getRefs(recurse))
+                }
+            }
+            refs <- c(refs, super$getRefs(recurse))
+            refs <- unique(refs)
+            return(refs)
         },
         .createImages=function(...) {
             rendered <- FALSE

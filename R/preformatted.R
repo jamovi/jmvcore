@@ -23,14 +23,16 @@ Preformatted <- R6::R6Class("Preformatted",
             name='',
             title='',
             visible=TRUE,
-            clearWith='*') {
+            clearWith='*',
+            refs=character()) {
 
             super$initialize(
                 options=options,
                 name=name,
                 title=title,
                 visible=visible,
-                clearWith=clearWith)
+                clearWith=clearWith,
+                refs=refs)
         },
         setContent=function(value) {
             if ( ! is.character(value))

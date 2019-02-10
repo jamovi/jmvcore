@@ -16,7 +16,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
         .clearWith=NA,
         .state=NA,
         .stale=FALSE,
-        .refs=list(),
+        .refs=NA,
         .parent=NA,
         deep_clone=function(name, value) {
             value
@@ -29,7 +29,6 @@ ResultsElement <- R6::R6Class("ResultsElement",
         visible=function() private$.visibleValue,
         title=function() private$.titleValue,
         state=function() private$.state,
-        refs=function() private$.refs,
         path=function() {
             if (inherits(private$.parent, "ResultsElement")) {
                 parentPath <- private$.parent$path
@@ -67,7 +66,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
             title,
             visible,
             clearWith,
-            refs=list()) {
+            refs) {
 
             private$.options <- options
             private$.name <- name
@@ -80,6 +79,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
                 private$.visibleExpr <- paste0(visible)
 
             private$.clearWith <- clearWith
+            private$.refs <- as.character(refs)
 
             private$.updated <- FALSE
             private$.state <- NULL
@@ -122,6 +122,12 @@ ResultsElement <- R6::R6Class("ResultsElement",
                 reject('setTitle(): title must be a string')
             private$.titleExpr <- title
             private$.titleValue <- title
+        },
+        getRefs=function(recurse=FALSE) {
+            private$.refs
+        },
+        setRefs=function(refs) {
+            private$.refs <- as.character(refs)
         },
         .update=function() {
             if (private$.updated)
@@ -228,7 +234,8 @@ ResultsElement <- R6::R6Class("ResultsElement",
                 stale=private$.stale,
                 state=state,
                 status=s,
-                visible=v)
+                visible=v,
+                refs=self$getRefs())
 
             if (private$.status == 'error') {
                 error <- RProtoBuf_new(jamovi.coms.Error,

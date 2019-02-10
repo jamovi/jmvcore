@@ -32,14 +32,16 @@ Image <- R6::R6Class("Image",
             name=NULL,
             title='',
             visible=TRUE,
-            clearWith='*') {
+            clearWith='*',
+            refs=character()) {
 
             super$initialize(
                 options=options,
                 name=name,
                 title=title,
                 visible=visible,
-                clearWith=clearWith)
+                clearWith=clearWith,
+                refs=refs)
 
             private$.width <- width
             private$.height <- height
