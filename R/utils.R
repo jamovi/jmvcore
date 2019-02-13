@@ -1145,7 +1145,7 @@ toB64 <- function(names) {
             name <- substring(name, 1, nchar(name)-1)
         name <- gsub('+', '.', name, fixed=TRUE)
         name <- gsub('/', '_', name, fixed=TRUE)
-        name <- paste0('.', name)
+        name <- paste0('X', name)
     }, USE.NAMES=FALSE)
 }
 
