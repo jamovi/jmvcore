@@ -221,6 +221,10 @@ decomposeTerms <- function(terms) {
     decomposed
 }
 
+#' Decompose a formula
+#' @param formula the formula to decompose
+#' @return a list of lists of the formulas components
+#' @export
 decomposeFormula <- function(formula) {
 
     chars <- as.character(formula)
@@ -264,8 +268,20 @@ decomposeFormula <- function(formula) {
     decomposeTerms(components)
 }
 
+#' rlang::enquo
+#' Simplifies things so packages overriding Analysis don't need
+#' to have rlang in their imports.
+#' This is intended for use by classes overriding Analysis
+#' @param arg the argument to enquote
+#' @return the quosure
+#' @export
 enquo <- rlang::enquo
 
+#' Evaluates a quosure
+#' This is intended for use by classes overriding Analysis
+#' @param quo the quosure to evaluate
+#' @return the value of the quosure
+#' @export
 resolveQuo <- function(quo) {
     if (rlang::is_null(quo))
         return(NULL)

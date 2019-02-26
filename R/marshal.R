@@ -1,4 +1,9 @@
 
+#' Marshal the data from an environment into a data frame
+#' @param env the environment to marshal from
+#' @param ... the variables to marshal
+#' @return a data frame
+#' @export
 marshalData <- function(env, ...) {
     data <- list()
     for (value in list(...)) {
@@ -11,6 +16,17 @@ marshalData <- function(env, ...) {
     as.data.frame(data)
 }
 
+#' Marshal a formula into options
+#' @param formula the formula
+#' @param data a data frame to marshal the data from
+#' @param name the name of the option which is being marshalled to
+#' @param class the class of the analysis
+#' @param from 'rhs' or 'lhs', which side of the formula should be marshalled
+#' @param type 'vars' or 'terms', the type of the option be marshalled to
+#' @param permitted the types of data the option permits
+#' @param subset a subset of the formula to marshal
+#' @param required whether this marshall is required or not
+#' @param ... extra args for forwards compatibility
 #' @importFrom stats as.formula terms.formula
 marshalFormula <- function(formula, data, from='rhs', type='vars', permitted=c('numeric', 'factor'), subset=':', required=FALSE) {
     if ( ! inherits(formula, 'formula'))
