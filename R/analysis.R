@@ -490,8 +490,10 @@ Analysis <- R6::R6Class('Analysis',
                         refPB <- RProtoBuf_new(jamovi.coms.Reference)
                         names <- names(fullRef)
                         refPB$name <- ref
-                        if ('authors' %in% names)
-                            refPB$authors$complete <- fullRef$authors
+                        if ('type' %in% names)
+                            refPB$type <- fullRef$type
+                        if ('author' %in% names)
+                            refPB$authors$complete <- fullRef$author
                         if ('year' %in% names)
                             refPB$year <- fullRef$year
                         if ('title' %in% names)
@@ -500,6 +502,10 @@ Analysis <- R6::R6Class('Analysis',
                             refPB$publisher <- fullRef$publisher
                         if ('url' %in% names)
                             refPB$url <- fullRef$url
+                        if ('volume' %in% names)
+                            refPB$volume <- paste(fullRef$volume)
+                        if ('pages' %in% names)
+                            refPB$pages <- fullRef$pages
                         response$add('references', refPB)
                     }
                 }
