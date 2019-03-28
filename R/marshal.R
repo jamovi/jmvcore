@@ -19,8 +19,6 @@ marshalData <- function(env, ...) {
 #' Marshal a formula into options
 #' @param formula the formula
 #' @param data a data frame to marshal the data from
-#' @param name the name of the option which is being marshalled to
-#' @param class the class of the analysis
 #' @param from 'rhs' or 'lhs', which side of the formula should be marshalled
 #' @param type 'vars' or 'terms', the type of the option be marshalled to
 #' @param permitted the types of data the option permits
@@ -28,6 +26,7 @@ marshalData <- function(env, ...) {
 #' @param required whether this marshall is required or not
 #' @param ... extra args for forwards compatibility
 #' @importFrom stats as.formula terms.formula
+#' @export
 marshalFormula <- function(formula, data, from='rhs', type='vars', permitted=c('numeric', 'factor'), subset=':', required=FALSE) {
     if ( ! inherits(formula, 'formula'))
         stop('formula must be of class formula', call.=FALSE)

@@ -4,18 +4,13 @@
 \alias{marshalFormula}
 \title{Marshal a formula into options}
 \usage{
-marshalFormula(formula, data, name = NULL, class = NULL,
-  from = "rhs", type = "vars", permitted = c("numeric", "factor"),
-  subset = ":", required = FALSE, ...)
+marshalFormula(formula, data, from = "rhs", type = "vars",
+  permitted = c("numeric", "factor"), subset = ":", required = FALSE)
 }
 \arguments{
 \item{formula}{the formula}
 
 \item{data}{a data frame to marshal the data from}
-
-\item{name}{the name of the option which is being marshalled to}
-
-\item{class}{the class of the analysis}
 
 \item{from}{'rhs' or 'lhs', which side of the formula should be marshalled}
 
