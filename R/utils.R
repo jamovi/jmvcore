@@ -181,6 +181,9 @@ decomposeTerm <- function(term) {
     components <- character()
     componentChars <- character()
     inQuote <- FALSE
+    inI <- FALSE
+    isExp <- FALSE
+    componentInProgress <- TRUE
 
     i <- 1
     n <- length(chars)
@@ -190,24 +193,59 @@ decomposeTerm <- function(term) {
         if (char == '`') {
             inQuote <- ! inQuote
         }
+        else if (inQuote == FALSE && char == 'I' && (i + 1 <= n) && chars[i + 1] == '(') {
+            inI <- TRUE
+            i <- i + 1
+        }
+        else if (inQuote == FALSE && inI == TRUE && (char == ')' || char == ':')) {
+            if (char == ')')
+                inI <- FALSE
+            if (isExp) {
+                prev <- component
+                component <- paste0(componentChars, collapse='')
+                exp <- as.numeric(component)
+                if (exp > 1) {
+                    component <- rep(prev, exp-1)
+                    components <- c(components, component)
+                }
+                componentChars <- character()
+                componentInProgress <- FALSE
+                isExp <- FALSE
+            }
+        }
+        else if (inQuote == FALSE && inI == TRUE && char == '^') {
+            component <- paste0(componentChars, collapse='')
+            components <- c(components, component)
+            componentChars <- character()
+            isExp <- TRUE
+        }
         else if (char == '\\') {
             i <- i + 1
             char <- chars[i]
             componentChars <- c(componentChars, char)
         }
         else if (char == ':' && inQuote == FALSE) {
-            component <- paste0(componentChars, collapse='')
-            components <- c(components, component)
+            if (componentInProgress) {
+                if (isExp)
+                    prev <- component
+                component <- paste0(componentChars, collapse='')
+                components <- c(components, component)
+            }
             componentChars <- character()
+            isExp <- FALSE
+            componentInProgress <- TRUE
         }
         else {
             componentChars <- c(componentChars, char)
+            componentInProgress <- TRUE
         }
         i <- i + 1
     }
 
-    component <- paste0(componentChars, collapse='')
-    components <- c(components, component)
+    if (componentInProgress) {
+        component <- paste0(componentChars, collapse='')
+        components <- c(components, component)
+    }
 
     components
 }
