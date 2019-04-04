@@ -504,6 +504,8 @@ Analysis <- R6::R6Class('Analysis',
                             refPB$url <- fullRef$url
                         if ('volume' %in% names)
                             refPB$volume <- paste(fullRef$volume)
+                        if ('issue' %in% names)
+                            refPB$issue <- paste(fullRef$issue)
                         if ('pages' %in% names)
                             refPB$pages <- fullRef$pages
                         response$add('references', refPB)
