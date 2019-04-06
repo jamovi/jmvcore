@@ -1277,3 +1277,39 @@ trimws <- function (x, which = c("both", "left", "right"))
         return(mysub("[ \t\r\n]+$", x))
     mysub("[ \t\r\n]+$", mysub("^[ \t\r\n]+", x))
 }
+
+htmlToText <- function(html) {
+
+    text <- html
+
+    text <- gsub("^\\s*<h[1-9]>", "", text)
+    text <- gsub("^\\s*<p>", "", text)
+
+    text <- gsub("<\\/?em>", "*", text)
+    text <- gsub("<\\/p>\\s*<p>", "\n\n", text)
+    text <- gsub("<\\/h[1-9]>\\s*<p>", "\n\n", text)
+
+    text <- gsub("<\\/p>", "\n\n", text)
+    text <- gsub("<\\/h[1-9]>", "\n\n", text)
+
+    text <- gsub("<p>", "\n\n", text)
+    text <- gsub("<h[1-9]>", "\n\n", text)
+    text <- gsub("<br>", "\n", text)
+    text <- gsub("<\\/?[a-zA-Z]+[1-9]*>", "", text)
+    text <- gsub(" +", " ", text)
+
+    text <- gsub("&alpha;", "\u03B1", text)
+    text <- gsub("&gt;", ">", text)
+    text <- gsub("&lt;", "<", text)
+    text <- gsub("&ne;", "\u2260", text)
+
+    text <- gsub("^\n+", "", text)
+    text <- gsub("\n+$", "", text)
+
+    text <- gsub("\n\n+", "\n\n", text)
+
+    Encoding(text) <- 'UTF-8'
+    text
+}
+
+
