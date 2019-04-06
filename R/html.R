@@ -38,7 +38,8 @@ Html <- R6::R6Class("Html",
             title='',
             visible=TRUE,
             clearWith='*',
-            refs=character()) {
+            refs=character(),
+            content='') {
 
             super$initialize(
                 options=options,
@@ -47,6 +48,8 @@ Html <- R6::R6Class("Html",
                 visible=visible,
                 clearWith=clearWith,
                 refs=refs)
+
+            private$.content <- content
         },
         setContent=function(value) {
 
