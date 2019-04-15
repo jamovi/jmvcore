@@ -360,19 +360,22 @@ resolveQuo <- function(quo) {
 #' # "quoted * b * c"
 #'
 #' @export
-stringifyTerm <- function(components, sep=getOption('jmvTermSep', ':')) {
+stringifyTerm <- function(components, sep=getOption('jmvTermSep', ':'), raise=FALSE) {
 
     POWER_SUPS <- c('', '\u00B2', '\u00B3', '\u2074', '\u2075',
                     '\u2076', '\u2077', '\u2078', '\u2079')
 
-    components <- unlist(components)
-    uniques <- unique(components)
-    counts <- integer(length(uniques))
-    names(counts) <- uniques
-    for (component in components)
-        counts[component] <- counts[component] + 1
+    if (raise) {
+        components <- unlist(components)
+        uniques <- unique(components)
+        counts <- integer(length(uniques))
+        names(counts) <- uniques
+        for (component in components)
+            counts[component] <- counts[component] + 1
+        components <- uniques
+    }
 
-    components <- sapply(uniques, function(x) {
+    components <- sapply(components, function(x) {
         if (startsWith(x, '`') && endsWith(x, '`')) {
             x <- substring(x, 2, nchar(x)-1)
             x <- gsub('`', '\\`', x, fixed=TRUE)
@@ -380,7 +383,9 @@ stringifyTerm <- function(components, sep=getOption('jmvTermSep', ':')) {
         x
     })
 
-    components <- paste0(components, POWER_SUPS[counts])
+    if (raise) {
+        components <- paste0(components, POWER_SUPS[counts])
+    }
 
     term <- paste(components, collapse=sep)
 
@@ -1311,5 +1316,3 @@ htmlToText <- function(html) {
     Encoding(text) <- 'UTF-8'
     text
 }
-
-
