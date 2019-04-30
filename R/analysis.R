@@ -494,8 +494,12 @@ Analysis <- R6::R6Class('Analysis',
                             refPB$type <- fullRef$type
                         if ('author' %in% names)
                             refPB$authors$complete <- fullRef$author
-                        if ('year' %in% names)
-                            refPB$year <- fullRef$year
+                        if ('year' %in% names) {
+                            year <- fullRef$year
+                            if (grepl('^[0-9]+$', year))
+                                refPB$year <- as.integer(year)
+                            refPB$year2 <- as.character(year)
+                        }
                         if ('title' %in% names)
                             refPB$title <- fullRef$title
                         if ('publisher' %in% names)
