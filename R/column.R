@@ -95,9 +95,11 @@ Column <- R6::R6Class("Column",
 
         },
         setTitle=function(title) {
+            title <- paste(title, collapse='')
             private$.title <- title
         },
         setSuperTitle=function(title) {
+            title <- paste(title, collapse='')
             private$.superTitle <- title
         },
         setVisible=function(visible) {
