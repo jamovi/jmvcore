@@ -7,6 +7,7 @@
 \alias{OptionList}
 \alias{OptionNMXList}
 \alias{OptionVariables}
+\alias{OptionTerm}
 \alias{OptionVariable}
 \alias{OptionTerms}
 \alias{OptionInteger}
@@ -29,6 +30,8 @@ OptionList
 OptionNMXList
 
 OptionVariables
+
+OptionTerm
 
 OptionVariable
 
