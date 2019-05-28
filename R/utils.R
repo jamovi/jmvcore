@@ -340,6 +340,7 @@ resolveQuo <- function(quo) {
 #'
 #' @param components a character vector of components
 #' @param sep a separator to go between the components
+#' @param raise whether duplicates should be raised to powers
 #' @return the components joined together into a string for disply
 #' @examples
 #' stringifyTerm(c('a', 'b', 'c'))

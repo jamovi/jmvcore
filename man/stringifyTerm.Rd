@@ -4,12 +4,15 @@
 \alias{stringifyTerm}
 \title{Converts a term into a string}
 \usage{
-stringifyTerm(components, sep = getOption("jmvTermSep", ":"))
+stringifyTerm(components, sep = getOption("jmvTermSep", ":"),
+  raise = FALSE)
 }
 \arguments{
 \item{components}{a character vector of components}
 
 \item{sep}{a separator to go between the components}
+
+\item{raise}{whether duplicates should be raised to powers}
 }
 \value{
 the components joined together into a string for disply
