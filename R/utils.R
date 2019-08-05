@@ -1330,3 +1330,17 @@ htmlToText <- function(html) {
     Encoding(text) <- 'UTF-8'
     text
 }
+
+#' @export
+#' @param x the item to find
+#' @param table the object to search
+#' @return the index of where the item appears, or -1 if it isn't present
+matchSet <- function(x, table) {
+    x <- sort(x)
+    for (i in seq_along(table)) {
+        row <- sort(table[[i]])
+        if (identical(row, x))
+            return(i)
+    }
+    return(-1)
+}
