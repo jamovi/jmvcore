@@ -501,12 +501,25 @@ format <- function(str, ..., context="normal") {
             }
 
         }
-        if (grepl("\\{[a-zA-Z]+\\}", str)[1]) {
+        if (grepl("\\{ *[A-Za-z][A-Za-z0-9]* *\\}", str)[1]) {
 
-            for (name in names(args)) {
-                if (name != "" && is.null(args[[name]]) == FALSE) {
-                    str <- gsub(paste0("{", name, "}"), stringify(args[[name]], context), str, fixed=TRUE)
+            match <- regexec('\\{ *([A-Za-z][A-Za-z0-9]*?) *\\}', str)[[1]]
+            while (match != -1) {
+                name   <- substring(str, match[2], match[2] + attr(match, 'match.length')[2] - 1)
+                before <- substring(str, 1, match[1] - 1)
+                after  <- substring(str, match[1] + attr(match, 'match.length')[1])
+                if (name %in% names(args)) {
+                    value <- args[[name]]
+                    if (length(value) == 0) {
+                        value <- '\u2026'
+                    } else {
+                        value <- stringify(args[[name]], context)
+                    }
+                } else {
+                    value <- '\u2026'
                 }
+                str <- paste0(before, value, after)
+                match <- regexec('\\{ *([A-Za-z][A-Za-z0-9]*?) *\\}', str)[[1]]
             }
         }
     }

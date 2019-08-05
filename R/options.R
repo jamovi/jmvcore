@@ -159,6 +159,12 @@ Options <- R6::R6Class(
                         return(value)
                     }
 
+                } else if (grepl('^`.*`$', value)) {
+
+                    value <- substring(value, 2, nchar(value)-1)
+                    formatStr <- function(...) format(str=value, ...)
+                    value <- do.call(formatStr, as.list(private$.env))
+
                 } else {
 
                     nch <- nchar(value)
