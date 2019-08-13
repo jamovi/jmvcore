@@ -28,6 +28,8 @@ Analysis <- R6::R6Class('Analysis',
         .version=NA,
         .changed=character(),
         .revision=0,
+        .parent=NA,
+        .addons=NA,
         .stacktrace='',
         .checkpoint=function(flush=TRUE) {
             if (is.null(private$.checkpointCB))
@@ -95,7 +97,8 @@ Analysis <- R6::R6Class('Analysis',
         status=function() private$.status,
         complete=function() base::identical(private$.status, 'complete'),
         errored=function() base::identical(private$.status, 'error'),
-        formula=function() private$.formula()),
+        formula=function() private$.formula(),
+        parent=function() private$.parent),
     public=list(
         initialize=function(
             package,
@@ -129,6 +132,9 @@ Analysis <- R6::R6Class('Analysis',
             private$.options$addChangeListener(private$.optionsChangedHandler)
 
             private$.checkpointCB <- NULL
+
+            private$.parent <- NULL
+            private$.addons <- list()
         },
         check=function(checkValues=FALSE, checkVars=FALSE, checkData=FALSE) {
             private$.options$check(
@@ -158,8 +164,13 @@ Analysis <- R6::R6Class('Analysis',
                 if ( ! self$options$requiresData) {
                     # do nothing
                 } else if (is.null(private$.data)) {
-                    private$.data <- self$readDataset(TRUE)
+                    data <- self$readDataset(TRUE)
+                    private$.data <- data
                     private$.dataProvided <- FALSE
+                    for (addon in private$.addons) {
+                        addon$.__enclos_env__$private$.data <- data
+                        addon$.__enclos_env__$private$.dataProvided <- FALSE
+                    }
                 } else {
                     if ( ! is.data.frame(private$.data))
                         reject("Argument 'data' must be a data frame")
@@ -167,10 +178,24 @@ Analysis <- R6::R6Class('Analysis',
                 }
 
                 self$options$check(checkValues=TRUE)
+                for (addon in private$.addons)
+                    addon$options$check(checkValues=TRUE)
+
                 self$results$.update()
+                for (addon in private$.addons)
+                    addon$results$.update()
+
                 self$options$check(checkVars=TRUE)
+                for (addon in private$.addons)
+                    addon$options$check(checkVars=TRUE)
+
                 private$.init()
+                for (addon in private$.addons)
+                    addon$.__enclos_env__$private$.init()
+
                 self$options$check(checkData=TRUE)
+                for (addon in private$.addons)
+                    addon$options$check(checkData=TRUE)
 
             }, silent=TRUE)
 
@@ -199,6 +224,8 @@ Analysis <- R6::R6Class('Analysis',
                 # do nothing
             } else if ( ! private$.dataProvided) {
                 private$.data <- NULL
+                for (addon in private$.addons)
+                    addon$.__enclos_env__$private$.data <- NULL
             }
 
             if (isError(result)) {
@@ -222,6 +249,10 @@ Analysis <- R6::R6Class('Analysis',
             if (is.null(private$.data)) {
                 private$.dataProvided <- FALSE
                 private$.data <- self$readDataset()
+                for (addon in private$.addons) {
+                    addon$.__enclos_env__$private$.data <- data
+                    addon$.__enclos_env__$private$.dataProvided <- FALSE
+                }
             }
 
             private$.status <- 'running'
@@ -232,10 +263,15 @@ Analysis <- R6::R6Class('Analysis',
 
             result <- try({
                 result <- private$.run()
+                for (addon in private$.addons)
+                    addon$.__enclos_env__$private$.run()
             }, silent=TRUE)
 
-            if ( ! private$.dataProvided)
+            if ( ! private$.dataProvided) {
                 private$.data <- NULL
+                for (addon in private$.addons)
+                    addon$.__enclos_env__$private$.data <- NULL
+            }
 
             if (private$.status == 'restarting') {
                 return(FALSE)  # FALSE means don't bother sending results
@@ -250,36 +286,44 @@ Analysis <- R6::R6Class('Analysis',
 
             return(TRUE)
         },
+        addAddon=function(addon) {
+            private$.addons[[length(private$.addons)+1]] <- addon
+            addon$.setParent(self)
+        },
         print=function() {
             cat(self$results$asString())
         },
         .save=function() {
-            path <- private$.statePathSource()
-            Encoding(path) <- 'UTF-8'
-            conn <- file(path, open='wb', raw=TRUE)
-            on.exit(close(conn), add=TRUE)
-            RProtoBuf_serialize(self$asProtoBuf(), conn)
+            try({
+                path <- private$.statePathSource()
+                Encoding(path) <- 'UTF-8'
+                conn <- file(path, open='wb', raw=TRUE)
+                on.exit(close(conn), add=TRUE)
+                RProtoBuf_serialize(self$asProtoBuf(), conn)
+            }, silent=TRUE)
         },
         .load=function(vChanges=character()) {
 
-            initProtoBuf()
+            try({
+                initProtoBuf()
 
-            path <- private$.statePathSource()
-            Encoding(path) <- 'UTF-8'
+                path <- private$.statePathSource()
+                Encoding(path) <- 'UTF-8'
 
-            if (base::file.exists(path)) {
-                conn <- file(path, open='rb', raw=TRUE)
-                on.exit(close(conn), add=TRUE)
+                if (base::file.exists(path)) {
+                    conn <- file(path, open='rb', raw=TRUE)
+                    on.exit(close(conn), add=TRUE)
 
-                pb <- RProtoBuf_read(jamovi.coms.AnalysisResponse, conn)
-                oChanges <- private$.options$compProtoBuf(pb$options)
-                private$.results$fromProtoBuf(pb$results, oChanges, vChanges)
-            }
+                    pb <- RProtoBuf_read(jamovi.coms.AnalysisResponse, conn)
+                    oChanges <- private$.options$compProtoBuf(pb$options)
+                    private$.results$fromProtoBuf(pb$results, oChanges, vChanges)
+                }
 
-            private$.clear(vChanges)
+                private$.clear(vChanges)
 
-            if (isTRUE(private$.completeWhenFilled) && self$results$isFilled())
-                private$.status <- 'complete'
+                if (isTRUE(private$.completeWhenFilled) && self$results$isFilled())
+                    private$.status <- 'complete'
+            }, silent=TRUE)
         },
         .createPlotObject=function(funName, image, ...) {
             if ( ! is.character(funName))
@@ -424,6 +468,9 @@ Analysis <- R6::R6Class('Analysis',
         },
         .setCheckpoint=function(checkpoint) {
             private$.checkpointCB <- checkpoint
+        },
+        .setParent=function(parent) {
+            private$.parent <- parent
         },
         .savePart=function(path, part, ...) {
             Encoding(path) <- 'UTF-8'

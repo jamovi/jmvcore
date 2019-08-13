@@ -50,6 +50,8 @@ message AnalysisRequest {
     bool restartEngines = 10;
     bool clearState = 11;
 
+    repeated AnalysisRequest addons = 12;
+
     string path = 16;
     string part = 17;
     string format = 18;
