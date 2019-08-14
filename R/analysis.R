@@ -364,7 +364,7 @@ Analysis <- R6::R6Class('Analysis',
         .createImage=function(funName, image, ppi=72, noThrow=FALSE, ...) {
 
             if ( ! is.character(funName))
-                stop('no render function', call.=FALSE)
+                return(FALSE)
 
             if ( ! is.null(image$filePath))
                 return(FALSE)
@@ -418,7 +418,11 @@ Analysis <- R6::R6Class('Analysis',
             t <- getGlobalTheme(self$options$theme, self$options$palette)
 
             ev <- parse(text=paste0('private$', funName, '(image, theme = t$theme, ggtheme = t$ggtheme, ...)'))
-            result <- try(eval(ev), silent=FALSE)
+            if (noThrow) {
+                result <- try(eval(ev), silent=FALSE)
+            } else {
+                result <- eval(ev)
+            }
 
             if (dataRequired)
                 private$.data <- NULL
