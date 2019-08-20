@@ -263,8 +263,10 @@ Analysis <- R6::R6Class('Analysis',
 
             result <- try({
                 result <- private$.run()
-                for (addon in private$.addons)
+                for (addon in private$.addons) {
+                    private$.checkpoint()
                     addon$.__enclos_env__$private$.run()
+                }
             }, silent=TRUE)
 
             if ( ! private$.dataProvided) {
