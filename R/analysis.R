@@ -248,7 +248,8 @@ Analysis <- R6::R6Class('Analysis',
 
             if (is.null(private$.data)) {
                 private$.dataProvided <- FALSE
-                private$.data <- self$readDataset()
+                data <- self$readDataset()
+                private$.data <- data
                 for (addon in private$.addons) {
                     addon$.__enclos_env__$private$.data <- data
                     addon$.__enclos_env__$private$.dataProvided <- FALSE
