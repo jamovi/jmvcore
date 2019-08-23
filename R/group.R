@@ -81,6 +81,30 @@ Group <- R6::R6Class("Group",
             item$.setParent(self)
             private$.items[[item$name]] <- item
         },
+        insert=function(index, item) {
+            item$.setParent(self)
+            if (index == 1) {
+                before <- list()
+            } else {
+                before <- private$.items[1:(index-1)]
+            }
+            after <- private$.items[index:length(private$.items)]
+            between <- list(item)
+            names(between) <- item$name
+            private$.items <- c(before, between, after)
+        },
+        remove=function(name) {
+            index <- which(name == names(private$.items))
+            if (length(index) == 0)
+                return()
+            if (index == 1) {
+                before <- list()
+            } else {
+                before <- private$.items[1:(index-1)]
+            }
+            after <- private$.items[index:length(private$.items)]
+            private$.items <- c(before, after)
+        },
         isFilled=function() {
             for (item in private$.items) {
                 if (item$visible && item$isNotFilled())
