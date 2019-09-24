@@ -18,11 +18,13 @@ Imports:
     rlang (>= 0.3.0.1),
     rjson,
     base64enc,
-    stringi
+    stringi,
+    Rcpp
 Suggests:
     testthat (>= 1.0.2),
     RProtoBuf,
     knitr,
     ggplot2,
     RColorBrewer
+LinkingTo: Rcpp
 RoxygenNote: 6.1.1

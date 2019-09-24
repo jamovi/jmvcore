@@ -20,6 +20,8 @@ Table <- R6::R6Class('Table',
     private=list(
         .columns=NA,
         .rowCount=0,
+        .columnCount=0,
+        .columnsPreallocated=FALSE,
         .rowKeys=character(),
         .rowNames=character(),
         .rowsExpr='0',
@@ -264,6 +266,30 @@ Table <- R6::R6Class('Table',
                 column$clear()
             private$.rowCount <- 0
         },
+        preallocateColumns=function(n) {
+            private$.columnsPreallocated <- TRUE
+
+            column <- Column$new(
+                options=NULL,
+                name=NULL,
+                title=NULL,
+                superTitle=NULL,
+                visible=TRUE,
+                content=NULL,
+                type='Number',
+                format='',
+                combineBelow=FALSE,
+                sortable=FALSE,
+                refs=NULL)
+
+            for (i in seq_len(private$.rowCount)) {
+                rowKey <- private$.rowKeys[[i]]
+                column$addCell(.key=rowKey, .index=i, value=NA)
+            }
+
+            private$.columns <- repR6(column, n)
+
+        },
         addColumn=function(
             name,
             index=NA,
@@ -294,6 +320,32 @@ Table <- R6::R6Class('Table',
                 reject('Table$addColumn(): combineBelow must be TRUE or FALSE')
             if ( ! is.logical(sortable))
                 reject('Table$addColumn(): sortable must be TRUE or FALSE')
+
+            if (private$.columnsPreallocated) {
+
+            column <- private$.columns[[private$.columnCount+1]]
+            column$initialize(
+                options=private$.options,
+                name=name,
+                title=title,
+                superTitle=superTitle,
+                visible=visible,
+                content=content,
+                type=type,
+                format=format,
+                combineBelow=combineBelow,
+                sortable=sortable,
+                refs=refs)
+            if ( ! identical(value, NA))
+                column$fill(value)
+
+            # last column, then apply names
+            if ((private$.columnCount + 1) == length(private$.columns)) {
+                names(private$.columns) <- sapply(private$.columns, function(x) x$name)
+                private$.columnsPreallocated <- FALSE
+            }
+
+            } else {
 
             column <- Column$new(
                 options=private$.options,
@@ -331,8 +383,11 @@ Table <- R6::R6Class('Table',
 
                 private$.columns <- newColumns
             }
+            }
 
-            column
+            private$.columnCount <- private$.columnCount + 1
+
+            invisible(column)
         },
         addRow=function(rowKey, values=list()) {
 

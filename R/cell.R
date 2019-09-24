@@ -36,10 +36,7 @@ Cell.INDENTED <- 8
 
 Cell <- R6::R6Class(
     "Cell",
-    active=list(
-        isEmpty=function() {
-            self$isNotFilled()
-        }),
+    cloneable = FALSE,
     public=list(
         value=NA,
         footnotes=character(),
