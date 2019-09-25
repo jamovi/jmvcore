@@ -1,4 +1,7 @@
 
+xcell <- jmvcore:::Cell$new()
+xcell_template <- xcell$.__enclos_env__$private
+
 #' @rdname Analysis
 #' @export
 Column <- R6::R6Class("Column",
@@ -14,7 +17,7 @@ Column <- R6::R6Class("Column",
         .sortable=FALSE,
         .refs=NA,
         .hasSortKeys=FALSE,
-        .cells=list(),
+        .cells=NA,
         .width = 0,
         .measures=list(),
         .measured=FALSE,
@@ -91,8 +94,9 @@ Column <- R6::R6Class("Column",
             private$.refs <- as.character(refs)
 
             private$.measured <- FALSE
-            private$.cells <- list()
 
+            if (identical(private$.cells, NA))
+                private$.cells <- list()
         },
         setTitle=function(title) {
             title <- paste(title, collapse='')
@@ -114,31 +118,40 @@ Column <- R6::R6Class("Column",
                     value <- NULL
             }
 
-            if (inherits(value, "Cell"))
-                cell <- value
-            else
-                cell <- Cell$new(value)
+            cell_priv <- deepClone(xcell_template)
+            cell_priv$.value <- value
 
-            private$.cells[[length(private$.cells)+1]] <- cell
+            private$.cells[[length(private$.cells)+1]] <- cell_priv
+            private$.measured <- FALSE
+        },
+        fill=function(value) {
+            for (cell_priv in private$.cells) {
+                if (is.null(cell_priv))
+                    stop("no such cell")
+                xcell$.__enclos_env__$private <- cell_priv
+                xcell$setValue(value)
+            }
             private$.measured <- FALSE
         },
         setCell=function(row, value) {
             if (row > length(private$.cells))
                 stop(format("Row '{}' does not exist in the table", row), call.=FALSE)
-            cell <- private$.cells[[row]]
-            if (is.null(cell))
+            cell_priv <- private$.cells[[row]]
+            if (is.null(cell_priv))
                 stop("no such cell")
-            cell$setValue(value)
+            xcell$.__enclos_env__$private <- cell_priv
+            xcell$setValue(value)
             private$.measured <- FALSE
         },
         getCell=function(row) {
             if (row > length(private$.cells))
                 stop(format("Row '{}' does not exist in the table", row), call.=FALSE)
 
-            cell <- private$.cells[[row]]
-            if (is.null(cell))
+            cell_priv <- private$.cells[[row]]
+            if (is.null(cell_priv))
                 stop("no such cell")
-            cell
+            xcell$.__enclos_env__$private <- cell_priv
+            xcell
         },
         clear=function() {
             private$.cells <- list()

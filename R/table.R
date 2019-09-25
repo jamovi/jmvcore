@@ -12,6 +12,28 @@ Note <- R6::R6Class('Note',
     )
 )
 
+.scratch <- new.env()
+getScratch=function() {
+    column <- .scratch$column
+    if (is.null(column)) {
+        .scratch$column <- Column$new(
+            options=NULL,
+            name='',
+            title='',
+            superTitle=NULL,
+            visible=TRUE,
+            content=NULL,
+            type='Number',
+            format='',
+            combineBelow=FALSE,
+            sortable=FALSE,
+            refs=character())
+        .scratch$column_template <- .scratch$column$.__enclos_env__$private
+    }
+    .scratch
+}
+
+
 #' @rdname Analysis
 #' @importFrom rjson fromJSON
 #' @export
@@ -19,8 +41,9 @@ Table <- R6::R6Class('Table',
     inherit=ResultsElement,
     private=list(
         .columns=NA,
-        .rowCount=0,
+        .columnNames=NA,
         .columnCount=0,
+        .rowCount=0,
         .columnsPreallocated=FALSE,
         .rowKeys=character(),
         .rowNames=character(),
@@ -37,9 +60,12 @@ Table <- R6::R6Class('Table',
         .notes=NA,
         deep_clone=function(name, value) {
             if (name == '.columns') {
-                columns <- list()
-                for (name in names(value))
-                    columns[[name]] <- value[[name]]$clone(deep=TRUE)
+                columns <- R6List$new()
+                for (i in seq_len(value$count())) {
+                    name = value$nameAt(i)
+                    column = value$at(i)$clone(deep=TRUE)
+                    columns.append(name, column)
+                }
                 return(columns)
             }
             value
@@ -52,7 +78,8 @@ Table <- R6::R6Class('Table',
             if ( ! private$.swapRowsColumns) {
 
                 w <- 0
-                for (column in private$.columns) {
+                for (colNo in seq_len(private$.columnCount)) {
+                    column <- self$getColumn(colNo)
                     if (column$visible)
                         w <- w + private$.padding + column$width + private$.padding
                 }
@@ -135,7 +162,7 @@ Table <- R6::R6Class('Table',
             private$.rowsExpr <- paste(rows)
             private$.rowKeys <- list()
 
-            private$.columns <- list()
+            private$.columns <- R6List$new()
 
             private$.margin <- 1
             private$.marstr <- spaces(private$.margin)
@@ -150,19 +177,13 @@ Table <- R6::R6Class('Table',
             cols <- integer()
 
             if (missing(col)) {
-                cols <- seq_along(private$.columns)
-            } else if (is.character(col)) {
-                for (i in seq_along(private$.columns)) {
-                    column <- private$.columns[[i]]
-                    if (col == column$name) {
-                        cols <- i
-                        break()
-                    }
-                }
-                if (length(cols) == 0)
-                    reject("No such column: '{}'", col, code=NULL)
+                indices <- seq_len(private$.columnCount)
+            } else if (isString(col)) {
+                indices <- private$.columnNames$indexOf(col)
+                if (length(indices) == 0)
+                    reject("Table$isFilled(): col '{col}' not found", col=col)
             } else if (is.numeric(col)) {
-                cols <- col
+                indices <- col
             } else {
                 stop('isFilled(): bad col argument')
             }
@@ -184,12 +205,12 @@ Table <- R6::R6Class('Table',
                 rows <- seq_along(private$.rowKeys)
             }
 
-            for (col in cols) {
-                column <- private$.columns[[col]]
+            for (index in indices) {
+                column <- self$getColumn(index)
                 if (excHidden && column$visible == FALSE)
                     next()
                 for (row in rows) {
-                    if (self$getCell(rowNo=row, col=col)$isNotFilled())
+                    if (self$getCell(rowNo=row, col=index)$isNotFilled())
                         return(FALSE)
                 }
             }
@@ -198,7 +219,8 @@ Table <- R6::R6Class('Table',
         },
         getRefs=function(recurse=FALSE) {
             refs <- character()
-            for (column in private$.columns) {
+            for (i in seq_len(private$.columnCount)) {
+                column <- self$getColumn(i)
                 if (column$visible)
                     refs <- c(refs, column$getRefs())
             }
@@ -262,32 +284,37 @@ Table <- R6::R6Class('Table',
         },
         deleteRows=function() {
             private$.rowKeys <- list()
-            for (column in private$.columns)
+            for (i in seq_len(private$.columnCount)) {
+                column <- self$getColumn(i)
                 column$clear()
+            }
             private$.rowCount <- 0
         },
         preallocateColumns=function(n) {
-            private$.columnsPreallocated <- TRUE
 
-            column <- Column$new(
-                options=NULL,
-                name=NULL,
-                title=NULL,
-                superTitle=NULL,
-                visible=TRUE,
-                content=NULL,
-                type='Number',
-                format='',
-                combineBelow=FALSE,
-                sortable=FALSE,
-                refs=NULL)
+            private$.columns$preallocate(n)
 
-            for (i in seq_len(private$.rowCount)) {
-                rowKey <- private$.rowKeys[[i]]
-                column$addCell(.key=rowKey, .index=i, value=NA)
-            }
-
-            private$.columns <- repR6(column, n)
+            # private$.columnsPreallocated <- TRUE
+            #
+            # column <- Column$new(
+            #     options=NULL,
+            #     name=NULL,
+            #     title=NULL,
+            #     superTitle=NULL,
+            #     visible=TRUE,
+            #     content=NULL,
+            #     type='Number',
+            #     format='',
+            #     combineBelow=FALSE,
+            #     sortable=FALSE,
+            #     refs=NULL)
+            #
+            # for (i in seq_len(private$.rowCount)) {
+            #     rowKey <- private$.rowKeys[[i]]
+            #     column$addCell(.key=rowKey, .index=i, value=NA)
+            # }
+            #
+            # private$.columns <- repR6(column, n)
 
         },
         addColumn=function(
@@ -321,33 +348,40 @@ Table <- R6::R6Class('Table',
             if ( ! is.logical(sortable))
                 reject('Table$addColumn(): sortable must be TRUE or FALSE')
 
-            if (private$.columnsPreallocated) {
+            # if (private$.columnsPreallocated) {
+            #
+            # column <- private$.columns[[private$.columnCount+1]]
+            # column$initialize(
+            #     options=private$.options,
+            #     name=name,
+            #     title=title,
+            #     superTitle=superTitle,
+            #     visible=visible,
+            #     content=content,
+            #     type=type,
+            #     format=format,
+            #     combineBelow=combineBelow,
+            #     sortable=sortable,
+            #     refs=refs)
+            # if ( ! identical(value, NA))
+            #     column$fill(value)
+            #
+            # # last column, then apply names
+            # if ((private$.columnCount + 1) == length(private$.columns)) {
+            #     names(private$.columns) <- sapply(private$.columns, function(x) x$name)
+            #     private$.columnsPreallocated <- FALSE
+            # }
+            #
+            # } else {
 
-            column <- private$.columns[[private$.columnCount+1]]
+
+            column <- getScratch()$column
+            template <- getScratch()$column_template
+
+            column_priv <- deepClone(template)
+            column$.__enclos_env__$private <- column_priv
+
             column$initialize(
-                options=private$.options,
-                name=name,
-                title=title,
-                superTitle=superTitle,
-                visible=visible,
-                content=content,
-                type=type,
-                format=format,
-                combineBelow=combineBelow,
-                sortable=sortable,
-                refs=refs)
-            if ( ! identical(value, NA))
-                column$fill(value)
-
-            # last column, then apply names
-            if ((private$.columnCount + 1) == length(private$.columns)) {
-                names(private$.columns) <- sapply(private$.columns, function(x) x$name)
-                private$.columnsPreallocated <- FALSE
-            }
-
-            } else {
-
-            column <- Column$new(
                 options=private$.options,
                 name=name,
                 title=title,
@@ -366,24 +400,11 @@ Table <- R6::R6Class('Table',
             }
 
             if (is.na(index)) {
-
-                private$.columns[[name]] <- column
-
+                private$.columns$append(name, column_priv)
             } else {
-
-                newColumns <- list()
-                oldNames <- names(private$.columns)
-
-                for (i in seq_along(private$.columns)) {
-                    nm <- oldNames[[i]]
-                    if (i == index)
-                        newColumns[[name]] <- column
-                    newColumns[[nm]] <- private$.columns[[nm]]
-                }
-
-                private$.columns <- newColumns
+                private$.columns$insert(index, name, column_priv)
             }
-            }
+            # }
 
             private$.columnCount <- private$.columnCount + 1
 
@@ -402,7 +423,8 @@ Table <- R6::R6Class('Table',
 
             valueNames <- names(values)
 
-            for (column in private$.columns) {
+            for (i in seq_len(private$.columnCount)) {
+                column <- self$getColumn(i)
                 if (column$name %in% valueNames)
                     column$addCell(values[[column$name]], .key=rowKey, .index=private$.rowCount)
                 else
@@ -434,7 +456,8 @@ Table <- R6::R6Class('Table',
 
             valueNames <- names(values)
 
-            for (column in private$.columns) {
+            for (i in seq_len(private$.columnCount)) {
+                column <- self$getColumn(i)
                 if (column$name %in% valueNames) {
                     value <- values[[column$name]]
                     if ( ! isValue(value))
@@ -443,11 +466,19 @@ Table <- R6::R6Class('Table',
                 }
             }
         },
-        getColumn=function(col) {
-            column <- private$.columns[[col]]
-            if (is.null(column))
-                reject("Table$getColumn(): col '{col}' not found", col=col)
-
+        getColumn=function(col, fun='Table$getColumn()') {
+            if (isString(col)) {
+                index <- private$.columns$indexOf(col)
+                if (length(index) == 0)
+                    reject("{fun}: col '{col}' not found", fun=fun, col=col)
+            } else {
+                index <- col
+            }
+            column_priv <- private$.columns$at(index)
+            if (is.null(column_priv))
+                reject("{fun}: col '{col}' not found", fun=fun, col=col)
+            column <- getScratch()$column
+            column$.__enclos_env__$private <- column_priv
             column
         },
         setCell=function(col, value, rowNo=NA, rowKey=NULL) {
@@ -460,11 +491,7 @@ Table <- R6::R6Class('Table',
                 reject('Table$setCell(): rowNo exceeds rowCount ({rowNo} > {rowCount})', rowNo=rowNo, rowCount=private$.rowCount)
             }
 
-            column <- private$.columns[[col]]
-
-            if (is.null(column))
-                reject("Table$setCell(): col '{col}' not found", col=col)
-
+            column <- self$getColumn(col, 'Table$setCell()')
             column$setCell(rowNo, value)
         },
         getCell=function(col, rowNo=NA, rowKey=NULL) {
@@ -477,11 +504,7 @@ Table <- R6::R6Class('Table',
                 reject('Table$getCell(): rowNo exceeds rowCount ({rowNo} > {rowCount})', rowNo=rowNo, rowCount=private$.rowCount)
             }
 
-            column <- private$.columns[[col]]
-
-            if (is.null(column))
-                reject("Table$getCell(): col '{col}' not found", col=col)
-
+            column <- self$getColumn(col, 'Table$getCell()')
             column$getCell(rowNo)
         },
         getRows=function() {
@@ -504,8 +527,10 @@ Table <- R6::R6Class('Table',
             }
 
             values <- list()
-            for (column in private$.columns)
+            for (i in seq_len(private$.columnCount)) {
+                column <- self$getColumn(i)
                 values[[column$name]] <- column$getCell(rowNo)
+            }
             values
         },
         addFootnote=function(col, note, rowNo=NA, rowKey=NULL) {
@@ -526,9 +551,7 @@ Table <- R6::R6Class('Table',
             }
         },
         setSortKeys=function(col, keys) {
-            column <- private$.columns[[col]]
-            if (is.null(column))
-                reject("Table$setSortKeys(): col '{col}' not found", col=col)
+            column <- self$getColumn(col, 'Table$setSortKeys()')
             column$setSortKeys(keys)
         },
         .updateFootnotes=function() {
@@ -538,7 +561,8 @@ Table <- R6::R6Class('Table',
             private$.footnotes <- character()
 
             for (rowNo in seq_len(private$.rowCount)) {
-                for (column in private$.columns) {
+                for (colNo in seq_len(private$.columnCount)) {
+                    column <- self$getColumn(colNo)
                     if ( ! column$visible)
                         next()
                     cell <- column$getCell(rowNo)
@@ -562,7 +586,8 @@ Table <- R6::R6Class('Table',
             maxWidthWOSup <- 0
             maxSupInRow <- 0  # widest superscripts
 
-            for (column in private$.columns) {
+            for (colNo in seq_len(private$.columnCount)) {
+                column <- self$getColumn(colNo)
                 if (column$visible) {
                     cell <- column$getCell(row)
                     measurements <- measureElements(list(cell))
@@ -577,7 +602,8 @@ Table <- R6::R6Class('Table',
         .widthWidestHeader=function() {
             width <- 0
 
-            for (column in private$.columns) {
+            for (colNo in seq_len(private$.columnCount)) {
+                column <- self$getColumn(colNo)
                 if (column$visible)
                     width <- max(width, nchar(column$title))
             }
@@ -604,10 +630,10 @@ Table <- R6::R6Class('Table',
 
             } else {
 
-                for (i in seq_along(private$.columns)) {
+                for (i in seq_len(private$.columnCount)) {
                     if (i == 1)
                         next()  # the first is already printed in the header
-                    if (private$.columns[[i]]$visible)
+                    if (self$getColumn(i)$visible)
                         pieces <- c(pieces, self$.rowForPrint(i))
                 }
             }
@@ -642,14 +668,15 @@ Table <- R6::R6Class('Table',
 
             if ( ! private$.swapRowsColumns) {
 
-                for (column in private$.columns) {
+                for (colNo in seq_len(private$.columnCount)) {
+                    column <- self$getColumn(colNo)
                     if (column$visible)
                         pieces <- c(pieces, private$.padstr, column$.titleForPrint(), private$.padstr)
                 }
 
             } else {
 
-                column <- private$.columns[[1]]
+                column <- self$getColumn(1)
 
                 pieces <- c(pieces, private$.padstr, spaces(self$.widthWidestHeader()), private$.padstr)
 
@@ -715,7 +742,8 @@ Table <- R6::R6Class('Table',
 
             if ( ! private$.swapRowsColumns) {
 
-                for (column in private$.columns) {
+                for (colNo in seq_len(private$.columnCount)) {
+                    column <- self$getColumn(colNo)
                     if (column$visible) {
                         width <- column$width
                         pieces <- c(pieces, private$.padstr, column$.cellForPrint(i, width=width), private$.padstr)
@@ -724,7 +752,7 @@ Table <- R6::R6Class('Table',
 
             } else {
 
-                column <- private$.columns[[i]]
+                column <- self$getColumn(i)
 
                 width <- self$.widthWidestHeader()
 
@@ -806,9 +834,9 @@ Table <- R6::R6Class('Table',
 
                 if ( ! is.na(fromRowIndex)) {
 
-                    for (j in seq_along(private$.columns)) {
+                    for (j in seq_len(private$.columnCount)) {
 
-                        toCol <- private$.columns[[j]]
+                        toCol <- self$getColumn(j)
                         toCell <- toCol$getCell(i)
                         colName <- toCol$name
                         fromColIndex <- columnPBIndicesByName[[colName]]
@@ -830,8 +858,10 @@ Table <- R6::R6Class('Table',
 
             table <- RProtoBuf_new(jamovi.coms.ResultsTable)
 
-            for (column in private$.columns)
+            for (colNo in seq_len(private$.columnCount)) {
+                column <- self$getColumn(colNo)
                 table$add('columns', column$asProtoBuf())
+            }
 
             table$rowNames <- private$.rowNames
             table$swapRowsColumns <- private$.swapRowsColumns
