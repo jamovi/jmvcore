@@ -1,4 +1,8 @@
 
+.cellTemp <- new.env()
+.cellTemp$cell <- jmvcore:::Cell$new()
+.cellTemp$template <- .cellTemp$cell$.__enclos_env__$private
+
 #' @rdname Analysis
 #' @export
 Column <- R6::R6Class("Column",
@@ -14,7 +18,7 @@ Column <- R6::R6Class("Column",
         .sortable=FALSE,
         .refs=NA,
         .hasSortKeys=FALSE,
-        .cells=list(),
+        .cells=NA,
         .width = 0,
         .measures=list(),
         .measured=FALSE,
@@ -91,8 +95,9 @@ Column <- R6::R6Class("Column",
             private$.refs <- as.character(refs)
 
             private$.measured <- FALSE
-            private$.cells <- list()
 
+            if (identical(private$.cells, NA))
+                private$.cells <- list()
         },
         setTitle=function(title) {
             title <- paste(title, collapse='')
@@ -114,20 +119,18 @@ Column <- R6::R6Class("Column",
                     value <- NULL
             }
 
-            if (inherits(value, "Cell"))
-                cell <- value
-            else
-                cell <- Cell$new(value)
+            cell_priv <- deepClone(.cellTemp$template)
+            cell_priv$.value <- value
 
-            private$.cells[[length(private$.cells)+1]] <- cell
+            private$.cells[[length(private$.cells)+1]] <- cell_priv
             private$.measured <- FALSE
         },
+        fill=function(value) {
+            for (cell in private$.cells)
+                cell$.value <- value
+        },
         setCell=function(row, value) {
-            if (row > length(private$.cells))
-                stop(format("Row '{}' does not exist in the table", row), call.=FALSE)
-            cell <- private$.cells[[row]]
-            if (is.null(cell))
-                stop("no such cell")
+            cell <- self$getCell(row)
             cell$setValue(value)
             private$.measured <- FALSE
         },
@@ -135,10 +138,12 @@ Column <- R6::R6Class("Column",
             if (row > length(private$.cells))
                 stop(format("Row '{}' does not exist in the table", row), call.=FALSE)
 
-            cell <- private$.cells[[row]]
-            if (is.null(cell))
+            cell_priv <- private$.cells[[row]]
+            if (is.null(cell_priv))
                 stop("no such cell")
-            cell
+
+            .cellTemp$cell$.__enclos_env__$private <- cell_priv
+            .cellTemp$cell
         },
         clear=function() {
             private$.cells <- list()
@@ -150,7 +155,7 @@ Column <- R6::R6Class("Column",
 
             private$.hasSortKeys <- TRUE
             for (i in seq_along(private$.cells))
-                private$.cells[[i]]$sortKey <- keys[[i]]
+                private$.cells[[i]]$.sortKey <- keys[[i]]
         },
         setRefs=function(refs) {
             private$.refs <- as.character(refs)
@@ -167,11 +172,12 @@ Column <- R6::R6Class("Column",
             pc <- ('pc' %in% private$.format)
 
             if (private$.type == "integer")
-                private$.measures <- measureElements(private$.cells, maxdp=0, type=private$.type, p=p, zto=zto, pc=pc)
+                measures <- measureElements(private$.cells, maxdp=0, type=private$.type, p=p, zto=zto, pc=pc)
             else
-                private$.measures <- measureElements(private$.cells, type=private$.type, p=p, zto=zto, pc=pc)
+                measures <- measureElements(private$.cells, type=private$.type, p=p, zto=zto, pc=pc)
 
-            private$.width <- max(private$.measures$width, titleWidth)
+            private$.measures <- measures
+            private$.width <- max(measures$width, titleWidth)
             private$.measured <- TRUE
         },
         .titleForPrint=function(width=NULL) {
@@ -256,8 +262,8 @@ Column <- R6::R6Class("Column",
                 hasSortKeys=private$.hasSortKeys,
                 visible=v)
 
-            for (cell in private$.cells)
-                column$add("cells", cell$asProtoBuf())
+            for (rowNo in seq_along(private$.cells))
+                column$add("cells", self$getCell(rowNo)$asProtoBuf())
 
             column
         },
@@ -267,7 +273,7 @@ Column <- R6::R6Class("Column",
 
             for (i in seq_along(cellsPB)) {
                 cellPB <- cellsPB[i]
-                cell <- getCell(i)
+                cell <- self$getCell(i)
                 cell$fromProtoBuf(cellPB)
             }
         }

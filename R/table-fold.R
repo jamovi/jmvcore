@@ -6,7 +6,9 @@ fold <- function(input) {
     nFolds <- 1
     colNo <- 1
 
-    for (column in input$columns) {
+    for (colNo in seq_along(input$columns)) {
+        column <- input$getColumn(colNo)
+
         if (column$visible) {
             columnName <- column$name
             foldedName <- columnName

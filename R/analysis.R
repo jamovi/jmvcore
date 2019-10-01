@@ -4,7 +4,7 @@
 Analysis <- R6::R6Class('Analysis',
     private=list(
         .datasetId='',
-        .analysisId='',
+        .analysisId=0,
         .name='',
         .package='',
         .title='',

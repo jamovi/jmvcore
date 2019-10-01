@@ -592,9 +592,9 @@ measureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7, type='num
 
         sups <- integer()
 
-        if (inherits(elem, "Cell")) {
-            sups <- elem$sups
-            elem <- elem$value
+        if (is.environment(elem)) {
+            sups <- elem$.sups
+            elem <- elem$.value
         }
 
         if (is.null(elem)) {
@@ -705,9 +705,9 @@ formatElement <- function(elem, w=NULL, expw=NULL, supw=0, dp=2, sf=3, scl=1e-3,
     sups <- integer()
     supspad <- ''
 
-    if (inherits(elem, "Cell")) {
-        sups <- elem$sups
-        elem <- elem$value
+    if (is.environment(elem)) {
+        sups <- elem$.sups
+        elem <- elem$.value
 
         if (is.null(w) == FALSE)
             w <- w - supw

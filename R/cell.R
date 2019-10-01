@@ -36,27 +36,30 @@ Cell.INDENTED <- 8
 
 Cell <- R6::R6Class(
     "Cell",
+    cloneable = FALSE,
+    private=list(
+        .value=NA,
+        .footnotes=character(),
+        .sups=integer(),
+        .symbols=character(),
+        .format=0,
+        .sortKey=0),
     active=list(
-        isEmpty=function() {
-            self$isNotFilled()
-        }),
+        value=function(x) { if (missing(x)) { return(private$.value) } else { private$.value <- x } },
+        sups=function(x) { if (missing(x)) { return(private$.sups) } else { private$.sups <- x } },
+        sortKey=function(x) { if (missing(x)) { return(private$.sortKey) } else { private$.sortKey <- x } }
+    ),
     public=list(
-        value=NA,
-        footnotes=character(),
-        sups=integer(),
-        symbols=character(),
-        format=0,
-        sortKey=0,
         initialize=function(v=NA) {
-            self$value <- v
+            private$.value <- v
         },
         setValue=function(v) {
-            self$value <- v
-            self$footnotes <- character()
-            self$symbols <- character()
+            private$.value <- v
+            private$.footnotes <- character()
+            private$.symbols <- character()
         },
         isNotFilled=function() {
-            v <- self$value
+            v <- private$.value
             if (is.null(v))
                 return(TRUE)
             if (is.nan(v))
@@ -69,44 +72,44 @@ Cell <- R6::R6Class(
             ! self$isNotFilled()
         },
         addFootnote=function(note) {
-            self$footnotes <- c(self$footnotes, note)
+            private$.footnotes <- c(private$.footnotes, note)
         },
         addFormat=function(format) {
-            self$format <- bitwOr(self$format, format)
+            private$.format <- bitwOr(private$.format, format)
         },
         addSymbol=function(symbol) {
-            self$symbols <- c(self$symbols, symbol)
+            private$.symbols <- c(private$.symbols, symbol)
         },
         fromProtoBuf=function(cellPB) {
 
             if (cellPB$has('i')) {
-                self$value <- cellPB$i
+                private$.value <- cellPB$i
             } else if (cellPB$has('d')) {
-                self$value <- cellPB$d
+                private$.value <- cellPB$d
             } else if (cellPB$has('s')) {
                 v <- cellPB$s
                 Encoding(v) <- 'UTF-8'
-                self$value <- v
+                private$.value <- v
             } else if (cellPB$has('o')) {
                 if (cellPB$o == jamovi.coms.ResultsCell.Other$MISSING)
-                    self$value <- NA
+                    private$.value <- NA
                 else
-                    self$value <- NaN
+                    private$.value <- NaN
             }
 
-            self$footnotes <- cellPB$footnotes
-            self$symbols <- cellPB$symbols
-            self$sortKey <- cellPB$sortKey
+            private$.footnotes <- cellPB$footnotes
+            private$.symbols <- cellPB$symbols
+            private$.sortKey <- cellPB$sortKey
         },
         asProtoBuf=function() {
 
             cell <- RProtoBuf_new(jamovi.coms.ResultsCell,
-                        footnotes = self$footnotes,
-                        symbols = self$symbols,
-                        format = self$format,
-                        sortKey = self$sortKey)
+                        footnotes = private$.footnotes,
+                        symbols = private$.symbols,
+                        format = private$.format,
+                        sortKey = private$.sortKey)
 
-            v <- self$value
+            v <- private$.value
 
             if (length(v) != 1) {
                 cell$o <- jamovi.coms.ResultsCell.Other$MISSING
