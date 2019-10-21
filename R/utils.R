@@ -1331,6 +1331,7 @@ htmlToText <- function(html) {
     text
 }
 
+#' Determines the index where an item appears
 #' @export
 #' @param x the item to find
 #' @param table the object to search
