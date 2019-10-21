@@ -503,7 +503,7 @@ format <- function(str, ..., context="normal") {
         }
         if (grepl("\\{ *[A-Za-z][A-Za-z0-9]* *\\}", str)[1]) {
 
-            match <- regexec('?\\$\\{ *([A-Za-z][A-Za-z0-9]*?) *\\}', str)[[1]]
+            match <- regexec('\\$?\\{ *([A-Za-z][A-Za-z0-9]*) *\\}', str)[[1]]
             while (match[1] != -1) {
                 name   <- substring(str, match[2], match[2] + attr(match, 'match.length')[2] - 1)
                 before <- substring(str, 1, match[1] - 1)
