@@ -12,15 +12,3 @@ This package is available from cran:
 ```
 install.packages('jmvcore')
 ```
-
-A more up-to-date version is typically available from the jamovi repo:
-
-```
-install.packages('jmvcore', repos='https://repo.jamovi.org')
-```
-
-A bleeding edge version is available from this GitHub repo:
-
-```
-devtools::install_github('jamovi/jmvcore')
-```
