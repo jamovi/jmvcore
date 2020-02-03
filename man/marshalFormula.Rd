@@ -21,8 +21,6 @@ marshalFormula(formula, data, from = "rhs", type = "vars",
 \item{subset}{a subset of the formula to marshal}
 
 \item{required}{whether this marshall is required or not}
-
-\item{...}{extra args for forwards compatibility}
 }
 \description{
 Marshal a formula into options

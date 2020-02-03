@@ -24,7 +24,6 @@ marshalData <- function(env, ...) {
 #' @param permitted the types of data the option permits
 #' @param subset a subset of the formula to marshal
 #' @param required whether this marshall is required or not
-#' @param ... extra args for forwards compatibility
 #' @importFrom stats as.formula terms.formula
 #' @export
 marshalFormula <- function(formula, data, from='rhs', type='vars', permitted=c('numeric', 'factor'), subset=':', required=FALSE) {
