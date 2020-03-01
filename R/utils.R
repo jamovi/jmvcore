@@ -556,7 +556,11 @@ nDigits <- function(x, negSign=TRUE) {
     n
 }
 
-measureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7, type='number', p=FALSE, zto=FALSE, pc=FALSE) {
+measureElements <- function(elems, maxdp=Inf, type='number', p=FALSE, zto=FALSE, pc=FALSE) {
+
+    sf  <- getOption('digits')
+    scl <- 1e-3
+    sch <- 1e+7
 
     # non-scientific
     dp <- 0
@@ -626,9 +630,9 @@ measureElements <- function(elems, sf=3, maxdp=Inf, scl=1e-3, sch=1e7, type='num
 
             maxstr <- 2 + nchar(class(elem)[1])
 
-        } else if (p && elem < .001 && elem >= 0.0) {
+        } else if (p && elem < (10^-sf) && elem >= 0.0) {
 
-            maxstr <- max(maxstr, 6)
+            maxstr <- max(maxstr, sf + 3)
 
         } else if (elem == 0) {
 
@@ -765,9 +769,9 @@ formatElement <- function(elem, w=NULL, expw=NULL, supw=0, dp=2, sf=3, scl=1e-3,
 
         str <- paste0("[", class(elem)[1], "]")
 
-    } else if (p && elem < .001 && elem >= 0.0) {
+    } else if (p && elem < (10^-sf) && elem >= 0.0) {
 
-        str <- "< .001"
+        str <- paste0('< .', paste0(rep(0, sf-1), collapse=''), '1')
 
     } else if (elem == 0 || zto || (abs(elem) > scl && abs(elem) < sch)) {
 
