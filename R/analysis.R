@@ -398,6 +398,8 @@ Analysis <- R6::R6Class('Analysis',
                 grType <- 'cairo'
                 if (Sys.info()['sysname'] == 'Windows')
                     grType <- 'windows'
+                else if (Sys.info()['sysname'] == 'Darwin')
+                    grType <- 'quartz'
 
                 grDevices::png(type=grType,
                     filename=fullPath,
