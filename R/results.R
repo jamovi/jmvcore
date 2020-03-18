@@ -1,5 +1,4 @@
 
-#' @importFrom rjson fromJSON
 ResultsElement <- R6::R6Class("ResultsElement",
     private=c(
         .name="",

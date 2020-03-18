@@ -1,6 +1,5 @@
 
 #' The jmv Options classes
-#' @importFrom rjson fromJSON
 #' @export
 Options <- R6::R6Class(
     "Options",

@@ -16,7 +16,7 @@ Depends:
 Imports:
     R6 (>= 1.0.1),
     rlang (>= 0.3.0.1),
-    rjson,
+    jsonlite,
     base64enc,
     stringi
 Suggests:

@@ -13,7 +13,6 @@ Note <- R6::R6Class('Note',
 )
 
 #' @rdname Analysis
-#' @importFrom rjson fromJSON
 #' @export
 Table <- R6::R6Class('Table',
     inherit=ResultsElement,
@@ -177,7 +176,7 @@ Table <- R6::R6Class('Table',
                     }
                 }
                 if (length(rows) == 0)
-                    reject("No such row: '{}'", rjson::toJSON(rowKey), code=NULL)
+                    reject("No such row: '{}'", toJSON(rowKey), code=NULL)
             } else {
                 rows <- seq_along(private$.rowKeys)
             }
@@ -253,7 +252,7 @@ Table <- R6::R6Class('Table',
             }
 
             private$.rowKeys <- newKeys
-            private$.rowNames <- sapply(newKeys, rjson::toJSON, USE.NAMES=FALSE)
+            private$.rowNames <- sapply(newKeys, toJSON, USE.NAMES=FALSE)
 
             if ( ! is.null(error))
                 rethrow(error)
@@ -343,7 +342,7 @@ Table <- R6::R6Class('Table',
 
             private$.rowKeys[length(private$.rowKeys)+1] <- list(rowKey)  # allow NULL
             private$.rowCount <- private$.rowCount + 1
-            private$.rowNames <- sapply(private$.rowKeys, rjson::toJSON, USE.NAMES=FALSE)
+            private$.rowNames <- sapply(private$.rowKeys, toJSON, USE.NAMES=FALSE)
 
             valueNames <- names(values)
 
