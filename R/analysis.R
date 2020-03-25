@@ -12,6 +12,7 @@ Analysis <- R6::R6Class('Analysis',
         .results=NA,
         .status='none',
         .completeWhenFilled=FALSE,
+        .requiresMissings=FALSE,
         .init=function() NULL,
         .clear=function(vChanges) NULL,
         .run=function() NULL,
@@ -98,7 +99,8 @@ Analysis <- R6::R6Class('Analysis',
         complete=function() base::identical(private$.status, 'complete'),
         errored=function() base::identical(private$.status, 'error'),
         formula=function() private$.formula(),
-        parent=function() private$.parent),
+        parent=function() private$.parent,
+        requiresMissings=function() private$.requiresMissings),
     public=list(
         initialize=function(
             package,
@@ -112,6 +114,7 @@ Analysis <- R6::R6Class('Analysis',
             analysisId='',
             revision=0,
             completeWhenFilled=FALSE,
+            requiresMissings=FALSE,
             ...) {
 
             private$.package <- package
@@ -125,6 +128,7 @@ Analysis <- R6::R6Class('Analysis',
             private$.datasetId <- datasetId
             private$.revision <- revision
             private$.completeWhenFilled <- completeWhenFilled
+            private$.requiresMissings <- requiresMissings
 
             private$.results$.setParent(self)
             private$.options$analysis <- self
