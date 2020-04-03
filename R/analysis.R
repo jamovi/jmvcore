@@ -405,10 +405,18 @@ Analysis <- R6::R6Class('Analysis',
                 else if (Sys.info()['sysname'] == 'Darwin')
                     grType <- 'quartz'
 
+                width <- image$width * multip
+                height <- image$height * multip
+
+                if (width < 32)
+                    width <- 32
+                if (height < 32)
+                    height <- 32
+
                 grDevices::png(type=grType,
                     filename=fullPath,
-                    width=image$width * multip,
-                    height=image$height * multip,
+                    width=width,
+                    height=height,
                     bg='transparent',
                     res=72 * multip)
                 on.exit(grDevices::dev.off(), add=TRUE)
