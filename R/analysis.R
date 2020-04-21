@@ -496,7 +496,13 @@ Analysis <- R6::R6Class('Analysis',
         .savePart=function(path, part, ...) {
             Encoding(path) <- 'UTF-8'
             Encoding(part) <- 'UTF-8'
-            partPath <- strsplit(part, '/', fixed=TRUE)[[1]]
+
+            # equivalent to strsplit(part, '/', fixed=TRUE)
+            # except ignores / inside quotes
+            m <- gregexpr('"[^"]+"|([^/]+)', part)[[1]]
+            l <- attr(m, 'match.length')
+            partPath <- vapply(seq_along(m), function(i) substr(part, m[i], m[i]+l[i]-1), '')
+
             element <- self$results$.lookup(partPath)
             path <- stringi::stri_enc_tonative(path)
             element$saveAs(path)
