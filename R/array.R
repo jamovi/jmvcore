@@ -319,7 +319,7 @@ names.Array <- function(x) {
 }
 
 #' @export
-as.data.frame.Array <- function(x, ..., stringsAsFactors = default.stringsAsFactors()) {
+as.data.frame.Array <- function(x, ..., stringsAsFactors = FALSE) {
 
     call <- as.character(sys.call(-1)[2])
     children <- paste0('\n    as.data.frame(', call, '[[', 1:3, ']])', collapse='')

@@ -228,7 +228,7 @@ names.Group <- function(x) {
 }
 
 #' @export
-as.data.frame.Group <- function(x, ..., stringsAsFactors = default.stringsAsFactors()) {
+as.data.frame.Group <- function(x, ..., stringsAsFactors = FALSE) {
 
     call <- as.character(sys.call(-1)[2])
     children <- paste0('\n    as.data.frame(', call, '$', x$itemNames, ')', collapse='')
