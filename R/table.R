@@ -40,6 +40,32 @@ Table <- R6::R6Class('Table',
                 return(columns)
             }
             value
+        },
+        .updateFootnotes=function() {
+            if (private$.footnotesUpdated)
+                return()
+
+            private$.footnotes <- character()
+
+            for (rowNo in seq_len(private$.rowCount)) {
+                for (column in private$.columns) {
+                    if ( ! column$visible)
+                        next()
+                    cell <- column$getCell(rowNo)
+                    indices <- integer()
+                    for (note in cell$footnotes) {
+                        index <- indexOf(note, private$.footnotes)
+                        if (is.na(index)) {
+                            private$.footnotes <- c(private$.footnotes, note)
+                            index <- length(private$.footnotes)
+                        }
+                        indices <- c(indices, index[1]-1)
+                    }
+                    cell$sups <- indices
+                }
+            }
+
+            private$.footnotesUpdated <- TRUE
         }),
     active=list(
         names=function() private$.rowNames,
@@ -475,32 +501,6 @@ Table <- R6::R6Class('Table',
                 reject("Table$setSortKeys(): col '{col}' not found", col=col)
             column$setSortKeys(keys)
         },
-        .updateFootnotes=function() {
-            if (private$.footnotesUpdated)
-                return()
-
-            private$.footnotes <- character()
-
-            for (rowNo in seq_len(private$.rowCount)) {
-                for (column in private$.columns) {
-                    if ( ! column$visible)
-                        next()
-                    cell <- column$getCell(rowNo)
-                    indices <- integer()
-                    for (note in cell$footnotes) {
-                        index <- indexOf(note, private$.footnotes)
-                        if (is.na(index)) {
-                            private$.footnotes <- c(private$.footnotes, note)
-                            index <- length(private$.footnotes)
-                        }
-                        indices <- c(indices, index[1]-1)
-                    }
-                    cell$sups <- indices
-                }
-            }
-
-            private$.footnotesUpdated <- TRUE
-        },
         .widthWidestCellInRow=function(row) {
 
             maxWidthWOSup <- 0
@@ -533,7 +533,7 @@ Table <- R6::R6Class('Table',
             if ( ! .folded)
                 return(fold(self)$asString(.folded=TRUE))
 
-            self$.updateFootnotes()
+            private$.updateFootnotes()
 
             pieces <- character()
 
@@ -634,7 +634,7 @@ Table <- R6::R6Class('Table',
                 pieces <- c(pieces, paragraph, '\n')
             }
 
-            self$.updateFootnotes()
+            private$.updateFootnotes()
 
             for (i in seq_along(private$.footnotes)) {
 
