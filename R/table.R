@@ -825,6 +825,8 @@ as.data.frame.Table <- function(x, row.names, optional, ...) {
             next()
         names <- c(names, column$name)
         values <- unlist(as.list(column), use.names=FALSE)
+        if (is.null(values))
+            values <- character()
         if (ncol(df) == 0) {
             df <- data.frame(values)
         } else {
