@@ -26,10 +26,11 @@ Group <- R6::R6Class("Group",
         },
         asDF=function() {
             children <- paste0('\n    ...$', self$itemNames, '$asDF', collapse='')
-            stop("This results group cannot be converted to a data frame.\n",
+            warning("This results group cannot be converted to a data frame.\n",
                  "Perhaps you mean to access some of it's children:",
                  children,
                  call.=FALSE)
+            invisible(NULL)
         }
     ),
     public=list(

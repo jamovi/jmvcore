@@ -18,10 +18,11 @@ Array <- R6::R6Class("Array",
         itemKeys=function() private$.itemKeys,
         asDF=function() {
             children <- paste0('\n    ...[[', 1:3, ']]$asDF', collapse='')
-            stop("This results array cannot be converted to a data frame.\n",
+            warning("This results array cannot be converted to a data frame.\n",
                  "Perhaps you mean to access some of it's children:",
                  children,
                  call.=FALSE)
+            invisible(NULL)
         }),
     public=list(
         initialize=function(
