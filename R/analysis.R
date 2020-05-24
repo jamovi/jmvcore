@@ -1,4 +1,18 @@
 
+
+PlotObject <- R6::R6Class('PlotObject',
+    public=list(
+        initialize=function(fun) {
+            self$fun <- fun
+        },
+        fun=NA,
+        print=function() {
+            fun <- self$fun
+            ret <- fun()
+            if ( ! is.null(ret) && ! is.logical(ret))
+                print(ret)
+        }))
+
 #' the jmvcore Object classes
 #' @export
 Analysis <- R6::R6Class('Analysis',
@@ -342,17 +356,9 @@ Analysis <- R6::R6Class('Analysis',
             }
 
             t <- getGlobalTheme(self$options$theme, self$options$palette)
+            fun <- function() do.call(private[[funName]], list(image, theme=t$theme, ggtheme=t$ggtheme, ...))
 
-            ev <- parse(text=paste0('private$', funName, '(image, theme = t$theme, ggtheme = t$ggtheme, ...)'))
-            result <- eval(ev)
-
-            if (identical(result, FALSE) || is.null(result))
-                stop('Rendering failed', call.=FALSE)
-
-            if (identical(result, TRUE))
-                return(NULL)
-
-            return(result)
+            return(PlotObject$new(fun))
         },
         .render=function(funName, image, ...) {
             result <- self$.createPlotObject(funName, image, ...)
