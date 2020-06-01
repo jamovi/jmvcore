@@ -261,8 +261,10 @@ Analysis <- R6::R6Class('Analysis',
         },
         run=function(noThrow=FALSE) {
 
-            if (private$.status != 'inited')
+            if (private$.status != 'inited') {
                 self$init()
+                self$postInit()
+            }
 
             if (is.null(private$.data)) {
                 private$.dataProvided <- FALSE
