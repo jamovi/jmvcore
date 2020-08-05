@@ -57,7 +57,8 @@ ResultsElement <- R6::R6Class("ResultsElement",
         },
         parent=function() {
             private$.parent
-        }),
+        },
+        requiresData=function() FALSE),
     public=list(
         initialize=function(
             options,

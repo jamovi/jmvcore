@@ -513,7 +513,17 @@ Analysis <- R6::R6Class('Analysis',
 
             element <- self$results$.lookup(partPath)
             path <- stringi::stri_enc_tonative(path)
+
+            dataRequired <- FALSE
+            if (element$requiresData && is.null(private$.data)) {
+                dataRequired <- TRUE
+                private$.data <- self$readDataset()
+            }
+
             element$saveAs(path)
+
+            if (dataRequired)
+                private$.data <- NULL
         },
         readDataset=function(headerOnly=FALSE) {
 
