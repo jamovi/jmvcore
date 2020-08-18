@@ -62,11 +62,15 @@ Analysis <- R6::R6Class('Analysis',
             }
         },
         .sourcifyOption=function(option) {
-            value <- option$value
-            def <- option$default
 
             if (option$name == 'data')
                 return('data = data')
+
+            if (startsWith(option$name, 'results/'))
+                return('')
+
+            value <- option$value
+            def <- option$default
 
             if ( ! ((is.numeric(value) && isTRUE(all.equal(value, def))) || base::identical(value, def))) {
                 valueAsSource <- option$valueAsSource
