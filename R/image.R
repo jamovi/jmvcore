@@ -92,12 +92,22 @@ Image <- R6::R6Class("Image",
                 else if (Sys.info()['sysname'] == 'Darwin')
                     grType <- 'quartz'
 
-                grDevices::png(type=grType,
-                               filename=path,
-                               width=private$.width * multip,
-                               height=private$.height * multip,
-                               bg='transparent',
-                               res=72 * multip)
+                if (requireNamespace('ragg')) {
+                    ragg::agg_png(
+                        filename=fullPath,
+                        width=width,
+                        height=height,
+                        units='px',
+                        background='transparent',
+                        res=144)
+                } else {
+                    grDevices::png(type=grType,
+                                   filename=path,
+                                   width=private$.width * multip,
+                                   height=private$.height * multip,
+                                   bg='transparent',
+                                   res=72 * multip)
+                }
             } else {
                 reject('unrecognised format')
             }

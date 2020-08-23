@@ -425,12 +425,22 @@ Analysis <- R6::R6Class('Analysis',
                 if (height < 32)
                     height <- 32
 
-                grDevices::png(type=grType,
-                    filename=fullPath,
-                    width=width,
-                    height=height,
-                    bg='transparent',
-                    res=72 * multip)
+                if (requireNamespace('ragg')) {
+                    ragg::agg_png(
+                        filename=fullPath,
+                        width=width,
+                        height=height,
+                        units='px',
+                        background='transparent',
+                        res=ppi)
+                } else {
+                    grDevices::png(type=grType,
+                        filename=fullPath,
+                        width=width,
+                        height=height,
+                        bg='transparent',
+                        res=ppi)
+                }
                 on.exit(grDevices::dev.off(), add=TRUE)
             }
 

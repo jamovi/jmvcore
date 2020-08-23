@@ -24,5 +24,6 @@ Suggests:
     RProtoBuf,
     knitr,
     ggplot2,
-    RColorBrewer
+    RColorBrewer,
+    ragg
 RoxygenNote: 6.1.1
