@@ -92,7 +92,7 @@ Image <- R6::R6Class("Image",
                 else if (Sys.info()['sysname'] == 'Darwin')
                     grType <- 'quartz'
 
-                if (requireNamespace('ragg')) {
+                if (requireNamespace('ragg', quietly=TRUE)) {
                     ragg::agg_png(
                         filename=fullPath,
                         width=width,

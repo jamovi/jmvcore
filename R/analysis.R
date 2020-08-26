@@ -425,7 +425,7 @@ Analysis <- R6::R6Class('Analysis',
                 if (height < 32)
                     height <- 32
 
-                if (requireNamespace('ragg')) {
+                if (requireNamespace('ragg', quietly=TRUE)) {
                     ragg::agg_png(
                         filename=fullPath,
                         width=width,
