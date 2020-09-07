@@ -92,8 +92,8 @@ Image <- R6::R6Class("Image",
                 else if (Sys.info()['sysname'] == 'Darwin')
                     grType <- 'quartz'
 
-                width <- image$width * multip
-                height <- image$height * multip
+                width <- self$width * multip
+                height <- self$height * multip
 
                 if (width < 32)
                     width <- 32
