@@ -92,9 +92,17 @@ Image <- R6::R6Class("Image",
                 else if (Sys.info()['sysname'] == 'Darwin')
                     grType <- 'quartz'
 
+                width <- image$width * multip
+                height <- image$height * multip
+
+                if (width < 32)
+                    width <- 32
+                if (height < 32)
+                    height <- 32
+
                 if (requireNamespace('ragg', quietly=TRUE)) {
                     ragg::agg_png(
-                        filename=fullPath,
+                        filename=path,
                         width=width,
                         height=height,
                         units='px',
@@ -102,11 +110,11 @@ Image <- R6::R6Class("Image",
                         res=144)
                 } else {
                     grDevices::png(type=grType,
-                                   filename=path,
-                                   width=private$.width * multip,
-                                   height=private$.height * multip,
-                                   bg='transparent',
-                                   res=72 * multip)
+                        filename=path,
+                        width=width,
+                        height=height,
+                        bg='transparent',
+                        res=144)
                 }
             } else {
                 reject('unrecognised format')
