@@ -682,6 +682,18 @@ OptionVariable <- R6::R6Class(
 
 #' @rdname Options
 #' @export
+OptionOutput <- R6::R6Class(
+    "OptionOutput",
+    inherit=OptionVariable)
+
+#' @rdname Options
+#' @export
+OptionOutputs <- R6::R6Class(
+    "OptionOutputs",
+    inherit=OptionVariables)
+
+#' @rdname Options
+#' @export
 OptionTerms <- R6::R6Class(
     "OptionTerms",
     inherit=OptionArray,
