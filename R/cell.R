@@ -69,12 +69,14 @@ Cell <- R6::R6Class(
             ! self$isNotFilled()
         },
         addFootnote=function(note) {
+            note <- stringi::stri_encode(note, to='utf-8')
             self$footnotes <- c(self$footnotes, note)
         },
         addFormat=function(format) {
             self$format <- bitwOr(self$format, format)
         },
         addSymbol=function(symbol) {
+            symbol <- stringi::stri_encode(symbol, to='utf-8')
             self$symbols <- c(self$symbols, symbol)
         },
         fromProtoBuf=function(cellPB) {
