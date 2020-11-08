@@ -540,7 +540,7 @@ OptionVariables <- R6::R6Class(
 
             if (checkData) {
 
-                if ( ! 'factor' %in% private$.permitted && ! 'nominaltext' %in% private$.permitted) {
+                if ( ! 'factor' %in% private$.permitted && ! 'id' %in% private$.permitted && ! 'nominaltext' %in% private$.permitted) {
                     for (columnName in value) {
                         column <- data[[columnName]]
                         if ( ! canBeNumeric(column))
