@@ -1,7 +1,7 @@
 
 #' @rdname Analysis
 #' @export
-Output <- R6::R6Class("Output",
+Output <- R6::R6Class('Output',
     inherit=ResultsElement,
     private=list(
         .values=NA),
@@ -70,15 +70,19 @@ Output <- R6::R6Class("Output",
             element <- super$asProtoBuf(incAsText=incAsText, status=status)
             if ( ! is.null(private$.values) && incAsText) {
 
+                values <- private$.values
                 outputPB <- element$output
 
-                if (is.integer(private$.values)) {
-                    outputPB$i <- private$.values
+                if (is.character(values))
+                    values <- as.factor(values)
+
+                if (is.integer(values)) {
+                    outputPB$i <- values
                 } else if (is.numeric(private$.values)) {
-                    outputPB$d <- private$.values
-                } else if (is.factor(private$.values)) {
-                    outputPB$i <- as.numeric(private$.values)
-                    lvls <- levels(private$.values)
+                    outputPB$d <- values
+                } else if (is.factor(values)) {
+                    outputPB$i <- as.numeric(values)
+                    lvls <- levels(values)
                     for (i in seq_along(lvls)) {
                         levelPB <- RProtoBuf_new(jamovi.coms.VariableLevel)
                         levelPB$label <- lvls[i]
@@ -90,6 +94,31 @@ Output <- R6::R6Class("Output",
                 }
 
                 element$output <- outputPB
+            }
+            element
+        }
+    )
+)
+
+#' @rdname Analysis
+#' @export
+Outputs <- R6::R6Class('Outputs',
+    inherit=Output,
+    public=list(
+        asProtoBuf=function(incAsText=FALSE, status=NULL) {
+            element <- super$asProtoBuf(incAsText=incAsText, status=status)
+            if ( ! is.null(private$.values) && incAsText) {
+
+                output <- Output$new()
+                outputsPB <- element$outputs
+
+                for (var in private$.values) {
+                    output$setValue(var)
+                    outputPB <- output$asProtoBuf(incAsText, status)
+                    outputsPB$add('outputs', outputPB)
+                }
+
+                element$outputs <- outputsPB
             }
             element
         }
