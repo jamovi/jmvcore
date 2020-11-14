@@ -3,8 +3,6 @@
 #' @export
 Output <- R6::R6Class('Output',
     inherit=ResultsElement,
-    private=list(
-        .values=NA),
     active=list(
         values=function(v) {
             private$.values
@@ -69,20 +67,44 @@ Output <- R6::R6Class('Output',
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
             element <- super$asProtoBuf(incAsText=incAsText, status=status)
             if ( ! is.null(private$.values) && incAsText) {
+                outputsPB <- try(private$.dataToPB(private$.values))
+                if ( ! inherits(outputsPB, 'try-error'))
+                    element$outputs <- outputsPB
+            }
+            element
+        }
+    ),
+    private=list(
+        .values=NA,
+        .dataToPB=function(data) {
+            df <- as.data.frame(data)
+            df <- df[,1,drop=FALSE]
+            private$.dfToPB(df)
+        },
+        .dfToPB=function(df) {
 
-                values <- private$.values
-                outputPB <- element$output
+            rowNos <- suppressWarnings(as.integer(row.names(df)))
+            notNAs <- ! is.na(rowNos)
+            rowNos <- rowNos[notNAs]
+            df <- df[notNAs,, drop=FALSE]
 
-                if (is.character(values))
-                    values <- as.factor(values)
+            outputsPB <- RProtoBuf_new(jamovi.coms.ResultsOutputs)
 
-                if (is.integer(values)) {
-                    outputPB$i <- values
-                } else if (is.numeric(private$.values)) {
-                    outputPB$d <- values
-                } else if (is.factor(values)) {
-                    outputPB$i <- as.numeric(values)
-                    lvls <- levels(values)
+            for (column in df) {
+
+                outputPB <- RProtoBuf_new(jamovi.coms.ResultsOutput)
+
+                if (is.character(column))
+                    column <- as.factor(column)
+
+                if (is.integer(column)) {
+                    column <- ifelse(is.na(column), -2147483648, column)
+                    outputPB$i <- column
+                } else if (is.numeric(column)) {
+                    outputPB$d <- column
+                } else if (is.factor(column)) {
+                    outputPB$i <- as.numeric(column)
+                    lvls <- levels(column)
                     for (i in seq_along(lvls)) {
                         levelPB <- RProtoBuf_new(jamovi.coms.VariableLevel)
                         levelPB$label <- lvls[i]
@@ -93,9 +115,11 @@ Output <- R6::R6Class('Output',
                     # warn the developer?
                 }
 
-                element$output <- outputPB
+                outputsPB$add('outputs', outputPB)
             }
-            element
+
+            outputsPB$rowNos <- rowNos
+            outputsPB
         }
     )
 )
@@ -104,23 +128,10 @@ Output <- R6::R6Class('Output',
 #' @export
 Outputs <- R6::R6Class('Outputs',
     inherit=Output,
-    public=list(
-        asProtoBuf=function(incAsText=FALSE, status=NULL) {
-            element <- super$asProtoBuf(incAsText=incAsText, status=status)
-            if ( ! is.null(private$.values) && incAsText) {
-
-                output <- Output$new()
-                outputsPB <- element$outputs
-
-                for (var in private$.values) {
-                    output$setValue(var)
-                    outputPB <- output$asProtoBuf(incAsText, status)
-                    outputsPB$add('outputs', outputPB)
-                }
-
-                element$outputs <- outputsPB
-            }
-            element
+    private=list(
+        .dataToPB=function(data) {
+            df <- as.data.frame(data)
+            private$.dfToPB(df)
         }
     )
 )

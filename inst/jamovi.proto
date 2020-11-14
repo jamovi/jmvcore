@@ -240,6 +240,7 @@ message ResultsOutput {
 
 message ResultsOutputs {
     repeated ResultsOutput outputs = 1;
+    repeated uint32 rowNos = 2;
 }
 
 message ResultsElement {
@@ -257,8 +258,7 @@ message ResultsElement {
         string preformatted = 10;
         string syntax = 11;
         ResultsHtml html = 12;
-        ResultsOutput output = 13;
-        ResultsOutputs outputs = 17;
+        ResultsOutputs outputs = 13;
     }
 
     bytes state = 14;
