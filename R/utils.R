@@ -1235,7 +1235,9 @@ fromB64 <- function(names) {
         name <- substring(name, 2)
         name <- gsub('.', '+', name, fixed=TRUE)
         name <- gsub('_', '/', name, fixed=TRUE)
-        rawToChar(base64enc::base64decode(name))
+        value <- rawToChar(base64enc::base64decode(name))
+        Encoding(value) <- 'UTF-8'
+        value
     }, USE.NAMES=FALSE)
 }
 
