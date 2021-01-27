@@ -186,6 +186,7 @@ Group <- R6::R6Class("Group",
 
             for (itemPB in pb$group$elements) {
                 itemName <- itemPB$name
+                Encoding(itemName) <- 'UTF-8'
                 target <- private$.items[[itemName]]
 
                 if ( ! is.null(target))
