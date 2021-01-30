@@ -151,8 +151,6 @@ Analysis <- R6::R6Class('Analysis',
             private$.results$.setParent(self)
             private$.options$analysis <- self
 
-            private$.options$addChangeListener(private$.optionsChangedHandler)
-
             private$.checkpointCB <- NULL
 
             private$.parent <- NULL

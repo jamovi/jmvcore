@@ -6,7 +6,6 @@ Options <- R6::R6Class(
     private=list(
         .analysis=NA,
         .options=NA,
-        .listeners=NA,
         .pb=NA,
         .env=NA,
         .ppi=72,
@@ -47,7 +46,6 @@ Options <- R6::R6Class(
 
             private$.analysis <- NULL
             private$.options <- list()
-            private$.listeners <- list()
             private$.env <- new.env()
             private$.pb <- NULL
 
@@ -194,21 +192,6 @@ Options <- R6::R6Class(
 
             value
         },
-        set=function(...) {
-
-            values <- list(...)
-            for (name in names(values))
-                private$.options[[name]]$value <- values[[name]]
-
-            for (listener in private$.listeners)
-                listener(names(values))
-        },
-        setValue=function(name, value) {
-            private$.options[[name]]$value <- value
-
-            for (listener in private$.listeners)
-                listener(name)
-        },
         option=function(name) {
             private$.options[[name]]
         },
@@ -237,9 +220,6 @@ Options <- R6::R6Class(
             expr <- parse(text=paste0("if (is.null(", str, ")) NULL else base::levels(data[[", str, "]])"))
             v <- eval.parent(expr)
             v
-        },
-        addChangeListener=function(listener) {
-            private$.listeners[[length(private$.listeners)+1]] <- listener
         },
         read=function(raw) {
             initProtoBuf()
