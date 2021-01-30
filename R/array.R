@@ -11,6 +11,7 @@ Array <- R6::R6Class("Array",
         .itemsExpr='0',
         .itemsValue=0,
         .layout='none',
+        .header=NA,
         .hideHeadingOnlyChild=FALSE),
     active=list(
         items=function() private$.items,
@@ -49,6 +50,7 @@ Array <- R6::R6Class("Array",
             private$.template <- template
             private$.itemsExpr <- paste(items)
             private$.layout <- layout
+            private$.header <- NULL
             private$.hideHeadingOnlyChild <- hideHeadingOnlyChild
 
             private$.items <- list()
@@ -76,6 +78,9 @@ Array <- R6::R6Class("Array",
             private$.itemKeys[[index]] <- key
             private$.itemNames[[index]] <- toJSON(key)
             self$.createItem(key, index)
+        },
+        setHeader=function(header) {
+            private$.header <- header
         },
         isFilled=function() {
             for (item in private$.items) {
@@ -278,20 +283,27 @@ Array <- R6::R6Class("Array",
                     item$fromProtoBuf(elementPB, oChanges, vChanges)
                 }
             }
+
+            if ( ! is.null(private$.header) && arrayPB$hasHeader)
+                private$.header$fromProtoBuf(arrayPB$header)
         },
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
 
-            array <- RProtoBuf_new(jamovi.coms.ResultsArray)
+            arrayPB <- RProtoBuf_new(jamovi.coms.ResultsArray)
             if (identical(private$.layout, 'listSelect'))
-                array$layout <- jamovi.coms.ResultsArray$LayoutType$LIST_SELECT
+                arrayPB$layout <- jamovi.coms.ResultsArray$LayoutType$LIST_SELECT
             if (identical(private$.hideHeadingOnlyChild, TRUE))
-                array$hideHeadingOnlyChild <- TRUE
+                arrayPB$hideHeadingOnlyChild <- TRUE
 
             for (item in private$.items)
-                array$add("elements", item$asProtoBuf(incAsText=incAsText, status=status))
+                arrayPB$add("elements", item$asProtoBuf(incAsText=incAsText, status=status))
 
             result <- super$asProtoBuf(incAsText=incAsText, status=status)
-            result$array <- array
+            if ( ! is.null(private$.header)) {
+                arrayPB$hasHeader <- TRUE
+                arrayPB$header <- private$.header$asProtoBuf(incAsText=incAsText, status=status)
+            }
+            result$array <- arrayPB
             result
         },
         .setParent=function(parent) {

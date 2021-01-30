@@ -214,6 +214,9 @@ message ResultsArray {
 
     LayoutType layout = 2;
     bool hideHeadingOnlyChild = 4;
+
+    bool hasHeader = 8;
+    ResultsElement header = 9;
 }
 
 message ResultsGroup {
@@ -233,6 +236,8 @@ message VariableLevel {
 }
 
 message ResultsOutput {
+    string name = 1;
+    string description = 2;
     repeated VariableLevel levels = 3;
     repeated int32 i = 4;
     repeated double d = 5;
