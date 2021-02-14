@@ -163,8 +163,6 @@ Image <- R6::R6Class("Image",
             result
         },
         fromProtoBuf=function(element, oChanges, vChanges) {
-            if ( ! base::inherits(element, "Message"))
-                reject("Image$fromProtoBuf() expects a jamovi.coms.ResultsElement")
 
             someChanges <- length(oChanges) > 0 || length(vChanges) > 0
             if (someChanges && base::identical('*', private$.clearWith))

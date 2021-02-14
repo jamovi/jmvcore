@@ -175,9 +175,6 @@ Group <- R6::R6Class("Group",
             v
         },
         fromProtoBuf=function(pb, oChanges, vChanges) {
-            if ( ! "Message" %in% class(pb))
-                reject("Group::fromProtoBuf(): expected a jamovi.coms.ResultsElement")
-
             someChanges <- length(oChanges) > 0 || length(vChanges) > 0
             if (someChanges && base::identical('*', private$.clearWith))
                 return()

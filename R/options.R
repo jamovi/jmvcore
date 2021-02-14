@@ -229,8 +229,6 @@ Options <- R6::R6Class(
             private$.pb
         },
         fromProtoBuf=function(pb) {
-            if ( ! "Message" %in% class(pb))
-                reject("Options::fromProtoBuf(): expected a jamovi.coms.ResultsElement")
 
             private$.pb <- pb
 

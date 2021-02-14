@@ -229,8 +229,6 @@ Array <- R6::R6Class("Array",
                 return(element$.lookup(path))
         },
         fromProtoBuf=function(element, oChanges, vChanges) {
-            if ( ! base::inherits(element, "Message"))
-                reject("Array$fromProtoBuf() expects a jamovi.coms.ResultsElement")
 
             clear <- FALSE
 

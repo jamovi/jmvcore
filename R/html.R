@@ -98,8 +98,6 @@ Html <- R6::R6Class("Html",
             content
         },
         fromProtoBuf=function(element, oChanges, vChanges) {
-            if ( ! base::inherits(element, "Message"))
-                reject("Table$fromProtoBuf() expects a jamovi.coms.ResultsElement")
 
             private$.stale <- element$stale
 

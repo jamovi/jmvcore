@@ -53,8 +53,6 @@ Preformatted <- R6::R6Class("Preformatted",
             private$.content
         },
         fromProtoBuf=function(element, oChanges, vChanges) {
-            if ( ! base::inherits(element, "Message"))
-                reject("Table$fromProtoBuf() expects a jamovi.coms.ResultsElement")
 
             private$.stale <- element$stale
 
