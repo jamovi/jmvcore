@@ -235,17 +235,28 @@ message VariableLevel {
     string importValue = 3;
 }
 
+enum MeasureType {
+    NONE = 0;
+    NOMINAL = 2;
+    ORDINAL = 3;
+    CONTINUOUS = 4;
+}
+
 message ResultsOutput {
     string name = 1;
-    string description = 2;
-    repeated VariableLevel levels = 3;
-    repeated int32 i = 4;
-    repeated double d = 5;
+    string title = 2;
+    string description = 3;
+    MeasureType measureType = 4;
+    bool stale = 5;
+    bool incData = 6;
+    repeated VariableLevel levels = 7;
+    repeated int32 i = 8;
+    repeated double d = 9;
 }
 
 message ResultsOutputs {
     repeated ResultsOutput outputs = 1;
-    repeated uint32 rowNos = 2;
+    repeated uint32 rowNums = 2;
 }
 
 message ResultsElement {

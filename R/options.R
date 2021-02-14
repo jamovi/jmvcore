@@ -662,13 +662,20 @@ OptionVariable <- R6::R6Class(
 #' @export
 OptionOutput <- R6::R6Class(
     "OptionOutput",
-    inherit=OptionVariable)
-
-#' @rdname Options
-#' @export
-OptionOutputs <- R6::R6Class(
-    "OptionOutputs",
-    inherit=OptionVariables)
+    inherit=Option,
+    active=list(
+        value=function(v) {
+            if ( ! missing(v)) {
+                private$.value <- v
+                invisible(self)
+            } else {
+                isTRUE(private$.value$value)
+            }
+        },
+        valueAsSource=function() {
+            ''
+        }
+    ))
 
 #' @rdname Options
 #' @export

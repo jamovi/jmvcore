@@ -1356,3 +1356,8 @@ matchSet <- function(x, table) {
 toJSON <- function(x) {
     as.character(jsonlite::toJSON(x, auto_unbox=TRUE))
 }
+
+#' @importFrom jsonlite fromJSON
+fromJSON <- function(x) {
+    jsonlite::fromJSON(x)
+}
