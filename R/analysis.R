@@ -325,7 +325,7 @@ Analysis <- R6::R6Class('Analysis',
                 conn <- file(path, open='wb', raw=TRUE)
                 on.exit(close(conn), add=TRUE)
                 RProtoBuf_serialize(self$asProtoBuf(), conn)
-            }, silent=TRUE)
+            }, silent=FALSE)
         },
         .load=function(vChanges=character()) {
 
@@ -348,7 +348,7 @@ Analysis <- R6::R6Class('Analysis',
 
                 if (isTRUE(private$.completeWhenFilled) && self$results$isFilled())
                     private$.status <- 'complete'
-            }, silent=TRUE)
+            }, silent=FALSE)
         },
         .createPlotObject=function(funName, image, ...) {
             if ( ! is.character(funName))
