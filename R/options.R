@@ -672,6 +672,9 @@ OptionOutput <- R6::R6Class(
                 isTRUE(private$.value$value)
             }
         },
+        synced=function() {
+            private$.value$synced
+        },
         valueAsSource=function() {
             ''
         }

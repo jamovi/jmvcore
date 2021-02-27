@@ -175,11 +175,16 @@ Output <- R6::R6Class('Output',
                 self$set(keys, titles, descriptions, measureTypes)
             }
 
+            # synced are the columns already received by the client
+            synced <- self$options$option(private$.name)$synced
+
             for (outputPB in outputsPB$outputs) {
                 name <- outputPB$name
-                index <- indexOf(name, private$.names)
-                if ( ! is.na(index))
-                    private$.stales[index] <- outputPB$stale
+                if (name %in% synced) {
+                    index <- indexOf(name, private$.names)
+                    if ( ! is.na(index))
+                        private$.stales[index] <- outputPB$stale
+                }
             }
 
             clear <- FALSE
