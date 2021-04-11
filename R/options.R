@@ -810,6 +810,26 @@ OptionGroup <- R6::R6Class(
 
 #' @rdname Options
 #' @export
+OptionPair <- R6::R6Class(
+    "OptionPair",
+    inherit=OptionGroup,
+    public=list(
+        initialize=function(name, value, permitted=NULL, suggested=NULL, ...) {
+            super$initialize(name, value, elements=list(
+                OptionVariable$new(
+                    "i1",
+                    NULL,
+                    suggested=suggested,
+                    permitted=permitted),
+                OptionVariable$new(
+                    "i2",
+                    NULL,
+                    suggested=suggested,
+                    permitted=permitted)))
+        }))
+
+#' @rdname Options
+#' @export
 OptionSort <- R6::R6Class(
     "OptionSort",
     inherit=OptionGroup,
