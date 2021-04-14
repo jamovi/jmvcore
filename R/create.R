@@ -13,15 +13,19 @@
 create <- function(ns, name, optionsPB, datasetId, analysisId, revision) {
 
     analysis <- tryStack({
-        options <- eval(parse(text=format('options <- {}::{}Options$new()\n', ns, name)))
+
+        namespace <- base::getNamespace(ns)
+        optionsClass <- namespace[[paste0(name, 'Options')]]
+        analysisClass <- namespace[[paste0(name, 'Class')]]
+
+        options <- optionsClass$new()
         options$read(optionsPB)
 
-        analysis <- eval(parse(text=format(
-            '{}::{}Class$new(
+        analysis <- analysisClass$new(
             options=options,
             datasetId=datasetId,
             analysisId=analysisId,
-            revision=revision)', ns, name)))
+            revision=revision)
     })
 
     if (isError(analysis))
