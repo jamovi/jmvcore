@@ -979,7 +979,7 @@ extractErrorMessage <- function(error) {
     if (inherits(error, 'try-error'))
         error <- attr(error, 'condition')
 
-    if (inherits(error, 'simpleError')) {
+    if (inherits(error, 'error')) {
         message <- error$message
         message <- stringi::stri_encode(message, to='utf-8')
         return(message)
