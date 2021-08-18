@@ -1089,6 +1089,11 @@ sourcify <- function(object, indent='') {
 
         return(source)
 
+    } else if (inherits(object, 'formula')) {
+        source <- sourcify(paste(trimws(format(object)), collapse=' '), indent)
+        
+        return(paste0('as.formula(', source, ')'));
+
     } else if (is.list(object) || is.environment(object)) {
 
         if (length(object) == 0)
