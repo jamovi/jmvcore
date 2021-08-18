@@ -1088,6 +1088,11 @@ sourcify <- function(object, indent='') {
         }
 
         return(source)
+      
+    } else if (is.language(object) && ! is.symbol(object)) {
+        source <- sourcify(paste(trimws(format(object)), collapse=' '), indent)
+        
+        return(paste0('as.formula(', source, ')'));      
 
     } else if (is.list(object) || is.environment(object)) {
 
