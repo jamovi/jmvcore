@@ -283,7 +283,7 @@ Array <- R6::R6Class("Array",
             }
 
             if ( ! is.null(private$.header) && arrayPB$hasHeader)
-                private$.header$fromProtoBuf(arrayPB$header)
+                private$.header$fromProtoBuf(arrayPB$header, oChanges, vChanges)
         },
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
 
