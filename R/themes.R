@@ -32,22 +32,22 @@ getGGTheme <- function(name, scale, palette) {
 
 
 getTheme = function(name = 'default', palette = 'jmv') {
-
     theme <- list()
 
     if (name == 'iheartspss') {
-
         theme[['color']] <- c('#333333', '#333333')
         theme[['fill']] <- c('#F0F0F0', '#d3ce97')
         theme[['palette']] <- palette
-
     } else {
-
         theme[['color']] <- c('#333333', jmvcore::colorPalette(1, palette, 'color'))
         theme[['fill']] <- c('#FFFFFF', jmvcore::colorPalette(1, palette, 'fill'))
         theme[['palette']] <- palette
-
     }
+
+    if (name == 'apa') {
+        theme[['apa']] <- TRUE
+    } else
+        theme[['apa']] <- FALSE
 
     return(theme)
 }
