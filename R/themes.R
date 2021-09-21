@@ -44,10 +44,10 @@ getTheme = function(name = 'default', palette = 'jmv') {
         theme[['palette']] <- palette
     }
 
-    if (name == 'apa') {
-        theme[['apa']] <- TRUE
-    } else
-        theme[['apa']] <- FALSE
+    if (name == 'bw')
+        theme[['bw']] <- TRUE
+    else
+        theme[['bw']] <- FALSE
 
     return(theme)
 }
