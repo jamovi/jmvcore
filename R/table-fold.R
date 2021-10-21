@@ -32,6 +32,7 @@ fold <- function(input) {
         return(input)
 
     output <- Table$new(
+        options=input$options,
         name=input$name,
         title=input$title)
 
