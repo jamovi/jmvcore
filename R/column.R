@@ -77,8 +77,8 @@ Column <- R6::R6Class("Column",
             private$.options <- options
 
             private$.name <- name
-            private$.title <- title
-            private$.superTitle <- superTitle
+            private$.title <- options$translate(title)
+            private$.superTitle <- options$translate(superTitle)
             if (identical(visible, TRUE))
                 private$.visibleExpr <- NULL
             else
