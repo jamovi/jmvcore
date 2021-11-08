@@ -91,6 +91,8 @@ Options <- R6::R6Class(
                     if (code == '') {
                         locale <- Sys.getlocale('LC_MESSAGES')
                         code <- strsplit(locale, '.', fixed=TRUE)[[1]][1]
+                        if (is.null(code))
+                            code <- 'en'
                     }
                     private$.lang <- code
                 }
