@@ -11,25 +11,48 @@ Translator <- R6Class('Translator',
     private=list(
         .table=NA
     ),
-    public=list(
-        initialize=function(langDef) {
-            if (length(langDef) == 0) {
-                private$.table <- list()
-            } else {
-                private$.table <- langDef$locale_data$messages
+    public=`if`(requireNamespace('fastmap'),
+        list(
+            initialize=function(langDef) {
+                private$.table <- fastmap::fastmap()
+                if (length(langDef) > 0) {
+                    messages <- langDef$locale_data$messages
+                    messages <- messages[names(messages) != ""]
+                    private$.table$mset(.list=messages)
+                }
+            },
+            translate=function(text, n=1) {
+                if (is.null(text) || text == '')
+                    return(text)
+                result <- private$.table$get(text)
+                if ( ! is.null(result)) {
+                    result <- result[[1]]
+                    if (result != '')
+                        text <- result
+                }
+                text
             }
-        },
-        translate=function(text, n=1) {
-            if (is.null(text))
-                return(text)
-            result <- private$.table[[text]]
-            if ( ! is.null(result)) {
-                result <- result[[1]]
-                if (result != '')
-                    text <- result
+        ),
+        list(
+            initialize=function(langDef) {
+                if (length(langDef) == 0) {
+                    private$.table <- list()
+                } else {
+                    private$.table <- langDef$locale_data$messages
+                }
+            },
+            translate=function(text, n=1) {
+                if (is.null(text) || text == '')
+                    return(text)
+                result <- private$.table[[text]]
+                if ( ! is.null(result)) {
+                    result <- result[[1]]
+                    if (result != '')
+                        text <- result
+                }
+                text
             }
-            text
-        }
+        )
     )
 )
 
