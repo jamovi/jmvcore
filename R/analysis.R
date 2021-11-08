@@ -21,7 +21,6 @@ Analysis <- R6::R6Class('Analysis',
         .analysisId='',
         .name='',
         .package='',
-        .language='',
         .title='',
         .options=NA,
         .results=NA,
@@ -47,7 +46,6 @@ Analysis <- R6::R6Class('Analysis',
         .parent=NA,
         .addons=NA,
         .stacktrace='',
-        .translator=NA,
         .checkpoint=function(flush=TRUE) {
             if (is.null(private$.checkpointCB))
                 return()
@@ -128,7 +126,6 @@ Analysis <- R6::R6Class('Analysis',
             version,
             options,
             results,
-            language='en',
             pause=NULL,
             data=NULL,
             datasetId='',
@@ -140,7 +137,6 @@ Analysis <- R6::R6Class('Analysis',
 
             private$.package <- package
             private$.name    <- name
-            private$.language <- language
             private$.version <- version
             private$.options <- options
             private$.results <- results
@@ -152,8 +148,6 @@ Analysis <- R6::R6Class('Analysis',
             private$.completeWhenFilled <- completeWhenFilled
             private$.requiresMissings <- requiresMissings
 
-            private$.translator <- createTranslator(package, language)
-
             private$.results$.setParent(self)
             private$.options$analysis <- self
 
@@ -163,7 +157,7 @@ Analysis <- R6::R6Class('Analysis',
             private$.addons <- list()
         },
         translate=function(text, n=1) {
-            private$.translator$translate(text, n)
+            private$.options$translate(text, n)
         },
         check=function(checkValues=FALSE, checkVars=FALSE, checkData=FALSE) {
             private$.options$check(

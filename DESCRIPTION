@@ -25,5 +25,6 @@ Suggests:
     knitr,
     ggplot2,
     RColorBrewer,
-    ragg
+    ragg,
+    fastmap
 RoxygenNote: 6.1.1
