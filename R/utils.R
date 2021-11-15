@@ -306,14 +306,9 @@ decomposeFormula <- function(formula) {
     decomposeTerms(components)
 }
 
-#' rlang::enquo
-#' Simplifies things so packages overriding Analysis don't need
-#' to have rlang in their imports.
-#' This is intended for use by classes overriding Analysis
-#' @param arg the argument to enquote
-#' @return the quosure
+#' @importFrom rlang enquo
 #' @export
-enquo <- rlang::enquo
+rlang::enquo
 
 #' Evaluates a quosure
 #' This is intended for use by classes overriding Analysis
