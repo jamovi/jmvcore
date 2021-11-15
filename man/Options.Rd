@@ -9,12 +9,14 @@
 \alias{OptionVariables}
 \alias{OptionTerm}
 \alias{OptionVariable}
+\alias{OptionOutput}
 \alias{OptionTerms}
 \alias{OptionInteger}
 \alias{OptionNumber}
 \alias{OptionString}
 \alias{OptionLevel}
 \alias{OptionGroup}
+\alias{OptionPair}
 \alias{OptionSort}
 \alias{OptionArray}
 \alias{OptionPairs}
@@ -35,6 +37,8 @@ OptionTerm
 
 OptionVariable
 
+OptionOutput
+
 OptionTerms
 
 OptionInteger
@@ -46,6 +50,8 @@ OptionString
 OptionLevel
 
 OptionGroup
+
+OptionPair
 
 OptionSort
 
