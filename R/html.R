@@ -99,6 +99,9 @@ Html <- R6::R6Class("Html",
         },
         fromProtoBuf=function(element, oChanges, vChanges) {
 
+            if ( ! private$.stale)
+                return()
+
             private$.stale <- element$stale
 
             someChanges <- length(oChanges) > 0 || length(vChanges) > 0

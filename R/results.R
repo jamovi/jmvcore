@@ -14,7 +14,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
         .error=NA,
         .clearWith=NA,
         .state=NA,
-        .stale=FALSE,
+        .stale=TRUE,
         .refs=NA,
         .parent=NA,
         deep_clone=function(name, value) {
