@@ -492,6 +492,7 @@ Table <- R6::R6Class('Table',
             } else if (is.character(note)) {
                 key  <- stringi::stri_encode(key, to='utf-8')
                 note <- stringi::stri_encode(note, to='utf-8')
+                note <- self$options$translate(note)
                 private$.notes[[key]] <- Note$new(key, note[1], init)
             } else {
                 stop('Table$setNote(): note must be a character vector', call.=FALSE)
