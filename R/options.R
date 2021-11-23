@@ -44,7 +44,7 @@ Options <- R6::R6Class(
         palette=function() private$.palette,
         options=function() private$.options),
     public=list(
-        initialize=function(package, name, requiresData=TRUE, ...) {
+        initialize=function(package='jmv', name='', requiresData=TRUE, ...) {
 
             private$.package <- package
             private$.name <- name
