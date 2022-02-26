@@ -157,10 +157,10 @@ Options <- R6::R6Class(
 
                         return(self[['get']](content))
 
-                    } else if (grepl('[A-Za-z][A-Za-z0-9]*:[A-Za-z][A-Za-z0-9-]*', content)) {
+                    } else if (grepl('[A-Za-z][A-Za-z0-9_]*:[A-Za-z][A-Za-z0-9_]*', content)) {
 
                         subed <- regexSub(
-                            '[A-Za-z][A-Za-z0-9]*:[A-Za-z][A-Za-z0-9-]*',
+                            '[A-Za-z][A-Za-z0-9_]*:[A-Za-z][A-Za-z0-9_]*',
                             content,
                             function(x) {
                                 split <- strsplit(x, ':')[[1]]
