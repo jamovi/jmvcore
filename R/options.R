@@ -103,13 +103,13 @@ Options <- R6::R6Class(
         },
         eval=function(value, ...) {
 
-            if (class(value) == "character") {
+            if (inherits(value, 'character')) {
 
                 if (is.null(value))
                     return(NULL)
-                if (value == "TRUE")
+                if (value == 'TRUE')
                     return(TRUE)
-                if (value == "FALSE")
+                if (value == 'FALSE')
                     return(FALSE)
                 if (value == '')
                     return('')
