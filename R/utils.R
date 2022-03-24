@@ -372,7 +372,7 @@ stringifyTerm <- function(components, sep=getOption('jmvTermSep', ':'), raise=FA
     }
 
     components <- sapply(components, function(x) {
-        if (startsWith(x, '`') && endsWith(x, '`')) {
+        if (startsWith(x[1], '`') && endsWith(x[1], '`')) {
             x <- substring(x, 2, nchar(x)-1)
             x <- gsub('`', '\\`', x, fixed=TRUE)
         }
