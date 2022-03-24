@@ -49,7 +49,7 @@ Translator <- R6Class('Translator',
                 text
             }
         ),
-        `if`(requireNamespace('fastmap'),
+        `if`(requireNamespace('fastmap', quietly=TRUE),
             list(
                 initialize=function(langDef) {
                     private$.table <- fastmap::fastmap()
