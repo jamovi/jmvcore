@@ -24,7 +24,7 @@ Translator <- R6Class('Translator',
                 } else {
                     # if not found, there could be context
                     match <- regexec('(.*) \\[(.*)\\]', text)[[1]]
-                    if (match != -1) {
+                    if (match[1] != -1) {
                         # separate the text from the context
                         context <- substring(text, match[3], match[3] + attr(match, 'match.length')[3] - 1)
                         text <- substring(text, match[2], match[2] + attr(match, 'match.length')[2] - 1)
