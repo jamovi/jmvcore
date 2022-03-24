@@ -1,8 +1,8 @@
 Package: jmvcore
 Type: Package
 Title: Dependencies for the 'jamovi' Framework
-Version: 2.3.3
-Date: 2022-03-23
+Version: 2.3.4
+Date: 2022-03-24
 Author: Jonathon Love
 Maintainer: Jonathon Love <jon@thon.cc>
 Description: A framework for creating rich interactive analyses for the jamovi
