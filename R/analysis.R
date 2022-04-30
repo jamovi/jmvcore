@@ -579,14 +579,10 @@ Analysis <- R6::R6Class('Analysis',
             if ( ! identical(private$.stacktrace, ''))
                 prepend[[length(prepend)+1]] <- RProtoBuf_new(jamovi.coms.ResultsElement, name='debug', title='Debug', preformatted=private$.stacktrace)
 
-            if (incAsText) {
-                response$incAsText <- TRUE
-                syntax <- RProtoBuf_new(jamovi.coms.ResultsElement, name='syntax', preformatted=self$asSource())
-                prepend <- c(list(syntax), prepend)
-                response$results <- self$results$asProtoBuf(incAsText=incAsText, status=response$status, prepend=prepend);
-            } else {
-                response$results <- self$results$asProtoBuf(incAsText=incAsText, status=response$status, prepend=prepend);
-            }
+            syntax <- RProtoBuf_new(jamovi.coms.ResultsElement, name='syntax', preformatted=self$asSource())
+            prepend <- c(list(syntax), prepend)
+            response$incAsText <- incAsText
+            response$results <- self$results$asProtoBuf(incAsText=incAsText, status=response$status, prepend=prepend);
 
             ns <- getNamespace(private$.package)
             if ('.jmvrefs' %in% names(ns)) {
