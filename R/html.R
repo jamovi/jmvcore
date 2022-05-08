@@ -122,8 +122,8 @@ Html <- R6::R6Class("Html",
             private$.scripts <- element$html$scripts
             private$.stylesheets <- element$html$stylesheets
         },
-        asProtoBuf=function(incAsText=FALSE, status=NULL) {
-            element <- super$asProtoBuf(incAsText=TRUE, status=status)
+        asProtoBuf=function(final=FALSE, status=NULL) {
+            element <- super$asProtoBuf(final=TRUE, status=status)
             element$html$content <- private$.content
             element$html$scripts <- private$.scripts
             element$html$stylesheets <- private$.stylesheets

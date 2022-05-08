@@ -74,8 +74,8 @@ Preformatted <- R6::R6Class("Preformatted",
 
             private$.content <- element$preformatted
         },
-        asProtoBuf=function(incAsText=FALSE, status=NULL) {
-            element <- super$asProtoBuf(incAsText=TRUE, status=status)
+        asProtoBuf=function(final=FALSE, status=NULL) {
+            element <- super$asProtoBuf(final=TRUE, status=status)
             element$preformatted <- stringi::stri_enc_toutf8(private$.content, validate=TRUE)
             element
         }

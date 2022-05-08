@@ -176,7 +176,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
             self$.update()
             ""
         },
-        asProtoBuf=function(incAsText=FALSE, status=NULL) {
+        asProtoBuf=function(final=FALSE, status=NULL) {
 
             if (identical(private$.visibleExpr, 'TRUE'))
                 v <- jamovi.coms.Visible$YES

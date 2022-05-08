@@ -552,7 +552,7 @@ Analysis <- R6::R6Class('Analysis',
         optionsChangedHandler=function(optionNames) {
             private$.status <- 'none'
         },
-        asProtoBuf=function(incAsText=FALSE) {
+        asProtoBuf=function(final=FALSE) {
 
             self$init()
             initProtoBuf()
@@ -581,8 +581,8 @@ Analysis <- R6::R6Class('Analysis',
 
             syntax <- RProtoBuf_new(jamovi.coms.ResultsElement, name='syntax', preformatted=self$asSource())
             prepend <- c(list(syntax), prepend)
-            response$incAsText <- incAsText
-            response$results <- self$results$asProtoBuf(incAsText=incAsText, status=response$status, prepend=prepend);
+            response$final <- final
+            response$results <- self$results$asProtoBuf(final=final, status=response$status, prepend=prepend);
 
             ns <- getNamespace(private$.package)
             if ('.jmvrefs' %in% names(ns)) {
@@ -624,8 +624,8 @@ Analysis <- R6::R6Class('Analysis',
 
             response
         },
-        serialize=function(incAsText=FALSE) {
-            serial <- tryStack(RProtoBuf_serialize(self$asProtoBuf(incAsText=incAsText), NULL))
+        serialize=function(final=FALSE) {
+            serial <- tryStack(RProtoBuf_serialize(self$asProtoBuf(final=final), NULL))
             if (isError(serial))
                 serial <- createErrorAnalysis(
                     as.character(serial),

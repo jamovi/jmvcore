@@ -285,7 +285,7 @@ Array <- R6::R6Class("Array",
             if ( ! is.null(private$.header) && arrayPB$hasHeader)
                 private$.header$fromProtoBuf(arrayPB$header, oChanges, vChanges)
         },
-        asProtoBuf=function(incAsText=FALSE, status=NULL) {
+        asProtoBuf=function(final=FALSE, status=NULL) {
 
             arrayPB <- RProtoBuf_new(jamovi.coms.ResultsArray)
             if (identical(private$.layout, 'listSelect'))
@@ -294,12 +294,12 @@ Array <- R6::R6Class("Array",
                 arrayPB$hideHeadingOnlyChild <- TRUE
 
             for (item in private$.items)
-                arrayPB$add("elements", item$asProtoBuf(incAsText=incAsText, status=status))
+                arrayPB$add("elements", item$asProtoBuf(final=final, status=status))
 
-            result <- super$asProtoBuf(incAsText=incAsText, status=status)
+            result <- super$asProtoBuf(final=final, status=status)
             if ( ! is.null(private$.header)) {
                 arrayPB$hasHeader <- TRUE
-                arrayPB$header <- private$.header$asProtoBuf(incAsText=incAsText, status=status)
+                arrayPB$header <- private$.header$asProtoBuf(final=final, status=status)
             }
             result$array <- arrayPB
             result
