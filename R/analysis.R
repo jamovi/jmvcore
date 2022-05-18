@@ -624,17 +624,24 @@ Analysis <- R6::R6Class('Analysis',
 
             response
         },
-        serialize=function(final=FALSE) {
+        serialize=function(final=FALSE, createErrorOnFailure=TRUE) {
             serial <- tryStack(RProtoBuf_serialize(self$asProtoBuf(final=final), NULL))
-            if (isError(serial))
-                serial <- createErrorAnalysis(
-                    as.character(serial),
-                    attr(serial, 'stack'),
-                    private$.package,
-                    private$.name,
-                    private$.datasetId,
-                    private$.analysisId,
-                    private$.revision)$serialize()
+            if (isError(serial)) {
+                if (createErrorOnFailure) {
+                    error <- createErrorAnalysis(
+                        as.character(serial),
+                        attr(serial, 'stack'),
+                        private$.package,
+                        private$.name,
+                        private$.datasetId,
+                        private$.analysisId,
+                        private$.revision)
+                    # createErrorOnFailure=FALSE to prevent possible recursion
+                    serial <- error$serialize(createErrorOnFailure=FALSE)
+                } else {
+                    serial <- NULL
+                }
+            }
             serial
         },
         asSource=function() {
