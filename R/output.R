@@ -219,11 +219,11 @@ Output <- R6::R6Class('Output',
                     private$.stales[index] <- TRUE
             }
         },
-        asProtoBuf=function(final=FALSE, status=NULL) {
+        asProtoBuf=function(incAsText=FALSE, status=NULL) {
 
-            includeData = final
+            includeData = incAsText
 
-            element <- super$asProtoBuf(final=final, status=status)
+            element <- super$asProtoBuf(incAsText=incAsText, status=status)
 
             outputsPB <- RProtoBuf_new(jamovi.coms.ResultsOutputs)
 

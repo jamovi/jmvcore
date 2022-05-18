@@ -582,7 +582,10 @@ Analysis <- R6::R6Class('Analysis',
             syntax <- RProtoBuf_new(jamovi.coms.ResultsElement, name='syntax', preformatted=self$asSource())
             prepend <- c(list(syntax), prepend)
             response$final <- final
-            response$results <- self$results$asProtoBuf(final=final, status=response$status, prepend=prepend);
+
+            # note we have to use incAsText for backward compatibility with Rj
+            # otherwise i would have renamed all these 'final'
+            response$results <- self$results$asProtoBuf(incAsText=final, status=response$status, prepend=prepend);
 
             ns <- getNamespace(private$.package)
             if ('.jmvrefs' %in% names(ns)) {
