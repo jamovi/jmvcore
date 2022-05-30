@@ -269,7 +269,20 @@ Output <- R6::R6Class('Output',
                             outputPB$i <- column
                         } else if (is.numeric(column)) {
                             outputPB$d <- column
-                        } else if (is.factor(column)) {
+                        } else if (is.logical(column)) {
+                            column <- ifelse(is.na(column), -2147483648, ifelse(column, 1, 0))
+                            outputPB$i <- column
+                            levelPB <- RProtoBuf_new(jamovi.coms.VariableLevel)
+                            levelPB$label <- 'true'
+                            levelPB$value <- 1
+                            outputPB$add('levels', levelPB)
+                            levelPB <- RProtoBuf_new(jamovi.coms.VariableLevel)
+                            levelPB$label <- 'false'
+                            levelPB$value <- 0
+                            outputPB$add('levels', levelPB)
+                        } else {
+                            if ( ! is.factor(column))
+                                column <- as.factor(column)
                             outputPB$i <- as.numeric(column)
                             lvls <- levels(column)
                             for (i in seq_along(lvls)) {
@@ -278,8 +291,6 @@ Output <- R6::R6Class('Output',
                                 levelPB$value <- i
                                 outputPB$add('levels', levelPB)
                             }
-                        } else {
-                            # warn the developer?
                         }
                     }
 
