@@ -132,6 +132,7 @@ Image <- R6::R6Class("Image",
         },
         .setPath=function(path) {
             private$.filePath <- path
+            private$.stale <- is.null(path)
         },
         asString=function() {
             return('')
@@ -148,6 +149,7 @@ Image <- R6::R6Class("Image",
                 path=path)
 
             result <- super$asProtoBuf(incAsText=incAsText, status=status)
+            result$stale <- private$.stale
 
             if (self$status == 'none' && self$isFilled()) {
 
@@ -164,28 +166,41 @@ Image <- R6::R6Class("Image",
         },
         fromProtoBuf=function(element, oChanges, vChanges) {
 
+            invalid <- FALSE
+
             someChanges <- length(oChanges) > 0 || length(vChanges) > 0
-            if (someChanges && base::identical('*', private$.clearWith))
-                return()
-
-            if (base::any(oChanges %in% private$.clearWith))
-                return()
-
-            for (clearName in private$.clearWith) {
-                if (base::any(vChanges %in% private$.options$option(clearName)$vars))
-                    return()
+            if (someChanges && base::identical('*', private$.clearWith)) {
+                invalid <- TRUE
+            } else if (base::any(oChanges %in% private$.clearWith)) {
+                invalid <- TRUE
+            } else {
+                for (clearName in private$.clearWith) {
+                    if (base::any(vChanges %in% private$.options$option(clearName)$vars)) {
+                        invalid <- TRUE
+                        break()
+                    }
+                }
             }
-
-            super$fromProtoBuf(element, oChanges, vChanges)
 
             image <- element$image
 
-            private$.width <- image$width
-            private$.height <- image$height
-            if (image$path == '' || 'theme' %in% oChanges || 'palette' %in% oChanges)
+            if ( ! invalid)
+                super$fromProtoBuf(element, oChanges, vChanges)
+
+            if (image$path == '') {
+                private$.stale <- TRUE
                 private$.filePath <- NULL
-            else
+            } else if ('theme' %in% oChanges || 'palette' %in% oChanges) {
+                private$.stale <- TRUE
                 private$.filePath <- image$path
+                private$.width <- image$width
+                private$.height <- image$height
+            } else {
+                private$.stale <- element$stale || invalid
+                private$.filePath <- image$path
+                private$.width <- image$width
+                private$.height <- image$height
+            }
         },
         .setPlot=function(plot) {
             private$.plot <- plot

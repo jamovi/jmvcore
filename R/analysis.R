@@ -386,7 +386,7 @@ Analysis <- R6::R6Class('Analysis',
             if ( ! is.character(funName))
                 return(FALSE)
 
-            if ( ! is.null(image$filePath))
+            if (image$isFilled())
                 return(FALSE)
 
             if (image$visible == FALSE)
