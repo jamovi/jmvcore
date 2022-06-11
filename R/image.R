@@ -57,8 +57,6 @@ Image <- R6::R6Class("Image",
             private$.height <- height
         },
         isFilled=function() {
-            if (private$.stale)
-                return(FALSE)
             if (is.null(private$.filePath))
                 return(FALSE)
             return(TRUE)
