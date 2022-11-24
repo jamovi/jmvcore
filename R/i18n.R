@@ -9,73 +9,70 @@
 
 Translator <- R6Class('Translator',
     private=list(
-        .table=NA
+        .table=NA,
+        .usingFastMap=NA
     ),
-    public=c(
-        list(
-            translate=function(text, n=1) {
-                if (is.null(text) || text == '')
-                    return(text)
-                result <- self$get(text, n)
-                if ( ! is.null(result)) {
-                    result <- result[[1]]
-                    if (result != '')
-                        text <- result
+    public=list(
+        initialize=function(langDef) {
+            if (requireNamespace('fastmap', quietly=TRUE)) {
+                private$.table <- fastmap::fastmap()
+                if (length(langDef) > 0) {
+                    messages <- langDef$locale_data$messages
+                    messages <- messages[names(messages) != ""]
+                    private$.table$mset(.list=messages)
+                }
+                private$.usingFastMap <- TRUE
+            } else {
+                if (length(langDef) == 0) {
+                    private$.table <- list()
                 } else {
-                    # if not found, there could be context
-                    match <- regexec('(.*) \\[(.*)\\]', text)[[1]]
-                    if (match[1] != -1) {
-                        # separate the text from the context
-                        context <- substring(text, match[3], match[3] + attr(match, 'match.length')[3] - 1)
-                        text <- substring(text, match[2], match[2] + attr(match, 'match.length')[2] - 1)
-                        key <- paste0(context, '\u0004', text)
-                        # try context+text
-                        result <- self$get(key, n)
+                    private$.table <- langDef$locale_data$messages
+                }
+                private$.usingFastMap <- FALSE
+            }
+        },
+        get=function(text, n) {
+            if (private$.usingFastMap) {
+                return(private$.table$get(text))
+            } else {
+                return(private$.table[[text]])
+            }
+        },
+        translate=function(text, n=1) {
+            if (is.null(text) || text == '')
+                return(text)
+            result <- self$get(text, n)
+            if ( ! is.null(result)) {
+                result <- result[[1]]
+                if (result != '')
+                    text <- result
+            } else {
+                # if not found, there could be context
+                match <- regexec('(.*) \\[(.*)\\]', text)[[1]]
+                if (match[1] != -1) {
+                    # separate the text from the context
+                    context <- substring(text, match[3], match[3] + attr(match, 'match.length')[3] - 1)
+                    text <- substring(text, match[2], match[2] + attr(match, 'match.length')[2] - 1)
+                    key <- paste0(context, '\u0004', text)
+                    # try context+text
+                    result <- self$get(key, n)
+                    if ( ! is.null(result)) {
+                        result <- result[[1]]
+                        if (result != '')
+                            text <- result
+                    } else {
+                        # try text without the context
+                        result <- self$get(text)
                         if ( ! is.null(result)) {
                             result <- result[[1]]
                             if (result != '')
                                 text <- result
-                        } else {
-                            # try text without the context
-                            result <- self$get(text)
-                            if ( ! is.null(result)) {
-                                result <- result[[1]]
-                                if (result != '')
-                                    text <- result
-                            }
                         }
                     }
                 }
-                text
             }
-        ),
-        `if`(requireNamespace('fastmap', quietly=TRUE),
-            list(
-                initialize=function(langDef) {
-                    private$.table <- fastmap::fastmap()
-                    if (length(langDef) > 0) {
-                        messages <- langDef$locale_data$messages
-                        messages <- messages[names(messages) != ""]
-                        private$.table$mset(.list=messages)
-                    }
-                },
-                get=function(text, n=1) {
-                    private$.table$get(text)
-                }
-            ),
-            list(
-                initialize=function(langDef) {
-                    if (length(langDef) == 0) {
-                        private$.table <- list()
-                    } else {
-                        private$.table <- langDef$locale_data$messages
-                    }
-                },
-                get=function(text, n=1) {
-                    private$.table[[text]]
-                }
-            )
-        )
+            text
+        }
     )
 )
 
