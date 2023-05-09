@@ -1120,13 +1120,12 @@ sourcify <- function(object, indent='') {
 #' Create a new data frame with only the selected columns
 #'
 #' Shorthand equivalent to \code{\link{subset}(df, select=columnNames)}, however
-#' it additionally preserves attributes on the columns
+#' it additionally preserves attributes on the columns and the data frame
 #' @param df the data frame
 #' @param columnNames the names of the columns to make up the new data frame
 #' @return the new data frame
 #' @export
 select <- function(df, columnNames) {
-
     out <- list()
     for (i in seq_along(columnNames)) {
         columnName <- unlist(columnNames[i])
@@ -1135,6 +1134,13 @@ select <- function(df, columnNames) {
     }
     data <- data.frame(out)
     colnames(data) <- names(out)
+
+    # Copy attributes to new data frame
+    attributeNamesOld <- names(attributes(df))
+    attributeNamesNew <- names(attributes(data))
+    for (attributeName in attributeNamesOld[! attributeNamesOld %in% attributeNamesNew])
+        attr(data, attributeName) <- attr(df, attributeName)
+
     data
 }
 
