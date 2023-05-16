@@ -27,6 +27,7 @@ Analysis <- R6::R6Class('Analysis',
         .status='none',
         .completeWhenFilled=FALSE,
         .requiresMissings=FALSE,
+        .weightsSupport='auto',
         .init=function() NULL,
         .clear=function(vChanges) NULL,
         .run=function() NULL,
@@ -133,6 +134,7 @@ Analysis <- R6::R6Class('Analysis',
             revision=0,
             completeWhenFilled=FALSE,
             requiresMissings=FALSE,
+            weightsSupport='auto',
             ...) {
 
             private$.package <- package
@@ -147,6 +149,7 @@ Analysis <- R6::R6Class('Analysis',
             private$.revision <- revision
             private$.completeWhenFilled <- completeWhenFilled
             private$.requiresMissings <- requiresMissings
+            private$.weightsSupport <- weightsSupport
 
             private$.results$.setParent(self)
             private$.options$analysis <- self
@@ -197,7 +200,9 @@ Analysis <- R6::R6Class('Analysis',
                 } else {
                     if ( ! is.data.frame(private$.data))
                         reject("Argument 'data' must be a data frame")
+                    weights <- attr(private$.data, 'jmv-weights')
                     private$.data <- select(private$.data, self$options$varsRequired)
+                    attr(private$.data, 'jmv-weights') <- weights
                 }
 
                 self$options$check(checkValues=TRUE)
@@ -542,10 +547,13 @@ Analysis <- R6::R6Class('Analysis',
         },
         readDataset=function(headerOnly=FALSE) {
 
-            if (headerOnly)
+            if (headerOnly) {
                 dataset <- private$.readDatasetHeader(self$options$varsRequired)
-            else
+            } else {
                 dataset <- private$.readDataset(self$options$varsRequired)
+                if (private$.weightsSupport == 'auto')
+                    dataset <- expandWeights(dataset)
+            }
 
             dataset
         },
