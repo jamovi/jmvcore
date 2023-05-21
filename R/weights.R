@@ -5,6 +5,9 @@ expandWeights <- function(data) {
     if (is.null(weights))
         return(data)
 
+    if ( ! is.integer(weights))
+        weights <- as.integer(round(weights))
+
     zeroes <- integer()
 
     for (rowNo in seq_len(nrow(data))) {
@@ -23,3 +26,8 @@ expandWeights <- function(data) {
     data
 }
 
+weightsStatus <- list(
+    NOT_APPLICABLE = 0,
+    UNSUPPORTED = 1,
+    ROUNDED = 2,
+    OK = 3)

@@ -47,6 +47,8 @@ Analysis <- R6::R6Class('Analysis',
         .parent=NA,
         .addons=NA,
         .stacktrace='',
+        .weightsName=NA,
+        .weightsStatus=NA,
         .checkpoint=function(flush=TRUE) {
             if (is.null(private$.checkpointCB))
                 return()
@@ -158,6 +160,8 @@ Analysis <- R6::R6Class('Analysis',
 
             private$.parent <- NULL
             private$.addons <- list()
+            private$.weightsName <- NULL
+            private$.weightsStatus <- weightsStatus$OK
         },
         translate=function(text, n=1) {
             private$.options$translate(text, n)
@@ -204,6 +208,21 @@ Analysis <- R6::R6Class('Analysis',
                     private$.data <- select(private$.data, self$options$varsRequired)
                     attr(private$.data, 'jmv-weights') <- weights
                 }
+
+                weights <- attr(private$.data, 'jmv-weights')
+                if (is.null(weights) || private$.weightsSupport == 'na') {
+                    private$.weightsStatus <- weightsStatus$NOT_APPLICABLE
+                } else if (private$.weightsSupport == 'full') {
+                    private$.weightsStatus <- weightsStatus$OK
+                } else if (private$.weightsSupport == 'none') {
+                    private$.weightsStatus <- weightsStatus$UNSUPPORTED
+                } else if ( ! is.integer(weights)) {
+                    private$.weightsStatus <- weightsStatus$ROUNDED
+                } else {
+                    private$.weightsStatus <- weightsStatus$OK
+                }
+
+                private$.weightsName <- attr(private$.data, 'jmv-weights-name')
 
                 self$options$check(checkValues=TRUE)
                 for (addon in private$.addons)
@@ -252,9 +271,10 @@ Analysis <- R6::R6Class('Analysis',
                 # do nothing
             } else if ( ! private$.dataProvided) {
                 private$.data <- NULL
-                for (addon in private$.addons)
-                    addon$.__enclos_env__$private$.data <- NULL
             }
+
+            for (addon in private$.addons)
+                addon$.__enclos_env__$private$.data <- NULL
 
             if (isError(result)) {
                 message <- extractErrorMessage(result)
@@ -276,14 +296,20 @@ Analysis <- R6::R6Class('Analysis',
                 self$postInit()
             }
 
-            if (is.null(private$.data)) {
+            data <- private$.data
+
+            if (is.null(data)) {
                 private$.dataProvided <- FALSE
                 data <- self$readDataset()
-                private$.data <- data
-                for (addon in private$.addons) {
-                    addon$.__enclos_env__$private$.data <- data
-                    addon$.__enclos_env__$private$.dataProvided <- FALSE
-                }
+            }
+
+            if (private$.weightsSupport == 'auto')
+                data <- expandWeights(data)
+
+            private$.data <- data
+            for (addon in private$.addons) {
+                addon$.__enclos_env__$private$.data <- data
+                addon$.__enclos_env__$private$.dataProvided <- FALSE
             }
 
             private$.status <- 'running'
@@ -551,8 +577,6 @@ Analysis <- R6::R6Class('Analysis',
                 dataset <- private$.readDatasetHeader(self$options$varsRequired)
             } else {
                 dataset <- private$.readDataset(self$options$varsRequired)
-                if (private$.weightsSupport == 'auto')
-                    dataset <- expandWeights(dataset)
             }
 
             dataset
@@ -584,6 +608,25 @@ Analysis <- R6::R6Class('Analysis',
             }
 
             prepend <- list()
+
+            if (private$.weightsStatus != weightsStatus$NOT_APPLICABLE
+                    && ! ('.weights' %in% private$.results$itemNames)) {
+
+                if (private$.weightsStatus == weightsStatus$UNSUPPORTED) {
+                    message <- paste('\u274c', 'The data is weighted, however this analysis does not support weights. This analysis used the data unweighted.')
+                } else if (private$.weightsStatus == weightsStatus$ROUNDED) {
+                    message <- paste('\u26A0', 'The data is weighted by the variable {}, however this analysis does not support non-integer weights. The weights were rounded to the nearest integer.')
+                } else {
+                    message <- paste('\u2696', 'The data is weighted by the variable {}.')
+                }
+
+                message <- format(message, paste0('<strong>', private$.weightsName, '</strong>'))
+
+                weightsInfo <- RProtoBuf_new(jamovi.coms.ResultsElement, name='.weights')
+                weightsInfo$html$content <- message
+                prepend[[length(prepend)+1]] <- weightsInfo
+            }
+
             if ( ! identical(private$.stacktrace, ''))
                 prepend[[length(prepend)+1]] <- RProtoBuf_new(jamovi.coms.ResultsElement, name='debug', title='Debug', preformatted=private$.stacktrace)
 
