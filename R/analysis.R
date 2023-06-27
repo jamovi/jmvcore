@@ -613,17 +613,21 @@ Analysis <- R6::R6Class('Analysis',
                     && ! ('.weights' %in% private$.results$itemNames)) {
 
                 if (private$.weightsStatus == weightsStatus$UNSUPPORTED) {
-                    message <- paste('\u274c', 'The data is weighted, however this analysis does not support weights. This analysis used the data unweighted.')
+                    message <- 'The data is weighted, however this analysis does not support weights. This analysis used the data unweighted.'
+                    type <- jamovi.coms.ResultsNotice$NoticeType$STRONG_WARNING
                 } else if (private$.weightsStatus == weightsStatus$ROUNDED) {
-                    message <- paste('\u26A0', 'The data is weighted by the variable {}, however this analysis does not support non-integer weights. The weights were rounded to the nearest integer.')
+                    message <- 'The data is weighted by the variable {}, however this analysis does not support non-integer weights. The weights were rounded to the nearest integer.'
+                    type <- jamovi.coms.ResultsNotice$NoticeType$WARNING
                 } else {
-                    message <- paste('\u2696', 'The data is weighted by the variable {}.')
+                    type <- jamovi.coms.ResultsNotice$NoticeType$INFO
+                    message <- 'The data is weighted by the variable {}.'
                 }
 
                 message <- format(message, paste0('<strong>', private$.weightsName, '</strong>'))
 
                 weightsInfo <- RProtoBuf_new(jamovi.coms.ResultsElement, name='.weights')
-                weightsInfo$html$content <- message
+                weightsInfo$notice$content <- message
+                weightsInfo$notice$type <- type
                 prepend[[length(prepend)+1]] <- weightsInfo
             }
 

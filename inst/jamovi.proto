@@ -229,6 +229,19 @@ message ResultsHtml {
     repeated string stylesheets = 3;
 }
 
+message ResultsNotice {
+
+    enum NoticeType {
+        ERROR = 0;
+        STRONG_WARNING = 1;
+        WARNING = 2;
+        INFO = 3;
+    }
+
+    string content = 1;
+    NoticeType type = 2;
+}
+
 message VariableLevel {
     string label = 1;
     int32 value = 2;
@@ -275,6 +288,8 @@ message ResultsElement {
         string syntax = 11;
         ResultsHtml html = 12;
         ResultsOutputs outputs = 13;
+
+        ResultsNotice notice = 24;
     }
 
     bytes state = 14;
