@@ -210,7 +210,7 @@ Analysis <- R6::R6Class('Analysis',
                 }
 
                 weights <- attr(private$.data, 'jmv-weights')
-                if (is.null(weights) || private$.weightsSupport == 'na') {
+                if (ncol(private$.data) < 1 || is.null(weights) || private$.weightsSupport == 'na') {
                     private$.weightsStatus <- weightsStatus$NOT_APPLICABLE
                 } else if (private$.weightsSupport == 'full') {
                     private$.weightsStatus <- weightsStatus$OK
