@@ -16,5 +16,5 @@ the new data frame
 }
 \description{
 Shorthand equivalent to \code{\link{subset}(df, select=columnNames)}, however
-it additionally preserves attributes on the columns
+it additionally preserves attributes on the columns and the data frame
 }
