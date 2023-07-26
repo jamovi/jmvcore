@@ -4,6 +4,7 @@
 \name{Options}
 \alias{Options}
 \alias{OptionBool}
+\alias{OptionAction}
 \alias{OptionList}
 \alias{OptionNMXList}
 \alias{OptionVariables}
@@ -26,6 +27,8 @@
 Options
 
 OptionBool
+
+OptionAction
 
 OptionList
 

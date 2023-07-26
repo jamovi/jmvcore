@@ -411,6 +411,14 @@ OptionBool <- R6::R6Class(
         }
     ))
 
+
+#' @rdname Options
+#' @export
+OptionAction <- R6::R6Class(
+    'OptionAction',
+    inherit=OptionBool)
+
+
 #' @rdname Options
 #' @export
 OptionList <- R6::R6Class(
