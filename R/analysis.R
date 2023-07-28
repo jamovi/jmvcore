@@ -77,6 +77,8 @@ Analysis <- R6::R6Class('Analysis',
 
             if ( ! ((is.numeric(value) && isTRUE(all.equal(value, def))) || base::identical(value, def))) {
                 valueAsSource <- option$valueAsSource
+                if (is.null(valueAsSource))
+                    valueAsSource <- 'NULL'
                 if ( ! identical(valueAsSource, ''))
                     return(paste0(option$name, ' = ', valueAsSource))
             }
