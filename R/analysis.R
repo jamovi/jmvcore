@@ -616,16 +616,23 @@ Analysis <- R6::R6Class('Analysis',
 
                 if (private$.weightsStatus == weightsStatus$UNSUPPORTED) {
                     message <- 'The data is weighted, however this analysis does not support weights. This analysis used the data unweighted.'
+                    message <- paste0(message, '\u0004')  # \u0004 marks this is translatable
                     type <- jamovi.coms.ResultsNotice$NoticeType$STRONG_WARNING
                 } else if (private$.weightsStatus == weightsStatus$ROUNDED) {
                     message <- 'The data is weighted by the variable {}, however this analysis does not support non-integer weights. The weights were rounded to the nearest integer.'
+                    message <- paste(sep='\u0004',
+                        format(message, var=paste0('<strong>', private$.weightsName, '</strong>')),
+                        message,
+                        jsonlite::toJSON(private$.weightsName, auto_unbox=TRUE))
                     type <- jamovi.coms.ResultsNotice$NoticeType$WARNING
                 } else {
                     type <- jamovi.coms.ResultsNotice$NoticeType$INFO
                     message <- 'The data is weighted by the variable {}.'
+                    message <- paste(sep='\u0004',
+                        format(message, var=paste0('<strong>', private$.weightsName, '</strong>')),
+                        message,
+                        jsonlite::toJSON(private$.weightsName, auto_unbox=TRUE))
                 }
-
-                message <- format(message, paste0('<strong>', private$.weightsName, '</strong>'))
 
                 weightsInfo <- RProtoBuf_new(jamovi.coms.ResultsElement, name='.weights')
                 weightsInfo$notice$content <- message
