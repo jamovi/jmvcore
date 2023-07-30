@@ -63,30 +63,6 @@ Notice <- R6::R6Class("Notice",
             content <- paste0("\n", content, "\n")
             content
         },
-        fromProtoBuf=function(element, oChanges, vChanges) {
-
-            if ( ! private$.stale)
-                return()
-
-            private$.stale <- element$stale
-
-            someChanges <- length(oChanges) > 0 || length(vChanges) > 0
-            if (someChanges && base::identical('*', private$.clearWith)) {
-                private$.stale <- TRUE
-            } else if (base::any(oChanges %in% private$.clearWith)) {
-                private$.stale <- TRUE
-            } else {
-                for (clearName in private$.clearWith) {
-                    if (base::any(vChanges %in% private$.options$option(clearName)$vars)) {
-                        private$.stale <- TRUE
-                        break()
-                    }
-                }
-            }
-            super$fromProtoBuf(element, oChanges, vChanges)
-            private$.content <- element$notice$content
-            private$.type <- element$notice$type
-        },
         asProtoBuf=function(incAsText=FALSE, status=NULL) {
             element <- super$asProtoBuf(incAsText=TRUE, status=status)
             element$notice$type <- private$.type
