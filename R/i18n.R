@@ -7,6 +7,12 @@
     self$options$translate(text, n)
 }
 
+#' @export
+.. <- function(format, values=NULL) {
+    paste0(format, '\u0004',
+        `if`(is.null(values), NULL, jsonlite::toJSON(values, auto_unbox=TRUE)))
+}
+
 Translator <- R6Class('Translator',
     private=list(
         .table=NA,
