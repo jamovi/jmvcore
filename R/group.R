@@ -196,8 +196,11 @@ Group <- R6::R6Class("Group",
             for (prep in prepend)
                 group$add("elements", prep)
 
-            for (item in private$.items)
-                group$add("elements", item$asProtoBuf(incAsText=incAsText, status=status))
+            for (item in private$.items) {
+                itemPB <- item$asProtoBuf(incAsText=incAsText, status=status)
+                if ( ! is.null(itemPB))
+                    group$add("elements", itemPB)
+            }
 
             result <- super$asProtoBuf(incAsText=incAsText, status=status)
             result$group <- group
