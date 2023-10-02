@@ -1,4 +1,5 @@
 
+#' Different notice levels
 #' @export
 NoticeType = list(
     ERROR = as.integer(0),
