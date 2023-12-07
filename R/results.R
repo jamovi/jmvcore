@@ -219,6 +219,8 @@ ResultsElement <- R6::R6Class("ResultsElement",
                 base::saveRDS(state, file=conn)
                 state <- rawConnectionValue(conn)
                 close(conn)
+                if (length(state) > 500000)
+                    cat(paste0('WARNING: state object for ', self$path, ' is too large (', length(state), ').\nSee here for details: https://dev.jamovi.org/tuts0203-state.html#setstate()'))
             } else {
                 state <- raw()
             }
