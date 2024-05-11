@@ -17,8 +17,7 @@ Imports:
     R6 (>= 1.0.1),
     rlang (>= 0.3.0.1),
     jsonlite,
-    base64enc,
-    stringi
+    base64enc
 Suggests:
     testthat (>= 1.0.2),
     RProtoBuf,

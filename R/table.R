@@ -490,8 +490,6 @@ Table <- R6::R6Class('Table',
             if (is.null(note)) {
                 private$.notes[[key]] <- NULL
             } else if (is.character(note)) {
-                key  <- stringi::stri_encode(key, to='utf-8')
-                note <- stringi::stri_encode(note, to='utf-8')
                 note <- self$options$translate(note)
                 private$.notes[[key]] <- Note$new(key, note[1], init)
             } else {
@@ -563,7 +561,6 @@ Table <- R6::R6Class('Table',
             pieces <- c(pieces, '\n')
 
             v <- paste0(pieces, collapse='')
-            Encoding(v) <- 'UTF-8'
             v
         },
         .titleForPrint=function() {
@@ -728,7 +725,6 @@ Table <- R6::R6Class('Table',
             for (i in seq_along(columnsPB)) {
                 columnPB <- columnsPB[[i]]
                 columnPBname <- columnPB$name
-                Encoding(columnPBname) <- 'UTF-8'
                 columnPBIndicesByName[[columnPBname]] <- i
                 cellsPB <- columnPB$cells
                 colCells <- list()
@@ -746,7 +742,6 @@ Table <- R6::R6Class('Table',
                     next()
 
                 tablePBrowNames <- tablePB$rowNames
-                Encoding(tablePBrowNames) <- 'UTF-8'
                 fromRowIndex <- indexOf(rowName, tablePBrowNames)
 
                 if ( ! is.na(fromRowIndex)) {

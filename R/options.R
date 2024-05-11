@@ -197,9 +197,6 @@ Options <- R6::R6Class(
                         value <- self$translate(value)
                         value <- jmvcore::format(value, ...)
                     }
-
-                    if (is.character(value))
-                        Encoding(value) <- 'UTF-8'
                 }
 
                 if (length(names(vars)) > 0)
@@ -1020,10 +1017,8 @@ parseOptionPB <- function(pb) {
         value <- pb$i
     else if (pb$has('d'))
         value <- pb$d
-    else if (pb$has('s')) {
+    else if (pb$has('s'))
         value <- pb$s
-        Encoding(value) <- 'UTF-8'
-    }
     else if (pb$has('o')) {
 
         # this isn't necessary, but without it the R linter complains :/

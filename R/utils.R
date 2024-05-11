@@ -30,7 +30,6 @@ tryStack <- function(expr, silent=FALSE) {
             stack <- utils::head(stack, -2)
             stack <- paste(stack, collapse='\n')
             stack <- paste0(as.character(e), '\n', stack)
-            stack <- stringi::stri_encode(stack, to='utf-8')
             byref$stack <- stack
         })
     , silent=silent)
@@ -38,11 +37,6 @@ tryStack <- function(expr, silent=FALSE) {
         attr(result, 'stack') <- byref$stack
     }
     result
-}
-
-utf8 <- function(str) {
-    Encoding(str) <- 'UTF-8'
-    str
 }
 
 isValue <- function(value) {
@@ -385,13 +379,11 @@ stringifyTerm <- function(components, sep=getOption('jmvTermSep', ':'), raise=FA
 
     term <- paste(components, collapse=sep)
 
-    Encoding(term) <- 'UTF-8'
     term
 }
 
 readTextFile <- function(...) {
     ch <- readChar(paste0(..., collapse=''), nchars=1e6)
-    Encoding(ch) <- 'UTF-8'
     ch
 }
 
@@ -618,7 +610,6 @@ measureElements <- function(elems, maxdp=Inf, type='number', p=FALSE, zto=FALSE,
 
         } else if (inherits(elem, "character")) {
 
-            base::Encoding(elem) <- 'UTF-8'
             maxstr <- max(maxstr, nchar(elem))
 
         } else if ( ! is.numeric(elem)) {
@@ -805,8 +796,6 @@ formatElement <- function(elem, w=NULL, expw=NULL, supw=0, dp=2, sf=3, scl=1e-3,
         str <- paste0(str, ' ', paste(.SUPCHARS[sups+1], collapse=''))
     str <- paste0(str, supspad)
 
-    base::Encoding(str) <- 'UTF-8'
-
     str
 }
 
@@ -976,7 +965,6 @@ extractErrorMessage <- function(error) {
 
     if (inherits(error, 'error')) {
         message <- error$message
-        message <- stringi::stri_encode(message, to='utf-8')
         return(message)
     }
 
@@ -1237,7 +1225,6 @@ fromB64 <- function(names) {
         name <- gsub('.', '+', name, fixed=TRUE)
         name <- gsub('_', '/', name, fixed=TRUE)
         value <- rawToChar(base64enc::base64decode(name))
-        Encoding(value) <- 'UTF-8'
         value
     }, USE.NAMES=FALSE)
 }
@@ -1334,7 +1321,6 @@ htmlToText <- function(html) {
 
     text <- gsub("\n\n+", "\n\n", text)
 
-    Encoding(text) <- 'UTF-8'
     text
 }
 

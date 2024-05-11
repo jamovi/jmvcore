@@ -171,7 +171,6 @@ Group <- R6::R6Class("Group",
                 return('')
 
             v <- paste0(pieces, collapse="")
-            Encoding(v) <- 'UTF-8'
             v
         },
         fromProtoBuf=function(pb, oChanges, vChanges) {
@@ -183,7 +182,6 @@ Group <- R6::R6Class("Group",
 
             for (itemPB in pb$group$elements) {
                 itemName <- itemPB$name
-                Encoding(itemName) <- 'UTF-8'
                 target <- private$.items[[itemName]]
 
                 if ( ! is.null(target))

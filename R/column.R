@@ -159,7 +159,6 @@ Column <- R6::R6Class("Column",
             private$.refs
         },
         .measure=function() {
-            base::Encoding(private$.title) <- 'UTF-8'
             titleWidth <- nchar(self$title)
 
             p <- ('pvalue' %in% private$.format)
@@ -176,7 +175,6 @@ Column <- R6::R6Class("Column",
         },
         .titleForPrint=function(width=NULL) {
             t <- self$title
-            base::Encoding(t) <- 'UTF-8'
             if (is.null(width))
                 width <- self$width
             w <- nchar(t)

@@ -69,14 +69,12 @@ Cell <- R6::R6Class(
             ! self$isNotFilled()
         },
         addFootnote=function(note) {
-            note <- stringi::stri_encode(note, to='utf-8')
             self$footnotes <- c(self$footnotes, note)
         },
         addFormat=function(format) {
             self$format <- bitwOr(self$format, format)
         },
         addSymbol=function(symbol) {
-            symbol <- stringi::stri_encode(symbol, to='utf-8')
             self$symbols <- c(self$symbols, symbol)
         },
         fromProtoBuf=function(cellPB) {
@@ -86,9 +84,7 @@ Cell <- R6::R6Class(
             } else if (cellPB$has('d')) {
                 self$value <- cellPB$d
             } else if (cellPB$has('s')) {
-                v <- cellPB$s
-                Encoding(v) <- 'UTF-8'
-                self$value <- v
+                self$value <- cellPB$s
             } else if (cellPB$has('o')) {
                 if (cellPB$o == jamovi.coms.ResultsCell.Other$MISSING)
                     self$value <- NA
