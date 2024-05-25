@@ -55,7 +55,7 @@ Analysis <- R6::R6Class('Analysis',
 
             results <- NULL
             if (flush)
-                results <- RProtoBuf_serialize(self$asProtoBuf(), NULL)
+                results <- RProtoBuf_serialize(self$asProtoBuf(includeState=FALSE), NULL)
 
             cmd <- private$.checkpointCB(results)
 
@@ -576,7 +576,7 @@ Analysis <- R6::R6Class('Analysis',
         optionsChangedHandler=function(optionNames) {
             private$.status <- 'none'
         },
-        asProtoBuf=function(final=FALSE) {
+        asProtoBuf=function(final=FALSE, includeState=TRUE) {
 
             self$init()
             initProtoBuf()
@@ -632,7 +632,7 @@ Analysis <- R6::R6Class('Analysis',
 
             # note we have to use incAsText for backward compatibility with Rj
             # otherwise i would have renamed all these 'final'
-            response$results <- self$results$asProtoBuf(incAsText=final, status=response$status, prepend=prepend);
+            response$results <- self$results$asProtoBuf(incAsText=final, status=response$status, prepend=prepend, includeState=includeState);
 
             ns <- getNamespace(private$.package)
             if ('.jmvrefs' %in% names(ns)) {
@@ -674,8 +674,8 @@ Analysis <- R6::R6Class('Analysis',
 
             response
         },
-        serialize=function(final=FALSE, createErrorOnFailure=TRUE) {
-            serial <- tryStack(RProtoBuf_serialize(self$asProtoBuf(final=final), NULL))
+        serialize=function(final=FALSE, createErrorOnFailure=TRUE, includeState=TRUE) {
+            serial <- tryStack(RProtoBuf_serialize(self$asProtoBuf(final=final, includeState=includeState), NULL))
             if (isError(serial)) {
                 if (createErrorOnFailure) {
                     error <- createErrorAnalysis(

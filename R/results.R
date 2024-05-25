@@ -176,7 +176,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
             self$.update()
             ""
         },
-        asProtoBuf=function(incAsText=FALSE, status=NULL) {
+        asProtoBuf=function(incAsText=FALSE, status=NULL, includeState=TRUE) {
 
             if (identical(private$.visibleExpr, 'TRUE'))
                 v <- jamovi.coms.Visible$YES
@@ -214,7 +214,7 @@ ResultsElement <- R6::R6Class("ResultsElement",
             }
 
             state <- private$.state
-            if ( ! is.null(state)) {
+            if (includeState && ! is.null(state)) {
                 conn <- rawConnection(raw(), 'r+')
                 base::saveRDS(state, file=conn)
                 state <- rawConnectionValue(conn)

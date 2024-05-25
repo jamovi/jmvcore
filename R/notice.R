@@ -64,8 +64,8 @@ Notice <- R6::R6Class("Notice",
             content <- paste0("\n", content, "\n")
             content
         },
-        asProtoBuf=function(incAsText=FALSE, status=NULL) {
-            element <- super$asProtoBuf(incAsText=TRUE, status=status)
+        asProtoBuf=function(incAsText=FALSE, status=NULL, includeState=TRUE) {
+            element <- super$asProtoBuf(incAsText=TRUE, status=status, includeState=includeState)
             element$notice$type <- private$.type
             element$notice$content <- private$.content
             element

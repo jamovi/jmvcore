@@ -43,9 +43,9 @@ Action <- R6::R6Class("Action",
         .update=function() {
 
         },
-        asProtoBuf=function(incAsText=FALSE, status=NULL) {
+        asProtoBuf=function(incAsText=FALSE, status=NULL, includeState=TRUE) {
             if (private$.perform) {
-                element <- super$asProtoBuf(incAsText=incAsText, status=status)
+                element <- super$asProtoBuf(incAsText=incAsText, status=status, includeState=includeState)
                 element$action$operation <- private$.operation
                 if ( ! is.null(private$.actionOptions)) {
                     optionsPB <- element$action$options

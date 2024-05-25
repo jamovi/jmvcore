@@ -766,7 +766,7 @@ Table <- R6::R6Class('Table',
                     self$setNote(note$key, note$note, note$init)
             }
         },
-        asProtoBuf=function(incAsText=FALSE, status=NULL) {
+        asProtoBuf=function(incAsText=FALSE, status=NULL, includeState=TRUE) {
 
             table <- RProtoBuf_new(jamovi.coms.ResultsTable)
 
@@ -800,7 +800,7 @@ Table <- R6::R6Class('Table',
                 }
             }
 
-            element <- super$asProtoBuf(incAsText=incAsText, status=status)
+            element <- super$asProtoBuf(incAsText=incAsText, status=status, includeState=includeState)
             element$table <- table
             element
         }

@@ -134,7 +134,7 @@ Image <- R6::R6Class("Image",
         asString=function() {
             return('')
         },
-        asProtoBuf=function(incAsText=FALSE, status=NULL) {
+        asProtoBuf=function(incAsText=FALSE, status=NULL, includeState=TRUE) {
 
             path <- private$.filePath
             if (is.null(path))
@@ -145,7 +145,7 @@ Image <- R6::R6Class("Image",
                 height=private$.height,
                 path=path)
 
-            result <- super$asProtoBuf(incAsText=incAsText, status=status)
+            result <- super$asProtoBuf(incAsText=incAsText, status=status, includeState=includeState)
 
             if (self$status == 'none' && self$isFilled()) {
 
