@@ -25,5 +25,6 @@ Suggests:
     ggplot2,
     RColorBrewer,
     ragg,
-    fastmap
+    fastmap,
+    export
 RoxygenNote: 6.1.1

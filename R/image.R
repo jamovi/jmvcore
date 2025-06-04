@@ -66,6 +66,17 @@ Image <- R6::R6Class("Image",
         },
         saveAs=function(path, ...) {
 
+            if (endsWith(tolower(path), '.pptx')) {
+                requireNamespace('export', quietly=TRUE, mustWork=TRUE)
+                export::graph2ppt(
+                    file=path,
+                    width=private$.width/72,
+                    height=private$.height/72,
+                    fun=self$print,
+                    margins=c(0, 0, 0, 0))
+                return()
+            }
+
             if (endsWith(tolower(path), '.pdf')) {
                 cairo_pdf(
                     file=path,
