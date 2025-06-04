@@ -1,8 +1,8 @@
 Package: jmvcore
 Type: Package
 Title: Dependencies for the 'jamovi' Framework
-Version: 2.6.3
-Date: 2024-09-07
+Version: 2.7.0
+Date: 2025-06-04
 Authors@R: c(person("Jonathon", "Love", role=c("aut", "cre", "cph"), email="jon@thon.cc"))
 Maintainer: Jonathon Love <jon@thon.cc>
 Description: A framework for creating rich interactive analyses for the jamovi
